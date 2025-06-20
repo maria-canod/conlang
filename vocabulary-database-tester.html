@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Core Vocabulary Database Tester</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f7fa;
+            color: #2d3748;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+        
+        h1 {
+            color: #2b6cb0;
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #e2e8f0;
+            padding-bottom: 15px;
+        }
+        
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid #4299e1;
+        }
+        
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .stat-card {
+            background: #e6fffa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #81e6d9;
+        }
+        
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #065f46;
+        }
+        
+        .stat-label {
+            color: #047857;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        
+        .button {
+            background: #4299e1;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+            transition: background 0.3s;
+        }
+        
+        .button:hover {
+            background: #3182ce;
+        }
+        
+        .button.secondary {
+            background: #718096;
+        }
+        
+        .button.secondary:hover {
+            background: #4a5568;
+        }
+        
+        .word-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+            padding: 15px;
+            border-radius: 6px;
+        }
+        
+        .word-item {
+            background: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: 1px solid #e2e8f0;
+            font-size: 0.9em;
+        }
+        
+        .word-priority-10 { border-left: 4px solid #dc2626; background: #fef2f2; }
+        .word-priority-9 { border-left: 4px solid #ea580c; background: #fff7ed; }
+        .word-priority-8 { border-left: 4px solid #ca8a04; background: #fefce8; }
+        .word-priority-7 { border-left: 4px solid #65a30d; background: #f7fee7; }
+        .word-priority-6 { border-left: 4px solid #059669; background: #ecfdf5; }
+        .word-priority-5 { border-left: 4px solid #0891b2; background: #f0fdfa; }
+        .word-priority-4 { border-left: 4px solid #3b82f6; background: #eff6ff; }
+        .word-priority-3 { border-left: 4px solid #8b5cf6; background: #f5f3ff; }
+        .word-priority-2 { border-left: 4px solid #d946ef; background: #fdf4ff; }
+        .word-priority-1 { border-left: 4px solid #6b7280; background: #f9fafb; }
+        
+        .priority-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+            font-size: 0.8em;
+        }
+        
+        .priority-legend span {
+            padding: 4px 8px;
+            border-radius: 4px;
+            border-left: 4px solid;
+        }
+        
+        .results {
+            margin-top: 30px;
+        }
+        
+        .category-breakdown {
+            margin: 20px 0;
+        }
+        
+        .category-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 15px;
+            margin: 5px 0;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .progress-bar {
+            width: 200px;
+            height: 20px;
+            background: #e2e8f0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4299e1, #63b3ed);
+            transition: width 0.3s;
+        }
+        
+        #output {
+            background: #1a202c;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+            margin: 20px 0;
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Core Vocabulary Database Tester</h1>
+        
+        <div class="test-section">
+            <h3>📊 Database Status</h3>
+            <div class="stat-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="total-core-words">-</div>
+                    <div class="stat-label">Total Core Words</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="priority-10-count">-</div>
+                    <div class="stat-label">Priority 10 (Essential)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="priority-9-count">-</div>
+                    <div class="stat-label">Priority 9 (Critical)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="categories-count">-</div>
+                    <div class="stat-label">Categories</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🎯 Test Functions</h3>
+            <button class="button" onclick="testDatabase()">Load & Test Database</button>
+            <button class="button" onclick="showHighestPriority()">Show Priority 10 Words</button>
+            <button class="button" onclick="showByCategory()">Browse by Category</button>
+            <button class="button" onclick="testCulturalFiltering()">Test Cultural Filtering</button>
+            <button class="button secondary" onclick="simulateVocabGaps()">Simulate Gap Analysis</button>
+        </div>
+
+        <div class="priority-legend">
+            <span class="word-priority-10">Priority 10 - Absolutely Essential</span>
+            <span class="word-priority-9">Priority 9 - Critical</span>
+            <span class="word-priority-8">Priority 8 - Very Important</span>
+            <span class="word-priority-7">Priority 7 - Important</span>
+            <span class="word-priority-6">Priority 6 - Useful</span>
+            <span class="word-priority-5">Priority 5 - Good to Have</span>
+        </div>
+        
+        <div class="results">
+            <div id="output"></div>
+            
+            <div id="word-display" class="hidden">
+                <h3 id="display-title">Words</h3>
+                <div id="word-list" class="word-list"></div>
+            </div>
+            
+            <div id="category-breakdown" class="hidden">
+                <h3>📋 Category Breakdown</h3>
+                <div id="category-list" class="category-breakdown"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include your core vocabulary database -->
+    <script src="js/data/core-vocabulary.js"></script>
+    
+    <script>
+        let database = null;
+        let allWords = [];
+
+        function log(message) {
+            const output = document.getElementById('output');
+            output.textContent += message + '\n';
+            output.scrollTop = output.scrollHeight;
+        }
+
+        function clearOutput() {
+            document.getElementById('output').textContent = '';
+            document.getElementById('word-display').classList.add('hidden');
+            document.getElementById('category-breakdown').classList.add('hidden');
+        }
+
+        function testDatabase() {
+            clearOutput();
+            
+            try {
+                // Test if database loads
+                if (typeof CoreVocabularyDatabase === 'undefined') {
+                    log('❌ ERROR: CoreVocabularyDatabase not found!');
+                    log('Make sure core-vocabulary.js is loaded properly.');
+                    return;
+                }
+                
+                database = CoreVocabularyDatabase;
+                log('✅ Database loaded successfully!');
+                log(`📖 Version: ${database.metadata.version}`);
+                log(`📊 Expected total words: ${database.metadata.totalWords}`);
+                
+                // Test getAllWords method
+                allWords = database.getAllWords();
+                log(`🔍 Actually loaded: ${allWords.length} words`);
+                
+                // Update stats
+                document.getElementById('total-core-words').textContent = allWords.length;
+                document.getElementById('categories-count').textContent = database.metadata.categories.length;
+                
+                // Count by priority
+                const priority10 = allWords.filter(w => w.priority === 10).length;
+                const priority9 = allWords.filter(w => w.priority === 9).length;
+                
+                document.getElementById('priority-10-count').textContent = priority10;
+                document.getElementById('priority-9-count').textContent = priority9;
+                
+                log(`\n🎯 Priority Distribution:`);
+                for (let p = 10; p >= 1; p--) {
+                    const count = allWords.filter(w => w.priority === p).length;
+                    if (count > 0) {
+                        log(`   Priority ${p}: ${count} words`);
+                    }
+                }
+                
+                // Test category methods
+                log(`\n📂 Testing category methods...`);
+                const familyWords = database.getWordsByCategory('family');
+                log(`   Family category: ${familyWords.length} words`);
+                
+                const essentialWords = database.getWordsByTags(['essential']);
+                log(`   Essential tagged words: ${essentialWords.length} words`);
+                
+                log(`\n✨ Database test completed successfully!`);
+                
+            } catch (error) {
+                log(`❌ ERROR testing database: ${error.message}`);
+                console.error('Database test error:', error);
+            }
+        }
+
+        function showHighestPriority() {
+            if (!database) {
+                log('Please load database first!');
+                return;
+            }
+            
+            const priority10Words = allWords.filter(w => w.priority === 10);
+            displayWords(priority10Words, 'Priority 10 - Absolutely Essential Words');
+            
+            log(`\n🔥 Showing ${priority10Words.length} Priority 10 words:`);
+            priority10Words.forEach(word => {
+                log(`   ${word.english} (${word.pos}) - ${word.category}`);
+            });
+        }
+
+        function showByCategory() {
+            if (!database) {
+                log('Please load database first!');
+                return;
+            }
+            
+            const categories = database.metadata.categories;
+            const categoryData = [];
+            
+            log(`\n📂 Category breakdown:`);
+            
+            categories.forEach(category => {
+                const words = database.getWordsByCategory(category);
+                const avgPriority = words.reduce((sum, w) => sum + w.priority, 0) / words.length;
+                
+                categoryData.push({
+                    name: category,
+                    count: words.length,
+                    avgPriority: avgPriority.toFixed(1),
+                    words: words
+                });
+                
+                log(`   ${category}: ${words.length} words (avg priority: ${avgPriority.toFixed(1)})`);
+            });
+            
+            showCategoryBreakdown(categoryData);
+        }
+
+        function testCulturalFiltering() {
+            if (!database) {
+                log('Please load database first!');
+                return;
+            }
+            
+            log(`\n🏛️ Testing cultural filtering:`);
+            
+            const cultures = ['all', 'desert', 'maritime', 'agricultural', 'forest'];
+            
+            cultures.forEach(culture => {
+                const culturalWords = database.getWordsByCulture(culture);
+                log(`   ${culture}: ${culturalWords.length} words`);
+                
+                if (culture !== 'all' && culturalWords.length > 0) {
+                    log(`     Examples: ${culturalWords.slice(0, 3).map(w => w.english).join(', ')}`);
+                }
+            });
+        }
+
+        function simulateVocabGaps() {
+            if (!database) {
+                log('Please load database first!');
+                return;
+            }
+            
+            // Simulate current user vocabulary (random selection)
+            const userVocab = [
+                'water', 'fire', 'I', 'you', 'mother', 'father', 'head', 'hand', 
+                'see', 'eat', 'good', 'bad', 'tree', 'sun', 'moon'
+            ];
+            
+            log(`\n🔍 Gap Analysis Simulation:`);
+            log(`Current user vocabulary: ${userVocab.length} words`);
+            log(`Words: ${userVocab.join(', ')}`);
+            
+            // Find missing high-priority words
+            const highPriorityWords = allWords.filter(w => w.priority >= 8);
+            const missingHighPriority = highPriorityWords.filter(w => 
+                !userVocab.includes(w.english.toLowerCase())
+            );
+            
+            log(`\n📊 Gap Analysis Results:`);
+            log(`   High priority words available: ${highPriorityWords.length}`);
+            log(`   User has: ${highPriorityWords.length - missingHighPriority.length}`);
+            log(`   Missing high priority: ${missingHighPriority.length}`);
+            
+            // Show top 10 suggestions
+            const topSuggestions = missingHighPriority
+                .sort((a, b) => b.priority - a.priority)
+                .slice(0, 10);
+                
+            log(`\n💡 Top 10 suggestions:`);
+            topSuggestions.forEach((word, i) => {
+                log(`   ${i+1}. ${word.english} (${word.pos}) - Priority ${word.priority} - ${word.category}`);
+            });
+            
+            displayWords(topSuggestions, 'Top Missing High-Priority Words');
+        }
+
+        function displayWords(words, title) {
+            const wordDisplay = document.getElementById('word-display');
+            const wordList = document.getElementById('word-list');
+            const displayTitle = document.getElementById('display-title');
+            
+            displayTitle.textContent = title;
+            wordList.innerHTML = '';
+            
+            words.forEach(word => {
+                const wordElement = document.createElement('div');
+                wordElement.className = `word-item word-priority-${word.priority}`;
+                wordElement.innerHTML = `
+                    <strong>${word.english}</strong> (${word.pos})<br>
+                    <small>Priority: ${word.priority} | ${word.category}</small>
+                `;
+                wordList.appendChild(wordElement);
+            });
+            
+            wordDisplay.classList.remove('hidden');
+        }
+
+        function showCategoryBreakdown(categoryData) {
+            const breakdown = document.getElementById('category-breakdown');
+            const categoryList = document.getElementById('category-list');
+            
+            categoryList.innerHTML = '';
+            
+            categoryData.forEach(cat => {
+                const maxWords = Math.max(...categoryData.map(c => c.count));
+                const percentage = (cat.count / maxWords) * 100;
+                
+                const categoryElement = document.createElement('div');
+                categoryElement.className = 'category-item';
+                categoryElement.innerHTML = `
+                    <div>
+                        <strong>${cat.name}</strong> (${cat.count} words)
+                        <br><small>Avg Priority: ${cat.avgPriority}</small>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${percentage}%"></div>
+                    </div>
+                `;
+                
+                categoryElement.addEventListener('click', () => {
+                    displayWords(cat.words, `${cat.name} category words`);
+                });
+                
+                categoryList.appendChild(categoryElement);
+            });
+            
+            breakdown.classList.remove('hidden');
+        }
+
+        // Auto-test on page load
+        window.addEventListener('load', () => {
+            setTimeout(testDatabase, 500);
+        });
+    </script>
+</body>
+</html>

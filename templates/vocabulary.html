@@ -80,6 +80,357 @@
         </div>
     </div>
 
+<!-- ADD THIS TO YOUR templates/vocabulary.html FILE -->
+<!-- Insert this section AFTER the existing search/filter bar but BEFORE the word grid -->
+
+<!-- Smart Suggestions Panel -->
+<div class="suggestions-section" id="vocabulary-suggestions-section" style="margin-bottom: 30px;">
+    <div class="suggestions-toggle-bar">
+        <h3 class="suggestions-title">
+            🧠 Smart Vocabulary Suggestions
+            <span class="suggestions-count-badge" id="total-suggestions-count">0</span>
+        </h3>
+        <button class="btn btn-sm btn-outline" id="toggle-suggestions-btn" onclick="toggleSuggestionsPanel()">
+            <span id="suggestions-toggle-text">Show Suggestions</span>
+        </button>
+    </div>
+    
+    <div class="smart-suggestions-panel" id="smart-suggestions-panel" style="display: none;">
+        <!-- Content will be populated by JavaScript -->
+        <div class="suggestions-loading">
+            <div class="loading-spinner"></div>
+            <p>Analyzing your vocabulary...</p>
+        </div>
+    </div>
+</div>
+
+<!-- ADD THIS CSS TO YOUR css/components.css FILE -->
+<style>
+/* Smart Suggestions Styling */
+.suggestions-section {
+    background: var(--bg-secondary);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-light);
+    overflow: hidden;
+}
+
+.suggestions-toggle-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background: var(--bg-accent);
+    border-bottom: 1px solid var(--border-light);
+}
+
+.suggestions-title {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.suggestions-count-badge {
+    background: var(--accent-primary);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    min-width: 20px;
+    text-align: center;
+}
+
+.smart-suggestions-panel {
+    padding: 20px;
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.suggestions-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.suggestions-header h3 {
+    margin: 0;
+    color: var(--accent-primary);
+}
+
+.completion-score {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.score-label {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.score-value {
+    font-weight: 700;
+    color: var(--accent-primary);
+    font-size: 1.1rem;
+}
+
+.score-bar {
+    width: 100px;
+    height: 8px;
+    background: var(--bg-accent);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.score-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+    transition: width 0.6s ease-out;
+}
+
+.suggestion-section {
+    margin-bottom: 25px;
+}
+
+.suggestion-section h4 {
+    margin: 0 0 15px 0;
+    color: var(--text-primary);
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.suggestion-section.critical h4 {
+    color: var(--accent-danger);
+}
+
+.suggestion-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+}
+
+.suggestion-card {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    padding: 12px;
+    transition: all var(--transition);
+    position: relative;
+}
+
+.suggestion-card:hover {
+    border-color: var(--accent-primary);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.suggestion-card.critical {
+    border-left: 4px solid var(--accent-danger);
+    background: rgba(239, 68, 68, 0.05);
+}
+
+.suggestion-card.recommended {
+    border-left: 4px solid var(--accent-primary);
+}
+
+.suggestion-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.suggestion-english {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 1rem;
+}
+
+.suggestion-pos {
+    background: var(--bg-accent);
+    color: var(--text-secondary);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.suggestion-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.suggestion-priority {
+    background: var(--accent-secondary);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.suggestion-category {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    font-style: italic;
+}
+
+.suggestion-reasoning {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    line-height: 1.4;
+    margin-bottom: 10px;
+    min-height: 2.8em;
+}
+
+.suggestion-add-btn {
+    background: var(--accent-success);
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background var(--transition);
+    width: 100%;
+}
+
+.suggestion-add-btn:hover {
+    background: var(--accent-success-dark);
+    transform: none;
+}
+
+.suggestions-footer {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-light);
+}
+
+.suggestions-loading {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-secondary);
+}
+
+.loading-spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid var(--border-light);
+    border-top: 3px solid var(--accent-primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 15px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Priority-based coloring */
+.priority-10 .suggestion-priority { background: #dc2626; }
+.priority-9 .suggestion-priority { background: #ea580c; }
+.priority-8 .suggestion-priority { background: #ca8a04; }
+.priority-7 .suggestion-priority { background: #65a30d; }
+.priority-6 .suggestion-priority { background: #059669; }
+.priority-5 .suggestion-priority { background: #0891b2; }
+
+/* Dark mode support */
+[data-theme="dark"] .suggestion-card {
+    background: var(--bg-secondary);
+    border-color: var(--border-medium);
+}
+
+[data-theme="dark"] .suggestion-card:hover {
+    border-color: var(--accent-primary);
+}
+
+[data-theme="dark"] .suggestion-card.critical {
+    background: rgba(239, 68, 68, 0.1);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .suggestions-toggle-bar {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+    
+    .completion-score {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .suggestion-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .suggestions-footer {
+        flex-direction: column;
+    }
+}
+</style>
+
+<!-- ADD THIS JAVASCRIPT TO THE END OF templates/vocabulary.html OR IN A SEPARATE FILE -->
+<script>
+// Toggle suggestions panel
+function toggleSuggestionsPanel() {
+    const panel = document.getElementById('smart-suggestions-panel');
+    const btn = document.getElementById('toggle-suggestions-btn');
+    const text = document.getElementById('suggestions-toggle-text');
+    
+    if (panel.style.display === 'none') {
+        panel.style.display = 'block';
+        text.textContent = 'Hide Suggestions';
+        btn.classList.add('active');
+        
+        // Initialize suggestions if not already done
+        if (window.VocabularySmartSuggestions) {
+            window.VocabularySmartSuggestions.updateAnalysis();
+        }
+    } else {
+        panel.style.display = 'none';
+        text.textContent = 'Show Suggestions';
+        btn.classList.remove('active');
+    }
+}
+
+// Auto-show suggestions if user has few words
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        const allWords = window.appState?.getState('allWords') || [];
+        if (allWords.length > 0 && allWords.length < 50) {
+            // Auto-open suggestions for new users
+            toggleSuggestionsPanel();
+        }
+    }, 1000);
+});
+
+// Listen for vocabulary changes to update suggestions
+document.addEventListener('vocabularyChanged', () => {
+    if (window.VocabularySmartSuggestions) {
+        setTimeout(() => {
+            window.VocabularySmartSuggestions.updateAnalysis();
+        }, 500);
+    }
+});
+</script>
+
     <div id="vocabulary-stats" class="stats-grid" style="display: none;">
         <div class="stat-card">
             <div class="stat-number" id="total-words">0</div>

@@ -464,22 +464,14 @@ button[style*="background: linear-gradient(135deg, #2196F3"] {
 }
 
 /* =============================================================================
-   VOCABULARY WORD ITEMS & INTERACTIONS
+   VOCABULARY WORD ITEMS & INTERACTIONS - FIXED VERSION
    ============================================================================= */
 
-/* Default State - Visible Borders */
+/* Main vocabulary word containers - more specific, cleaner selectors */
 [data-theme="dark"] .word-card,
 [data-theme="dark"] .generated-word,
 [data-theme="dark"] .word-item,
-[data-theme="dark"] .word,
-[data-theme="dark"] .generated-words > *,
-[data-theme="dark"] .word-list > *,
-[data-theme="dark"] .words-container > *,
-[data-theme="dark"] span[onclick],
-[data-theme="dark"] div[onclick],
-[data-theme="dark"] #generated-words *,
-[data-theme="dark"] .words-display *,
-[data-theme="dark"] .word-display * {
+[data-theme="dark"] .word {
     border: 1px solid var(--border-medium) !important;
     background-color: var(--bg-secondary) !important;
     transition: all var(--transition) !important;
@@ -489,19 +481,59 @@ button[style*="background: linear-gradient(135deg, #2196F3"] {
     display: inline-block !important;
 }
 
-/* Hover Effects */
+/* Direct children of word containers only (prevents double borders) */
+[data-theme="dark"] .generated-words > .word-item,
+[data-theme="dark"] .word-list > .word-item,
+[data-theme="dark"] .words-container > .word-item,
+[data-theme="dark"] #generated-words > .word-item {
+    border: 1px solid var(--border-medium) !important;
+    background-color: var(--bg-secondary) !important;
+    transition: all var(--transition) !important;
+    border-radius: var(--radius-md) !important;
+    padding: 8px 12px !important;
+    margin: 4px !important;
+    display: inline-block !important;
+}
+
+/* Clickable spans and divs that are vocabulary words */
+[data-theme="dark"] span[onclick].word,
+[data-theme="dark"] div[onclick].word,
+[data-theme="dark"] span.vocabulary-word,
+[data-theme="dark"] div.vocabulary-word {
+    border: 1px solid var(--border-medium) !important;
+    background-color: var(--bg-secondary) !important;
+    transition: all var(--transition) !important;
+    border-radius: var(--radius-md) !important;
+    padding: 8px 12px !important;
+    margin: 4px !important;
+    display: inline-block !important;
+}
+
+/* Hover Effects - Same specificity as above */
 [data-theme="dark"] .word-card:hover,
 [data-theme="dark"] .generated-word:hover,
 [data-theme="dark"] .word-item:hover,
-[data-theme="dark"] .word:hover,
-[data-theme="dark"] .generated-words > *:hover,
-[data-theme="dark"] .word-list > *:hover,
-[data-theme="dark"] .words-container > *:hover,
-[data-theme="dark"] span[onclick]:hover,
-[data-theme="dark"] div[onclick]:hover,
-[data-theme="dark"] #generated-words *:hover,
-[data-theme="dark"] .words-display *:hover,
-[data-theme="dark"] .word-display *:hover {
+[data-theme="dark"] .word:hover {
+    border: 1px solid var(--accent-primary) !important;
+    background-color: var(--bg-hover) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: var(--shadow-md) !important;
+}
+
+[data-theme="dark"] .generated-words > .word-item:hover,
+[data-theme="dark"] .word-list > .word-item:hover,
+[data-theme="dark"] .words-container > .word-item:hover,
+[data-theme="dark"] #generated-words > .word-item:hover {
+    border: 1px solid var(--accent-primary) !important;
+    background-color: var(--bg-hover) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: var(--shadow-md) !important;
+}
+
+[data-theme="dark"] span[onclick].word:hover,
+[data-theme="dark"] div[onclick].word:hover,
+[data-theme="dark"] span.vocabulary-word:hover,
+[data-theme="dark"] div.vocabulary-word:hover {
     border: 1px solid var(--accent-primary) !important;
     background-color: var(--bg-hover) !important;
     transform: translateY(-2px) !important;
