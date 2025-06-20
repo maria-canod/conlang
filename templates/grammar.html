@@ -1,0 +1,158 @@
+<div class="section-card">
+    <h3>📐 Grammatical Structure</h3>
+    
+    <div class="form-group">
+        <label for="word-order">Word Order</label>
+        <select id="word-order" class="form-control">
+            <option value="svo">SVO (Subject-Verb-Object) - Like English</option>
+            <option value="sov">SOV (Subject-Object-Verb) - Like Japanese</option>
+            <option value="vso">VSO (Verb-Subject-Object) - Like Welsh</option>
+            <option value="vos">VOS (Verb-Object-Subject) - Like Malagasy</option>
+            <option value="osv">OSV (Object-Subject-Verb) - Rare</option>
+            <option value="ovs">OVS (Object-Verb-Subject) - Very rare</option>
+            <option value="free">Free Order - Case-dependent</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <div style="font-size: var(--text-sm); font-weight: 600; color: var(--text-primary); margin-bottom: var(--spacing-sm); display: block;">Morphological Features</div>
+        <div class="checkbox-grid">
+            <div class="checkbox-item">
+                <input type="checkbox" id="has-cases" checked>
+                <label for="has-cases" style="font-size: var(--text-base); font-weight: 500; color: var(--text-primary);">Case System</label>
+            </div>
+            <div class="checkbox-item">
+                <input type="checkbox" id="has-plurals" checked>
+                <label for="has-plurals" style="font-size: var(--text-base); font-weight: 500; color: var(--text-primary);">Plural Marking</label>
+            </div>
+            <div class="checkbox-item">
+                <input type="checkbox" id="has-tenses" checked>
+                <label for="has-tenses" style="font-size: var(--text-base); font-weight: 500; color: var(--text-primary);">Tense System</label>
+            </div>
+            <div class="checkbox-item">
+                <input type="checkbox" id="has-genders">
+                <label for="has-genders" style="font-size: var(--text-base); font-weight: 500; color: var(--text-primary);">Gender System</label>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Options -->
+    <div id="cases-details" class="detailed-options show">
+        <div style="font-size: var(--text-sm); font-weight: 600; color: var(--text-primary); margin-bottom: var(--spacing-md); display: block;">Case System</div>
+        <div class="checkbox-grid">
+            <div class="checkbox-item">
+                <input type="checkbox" id="case-nominative" checked>
+                <label for="case-nominative" style="font-size: var(--text-base); font-weight: 500; color: var(--text-primary); margin: 0; cursor: pointer; flex: 1;">Nominative (subject)</label>
+            </div>
+            <div class="checkbox-item">
+                <input type="checkbox" id="case-accusative" checked>
+                <label for="case-accusative" style="font-size: var(--text-base); font-weight: 500; color: var(--text-primary); margin: 0; cursor: pointer; flex: 1;">Accusative (direct object)</label>
+            </div>
+            <div class="checkbox-item">
+                <input type="checkbox" id="case-genitive">
+                <label for="case-genitive" style="font-size: var(--text-base); font-weight: 500; color: var(--text-primary); margin: 0; cursor: pointer; flex: 1;">Genitive (possessive)</label>
+            </div>
+            <div class="checkbox-item">
+                <input type="checkbox" id="case-dative">
+                <label for="case-dative" style="font-size: var(--text-base); font-weight: 500; color: var(--text-primary); margin: 0; cursor: pointer; flex: 1;">Dative (indirect object)</label>
+            </div>
+            <div class="checkbox-item">
+                <input type="checkbox" id="case-locative">
+                <label for="case-locative" style="font-size: var(--text-base); font-weight: 500; color: var(--text-primary); margin: 0; cursor: pointer; flex: 1;">Locative (location)</label>
+            </div>
+            <div class="checkbox-item">
+                <input type="checkbox" id="case-instrumental">
+                <label for="case-instrumental" style="font-size: var(--text-base); font-weight: 500; color: var(--text-primary); margin: 0; cursor: pointer; flex: 1;">Instrumental (with/by)</label>
+            </div>
+        </div>
+    </div>
+
+    <div id="tenses-details" class="detailed-options show">
+        <div style="font-size: var(--text-sm); font-weight: 600; color: var(--text-primary); margin-bottom: var(--spacing-md); display: block;">Tense System</div>
+        <div class="checkbox-grid">
+            <div class="checkbox-item">
+                <input type="checkbox" id="tense-past" checked>
+                <label for="tense-past" style="font-size: var(--text-base); font-weight: 500; color: var(--text-primary); margin: 0; cursor: pointer; flex: 1;">Past</label>
+            </div>
+            <div class="checkbox-item">
+                <input type="checkbox" id="tense-present" checked>
+                <label for="tense-present" style="font-size: var(--text-base); font-weight: 500; color: var(--text-primary); margin: 0; cursor: pointer; flex: 1;">Present</label>
+            </div>
+            <div class="checkbox-item">
+                <input type="checkbox" id="tense-future" checked>
+                <label for="tense-future" style="font-size: var(--text-base); font-weight: 500; color: var(--text-primary); margin: 0; cursor: pointer; flex: 1;">Future</label>
+            </div>
+            <div class="checkbox-item">
+                <input type="checkbox" id="tense-perfect">
+                <label for="tense-perfect" style="font-size: var(--text-base); font-weight: 500; color: var(--text-primary); margin: 0; cursor: pointer; flex: 1;">Perfect</label>
+            </div>
+            <div class="checkbox-item">
+                <input type="checkbox" id="tense-imperfect">
+                <label for="tense-imperfect" style="font-size: var(--text-base); font-weight: 500; color: var(--text-primary); margin: 0; cursor: pointer; flex: 1;">Imperfect</label>
+            </div>
+            <div class="checkbox-item">
+                <input type="checkbox" id="tense-pluperfect">
+                <label for="tense-pluperfect" style="font-size: var(--text-base); font-weight: 500; color: var(--text-primary); margin: 0; cursor: pointer; flex: 1;">Pluperfect</label>
+            </div>
+        </div>
+    </div>
+
+    <div id="plurals-details" class="detailed-options show">
+        <div style="font-size: var(--text-sm); font-weight: 600; color: var(--text-primary); margin-bottom: var(--spacing-md); display: block;">Plural System</div>
+        <div class="checkbox-grid">
+            <div class="checkbox-item">
+                <input type="checkbox" id="plural-suffix" checked>
+                <label for="plural-suffix" style="font-size: var(--text-base); font-weight: 500; color: var(--text-primary); margin: 0; cursor: pointer; flex: 1;">Suffix (word + ending)</label>
+            </div>
+            <div class="checkbox-item">
+                <input type="checkbox" id="plural-prefix">
+                <label for="plural-prefix" style="font-size: var(--text-base); font-weight: 500; color: var(--text-primary); margin: 0; cursor: pointer; flex: 1;">Prefix (beginning + word)</label>
+            </div>
+            <div class="checkbox-item">
+                <input type="checkbox" id="plural-internal">
+                <label for="plural-internal" style="font-size: var(--text-base); font-weight: 500; color: var(--text-primary); margin: 0; cursor: pointer; flex: 1;">Internal change (vowel shift)</label>
+            </div>
+            <div class="checkbox-item">
+                <input type="checkbox" id="plural-dual">
+                <label for="plural-dual" style="font-size: var(--text-base); font-weight: 500; color: var(--text-primary); margin: 0; cursor: pointer; flex: 1;">Dual number (exactly two)</label>
+            </div>
+        </div>
+    </div>
+
+    <div id="genders-details" class="detailed-options">
+        <div style="font-size: var(--text-sm); font-weight: 600; color: var(--text-primary); margin-bottom: var(--spacing-md); display: block;">Gender System</div>
+        <div class="checkbox-grid">
+            <div class="checkbox-item">
+                <input type="checkbox" id="gender-masculine" checked>
+                <label for="gender-masculine" style="font-size: var(--text-base); font-weight: 500; color: var(--text-primary); margin: 0; cursor: pointer; flex: 1;">Masculine</label>
+            </div>
+            <div class="checkbox-item">
+                <input type="checkbox" id="gender-feminine" checked>
+                <label for="gender-feminine" style="font-size: var(--text-base); font-weight: 500; color: var(--text-primary); margin: 0; cursor: pointer; flex: 1;">Feminine</label>
+            </div>
+            <div class="checkbox-item">
+                <input type="checkbox" id="gender-neuter">
+                <label for="gender-neuter" style="font-size: var(--text-base); font-weight: 500; color: var(--text-primary); margin: 0; cursor: pointer; flex: 1;">Neuter</label>
+            </div>
+            <div class="checkbox-item">
+                <input type="checkbox" id="gender-animate">
+                <label for="gender-animate" style="font-size: var(--text-base); font-weight: 500; color: var(--text-primary); margin: 0; cursor: pointer; flex: 1;">Animate</label>
+            </div>
+            <div class="checkbox-item">
+                <input type="checkbox" id="gender-inanimate">
+                <label for="gender-inanimate" style="font-size: var(--text-base); font-weight: 500; color: var(--text-primary); margin: 0; cursor: pointer; flex: 1;">Inanimate</label>
+            </div>
+        </div>
+    </div>
+
+    <button class="btn btn-block" id="generate-grammar-btn">
+        🔧 Generate Grammar System
+    </button>
+</div>
+
+<div id="grammar-results" style="display: none;">
+    <div class="result-card">
+        <h4>Grammar Rules</h4>
+        <div id="grammar-rules-display"></div>
+    </div>
+</div>

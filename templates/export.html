@@ -1,0 +1,211 @@
+<div class="section-card">
+    <h3>📤 Export Your Language</h3>
+    <p style="margin-bottom: 20px; color: #666;">Download your language data in various formats for external use, documentation, or sharing.</p>
+    
+    <!-- Professional Export Options -->
+    <div class="export-section">
+        <h5 style="color: var(--accent-primary); margin-bottom: 15px;">📚 Professional Formats</h5>
+        <div class="export-buttons">
+            <button class="btn btn-primary" id="export-pdf-btn">
+                📖 PDF Language Book
+                <small style="display: block; font-weight: normal; margin-top: 5px;">Complete reference with culture, grammar & dictionary</small>
+            </button>
+            <button class="btn btn-info" id="export-html-btn">
+                🌐 HTML Dictionary
+                <small style="display: block; font-weight: normal; margin-top: 5px;">Interactive web dictionary with search</small>
+            </button>
+            <button class="btn btn-success" id="export-anki-btn">
+                🎯 Anki Flashcards
+                <small style="display: block; font-weight: normal; margin-top: 5px;">CSV deck for vocabulary learning</small>
+            </button>
+        </div>
+    </div>
+
+    <!-- Data Export Options -->
+    <div class="export-section" style="margin-top: 30px;">
+        <h5 style="color: var(--accent-primary); margin-bottom: 15px;">📊 Data Formats</h5>
+        <div class="export-buttons">
+            <button class="btn btn-info" id="export-dictionary-btn">
+                📊 Dictionary (CSV)
+                <small style="display: block; font-weight: normal; margin-top: 5px;">Spreadsheet-compatible word data</small>
+            </button>
+            <button class="btn btn-success" id="export-grammar-btn">
+                📝 Grammar Reference
+                <small style="display: block; font-weight: normal; margin-top: 5px;">Text file with linguistic rules</small>
+            </button>
+            <button class="btn btn-secondary" id="export-complete-btn">
+                📋 Complete Language (JSON)
+                <small style="display: block; font-weight: normal; margin-top: 5px;">Full backup with all data</small>
+            </button>
+            <button class="btn btn-warning" id="export-wordlist-btn">
+                📄 Simple Word List
+                <small style="display: block; font-weight: normal; margin-top: 5px;">Plain text vocabulary list</small>
+            </button>
+        </div>
+    </div>
+
+    <!-- Export Information -->
+    <div style="margin-top: 30px; padding: 20px; background: var(--bg-accent); border-radius: 8px; border-left: 4px solid var(--accent-primary);">
+        <h5 style="color: var(--accent-primary); margin-bottom: 15px;">💡 Export Guide</h5>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+            <div>
+                <h6 style="color: var(--text-primary); margin-bottom: 8px;">📖 PDF Language Book</h6>
+                <p style="color: var(--text-secondary); font-size: 0.9em; line-height: 1.4; margin: 0;">
+                    Professional reference book with cover page, cultural background, phonology, grammar rules, organized dictionary, and language statistics. Perfect for documentation or sharing.
+                </p>
+            </div>
+            <div>
+                <h6 style="color: var(--text-primary); margin-bottom: 8px;">🌐 HTML Dictionary</h6>
+                <p style="color: var(--text-secondary); font-size: 0.9em; line-height: 1.4; margin: 0;">
+                    Interactive web page with search functionality, alphabetical navigation, and beautiful formatting. Open in any browser or host online.
+                </p>
+            </div>
+            <div>
+                <h6 style="color: var(--text-primary); margin-bottom: 8px;">🎯 Anki Flashcards</h6>
+                <p style="color: var(--text-secondary); font-size: 0.9em; line-height: 1.4; margin: 0;">
+                    Import into Anki for spaced repetition learning. CSV format with conlang word on front, English + part of speech on back.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- FIXED Save & Load Section with Better Spacing -->
+<!-- Replace this section in your export.html file -->
+
+<div class="section-card">
+    <h3>💾 Save & Load</h3>
+    <p style="margin-bottom: 20px; color: #666;">Backup your work locally or import previously saved languages.</p>
+    
+    <!-- Local Storage -->
+    <div class="export-section">
+        <h5 style="color: var(--accent-success); margin-bottom: 15px;">🏠 Browser Storage</h5>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <button class="btn btn-success" id="save-local-btn">
+                💾 Save to Browser<br>
+                <small style="display: block; font-weight: normal; margin-top: 8px;">Quick save in browser storage</small>
+            </button>
+            <button class="btn btn-secondary" id="load-local-btn">
+                📂 Load from Browser<br>
+                <small style="display: block; font-weight: normal; margin-top: 8px;">Restore previously saved work</small>
+            </button>
+        </div>
+    </div>
+
+    <!-- File Import -->
+    <div class="export-section" style="margin-top: 25px;">
+        <h5 style="color: var(--accent-info); margin-bottom: 15px;">📥 Import Language</h5>
+        <div style="display: grid; grid-template-columns: 1fr auto; gap: 15px; align-items: end; margin-bottom: 20px;">
+            <div class="form-group" style="margin-bottom: 0;">
+                <label for="language-file-input" style="font-weight: 600;">Select JSON File</label>
+                <input type="file" id="language-file-input" class="form-control" accept=".json" style="padding: 8px;">
+            </div>
+            <div>
+                <button class="btn btn-info" id="import-language-btn">
+                    📥 Import Language
+                </button>
+            </div>
+        </div>
+        
+        <!-- Import Preview (hidden by default) -->
+        <div id="import-preview" style="display: none; padding: 15px; background: var(--bg-secondary); border-radius: 8px; border: 1px solid var(--border-light);">
+            <!-- Preview content will be populated by JavaScript -->
+        </div>
+    </div>
+
+    <!-- Warning -->
+    <div class="feature-highlight" style="margin-top: 20px;">
+        <strong>⚠️ Important:</strong> Importing a language will replace your current work. Save your current language first if you want to keep it! Browser storage is temporary and may be cleared by your browser.
+    </div>
+</div>
+
+<!-- ENHANCED CSS for Better Button Spacing -->
+<style>
+.export-section {
+    margin-bottom: 25px;
+}
+
+.export-buttons {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 15px;
+}
+
+.export-buttons .btn,
+.export-section .btn {
+    text-align: left;
+    padding: 15px 20px;
+    height: auto;
+    min-height: 70px;
+    white-space: normal;
+    line-height: 1.4;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    font-size: 1em;
+    font-weight: 600;
+}
+
+.export-buttons .btn small,
+.export-section .btn small {
+    font-size: 0.8em;
+    opacity: 0.8;
+    font-weight: 400;
+    line-height: 1.3;
+    margin-top: 8px !important;
+    display: block !important;
+}
+
+/* Specific fix for Save/Load buttons */
+#save-local-btn,
+#load-local-btn {
+    padding: 15px 20px !important;
+    min-height: 75px !important;
+    line-height: 1.3 !important;
+}
+
+#save-local-btn small,
+#load-local-btn small {
+    margin-top: 10px !important;
+    font-size: 0.75em !important;
+    opacity: 0.85 !important;
+}
+
+.import-preview-content {
+    text-align: center;
+}
+
+.import-details {
+    margin: 15px 0;
+    text-align: left;
+}
+
+.import-details p {
+    margin: 5px 0;
+    color: var(--text-secondary);
+}
+
+.import-actions {
+    margin-top: 15px;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+@media (max-width: 768px) {
+    .export-buttons {
+        grid-template-columns: 1fr;
+    }
+    
+    .export-buttons .btn,
+    .export-section .btn {
+        min-height: 65px;
+        padding: 12px 16px;
+    }
+    
+    #save-local-btn,
+    #load-local-btn {
+        min-height: 70px !important;
+    }
+}
+</style>

@@ -1,0 +1,133 @@
+<div class="section-card">
+    <h3>📚 Dictionary Management</h3>
+    
+    <!-- Add Word Directly Section -->
+    <div class="word-builder" style="background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%); border-color: #4CAF50;">
+        <h4>➕ Add Custom Word</h4>
+        <p style="margin-bottom: 20px; color: #666;">Create a custom word directly without generating random ones.</p>
+        
+        <div class="form-grid-5">
+            <div class="form-group">
+                <label for="direct-conlang">Conlang Word</label>
+                <input type="text" id="direct-conlang" class="form-control" placeholder="Enter word">
+            </div>
+            
+            <div class="form-group">
+                <label for="direct-meaning">English Meaning</label>
+                <input type="text" id="direct-meaning" class="form-control" placeholder="Enter meaning">
+            </div>
+            
+            <div class="form-group">
+                <label for="direct-pos">Part of Speech</label>
+                <select id="direct-pos" class="form-control">
+                    <option value="noun">Noun</option>
+                    <option value="verb">Verb</option>
+                    <option value="adjective">Adjective</option>
+                    <option value="adverb">Adverb</option>
+                    <option value="pronoun">Pronoun</option>
+                    <option value="preposition">Preposition</option>
+                    <option value="conjunction">Conjunction</option>
+                    <option value="interjection">Interjection</option>
+                    <option value="determiner">Determiner</option>
+                    <option value="particle">Particle</option>
+                    <option value="number">Number</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="direct-notes">Notes (optional)</label>
+                <input type="text" id="direct-notes" class="form-control" placeholder="Etymology, usage...">
+            </div>
+            
+            <div class="form-group">
+                <label>&nbsp;</label>
+                <button class="btn btn-success" id="add-direct-word-btn">
+                    ➕ Add
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="search-filter-bar">
+        <div class="search-box">
+            <input type="text" id="search" class="form-control" placeholder="Search words..." onkeyup="searchWords()">
+        </div>
+        <div class="filter-buttons">
+            <button class="filter-btn active">All</button>
+            <button class="filter-btn">Nouns</button>
+            <button class="filter-btn">Verbs</button>
+            <button class="filter-btn">Adjectives</button>
+            <button class="filter-btn">Derived</button>
+            <button class="filter-btn">Custom</button>
+        </div>
+    </div>
+
+    <div id="vocabulary-stats" class="stats-grid" style="display: none;">
+        <div class="stat-card">
+            <div class="stat-number" id="total-words">0</div>
+            <div class="stat-label">Total Words</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="core-words">0</div>
+            <div class="stat-label">Core Words</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="derived-words">0</div>
+            <div class="stat-label">Derived</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="custom-words">0</div>
+            <div class="stat-label">Custom</div>
+        </div>
+    </div>
+
+    <div class="feature-highlight">
+        <strong>💡 Tip:</strong> Click on any word card to see detailed information. Use the edit and delete buttons that appear on hover to manage your vocabulary.
+    </div>
+
+    <div id="dictionary">
+        <p style="text-align: center; color: #999; padding: 40px;">Generate a language or add custom words to see the dictionary!</p>
+    </div>
+</div>
+
+<!-- Edit Word Modal -->
+<div id="edit-word-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>✏️ Edit Word</h3>
+            <button class="modal-close" onclick="VocabularyModule.closeModal('edit-word-modal')">&times;</button>
+        </div>
+        <div class="form-group">
+            <label for="edit-conlang">Conlang Word</label>
+            <input type="text" id="edit-conlang" class="form-control">
+        </div>
+        <div class="form-group">
+            <label for="edit-english">English Meaning</label>
+            <input type="text" id="edit-english" class="form-control">
+        </div>
+        <div class="form-group">
+            <label for="edit-pos">Part of Speech</label>
+            <select id="edit-pos" class="form-control">
+                <option value="noun">Noun</option>
+                <option value="verb">Verb</option>
+                <option value="adjective">Adjective</option>
+                <option value="adverb">Adverb</option>
+                <option value="pronoun">Pronoun</option>
+                <option value="preposition">Preposition</option>
+                <option value="conjunction">Conjunction</option>
+                <option value="interjection">Interjection</option>
+                <option value="determiner">Determiner</option>
+                <option value="particle">Particle</option>
+                <option value="number">Number</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="edit-notes">Notes</label>
+            <input type="text" id="edit-notes" class="form-control">
+        </div>
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button class="btn btn-success" onclick="VocabularyModule.saveWordEdit()">💾 Save Changes</button>
+            <button class="btn btn-secondary" onclick="VocabularyModule.closeModal('edit-word-modal')">❌ Cancel</button>
+        </div>
+    </div>
+</div>

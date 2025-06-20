@@ -1,0 +1,220 @@
+<div class="section-card">
+    <h3>📝 Bilingual Corpus</h3>
+    <p style="margin-bottom: 20px; color: #666;">Build a collection of sentence pairs to analyze grammar patterns and improve your language's authenticity.</p>
+    
+    <!-- Add New Sentence Pair -->
+    <div class="word-builder" style="background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%); border-color: #2196F3;">
+        <h4>➕ Add Sentence Pair</h4>
+        <p style="margin-bottom: 20px; color: #666;">Create aligned sentence pairs for translation and grammatical analysis.</p>
+        
+        <div class="form-group">
+            <label for="english-sentence">English Sentence</label>
+            <textarea id="english-sentence" class="form-control" rows="2" placeholder="Enter the English sentence..."></textarea>
+        </div>
+        
+        <div class="form-group">
+            <label for="conlang-sentence">Conlang Translation</label>
+            <textarea id="conlang-sentence" class="form-control" rows="2" placeholder="Enter the translation in your conlang..."></textarea>
+        </div>
+        
+        <div class="form-grid-3">
+            <div class="form-group">
+                <label for="sentence-category">Category</label>
+                <select id="sentence-category" class="form-control">
+                    <option value="general">General</option>
+                    <option value="greetings">Greetings</option>
+                    <option value="questions">Questions</option>
+                    <option value="commands">Commands</option>
+                    <option value="descriptions">Descriptions</option>
+                    <option value="narrative">Narrative</option>
+                    <option value="dialogue">Dialogue</option>
+                    <option value="formal">Formal</option>
+                    <option value="casual">Casual</option>
+                    <option value="technical">Technical</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="sentence-notes">Notes (optional)</label>
+                <input type="text" id="sentence-notes" class="form-control" placeholder="Grammar notes, cultural context...">
+            </div>
+            
+            <div class="form-group">
+                <label>&nbsp;</label>
+                <button class="btn btn-block" id="add-sentence-pair-btn" style="background: linear-gradient(135deg, #2196F3 0%, #9c27b0 100%);">
+                    ➕ Add Pair
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Search and Filter -->
+    <div class="search-filter-bar">
+        <div class="search-box">
+            <input type="text" id="corpus-search" class="form-control" placeholder="Search sentences..." onkeyup="CorpusModule.searchSentences()">
+        </div>
+        <div class="filter-buttons">
+            <button class="filter-btn active" onclick="CorpusModule.filterByCategory('all')">All</button>
+            <button class="filter-btn" onclick="CorpusModule.filterByCategory('greetings')">Greetings</button>
+            <button class="filter-btn" onclick="CorpusModule.filterByCategory('questions')">Questions</button>
+            <button class="filter-btn" onclick="CorpusModule.filterByCategory('commands')">Commands</button>
+            <button class="filter-btn" onclick="CorpusModule.filterByCategory('dialogue')">Dialogue</button>
+            <button class="filter-btn" onclick="CorpusModule.filterByCategory('formal')">Formal</button>
+        </div>
+    </div>
+
+    <!-- Corpus Statistics -->
+    <div id="corpus-stats" class="stats-grid" style="display: none;">
+        <div class="stat-card">
+            <div class="stat-number" id="total-sentences">0</div>
+            <div class="stat-label">Total Pairs</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="total-words">0</div>
+            <div class="stat-label">Total Words</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="avg-length">0</div>
+            <div class="stat-label">Avg Length</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="categories-used">0</div>
+            <div class="stat-label">Categories</div>
+        </div>
+    </div>
+
+    <div class="feature-highlight">
+        <strong>💡 Pro Tips:</strong> Start with simple sentences and gradually add complexity. Use categories to organize different types of sentences. The grammar analyzer will automatically identify patterns as you build your corpus!
+    </div>
+
+    <!-- Sentence Pairs Display -->
+    <div id="sentence-pairs-container">
+        <p style="text-align: center; color: #999; padding: 40px;">No sentence pairs yet. Add your first translation above!</p>
+    </div>
+</div>
+
+<div class="section-card">
+    <h3>🔍 Grammar Analyzer</h3>
+    <p style="margin-bottom: 20px; color: #666;">Analyze sentence structure and identify grammatical patterns in your corpus.</p>
+    
+    <div class="form-grid-2">
+        <div class="form-group">
+            <label for="analyze-sentence">Select Sentence to Analyze</label>
+            <select id="analyze-sentence" class="form-control">
+                <option value="">Choose a sentence pair...</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label>&nbsp;</label>
+            <button class="btn btn-info btn-block" id="analyze-grammar-btn">
+                🔍 Analyze Grammar
+            </button>
+        </div>
+    </div>
+    
+    <div id="grammar-analysis-result" style="display: none;">
+        <div class="result-card">
+            <h4>📊 Grammatical Analysis</h4>
+            <div id="analysis-content"></div>
+        </div>
+    </div>
+</div>
+
+<div class="section-card">
+    <h3>🎯 Translation Assistant</h3>
+    <p style="margin-bottom: 20px; color: #666;">Get translation suggestions based on your existing corpus and grammar rules.</p>
+    
+    <div class="form-group">
+        <label for="translate-input">English Sentence to Translate</label>
+        <textarea id="translate-input" class="form-control" rows="2" placeholder="Enter an English sentence to get translation suggestions..."></textarea>
+    </div>
+    
+    <button class="btn btn-success btn-block" id="get-translation-btn">
+        🌐 Suggest Translation
+    </button>
+    
+    <div id="translation-result" style="display: none;">
+        <div class="result-card">
+            <h4>💡 Translation Suggestions</h4>
+            <div id="translation-content"></div>
+            <div style="margin-top: 15px;">
+                <button class="btn btn-secondary" id="add-suggested-pair-btn">
+                    ➕ Add to Corpus
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="section-card">
+    <h3>📋 Sample Text Generator</h3>
+    <p style="margin-bottom: 20px; color: #666;">Generate sample text to demonstrate your language in use. Perfect for showcasing your corpus and testing translation patterns.</p>
+    
+    <div class="form-group">
+        <label for="sample-type">Text Type</label>
+        <select id="sample-type" class="form-control">
+            <option value="simple">Simple Sentences</option>
+            <option value="story">Short Story</option>
+            <option value="dialogue">Dialogue</option>
+            <option value="description">Description</option>
+            <option value="poem">Simple Poem</option>
+        </select>
+    </div>
+    
+    <button class="btn btn-info btn-block" id="generate-sample-btn">
+        📝 Generate Sample Text
+    </button>
+    
+    <div id="sample-text-output" style="display: none; margin-top: 20px;">
+        <div class="result-card">
+            <h4>Generated Sample Text</h4>
+            <div id="sample-text-content"></div>
+        </div>
+    </div>
+    
+    <div class="feature-highlight" style="margin-top: 15px;">
+        <strong>💡 Tip:</strong> Generated text uses your existing vocabulary. Add the results to your corpus to build a richer collection of sentence pairs!
+    </div>
+</div>
+
+<!-- Edit Sentence Modal -->
+<div id="edit-sentence-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>✏️ Edit Sentence Pair</h3>
+            <button class="modal-close" onclick="CorpusModule.closeModal()">&times;</button>
+        </div>
+        <div class="form-group">
+            <label for="edit-english-sentence">English Sentence</label>
+            <textarea id="edit-english-sentence" class="form-control" rows="2"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="edit-conlang-sentence">Conlang Translation</label>
+            <textarea id="edit-conlang-sentence" class="form-control" rows="2"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="edit-sentence-category">Category</label>
+            <select id="edit-sentence-category" class="form-control">
+                <option value="general">General</option>
+                <option value="greetings">Greetings</option>
+                <option value="questions">Questions</option>
+                <option value="commands">Commands</option>
+                <option value="descriptions">Descriptions</option>
+                <option value="narrative">Narrative</option>
+                <option value="dialogue">Dialogue</option>
+                <option value="formal">Formal</option>
+                <option value="casual">Casual</option>
+                <option value="technical">Technical</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="edit-sentence-notes">Notes</label>
+            <input type="text" id="edit-sentence-notes" class="form-control">
+        </div>
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button class="btn btn-success" onclick="CorpusModule.saveSentenceEdit()">💾 Save Changes</button>
+            <button class="btn btn-secondary" onclick="CorpusModule.closeModal()">❌ Cancel</button>
+        </div>
+    </div>
+</div>

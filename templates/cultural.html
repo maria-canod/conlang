@@ -1,0 +1,324 @@
+<div class="section-card">
+    <h3>🏛️ Cultural Context Generator</h3>
+    <p style="margin-bottom: 20px; color: #666;">Create rich cultural background for your language - naming systems, social structures, unique concepts, and cultural values.</p>
+    
+    <!-- Cultural Foundation -->
+    <div class="word-builder" style="background: linear-gradient(135deg, #fce4ec 0%, #f3e5f5 100%); border-color: #e91e63;">
+        <h4>🌍 Cultural Foundation</h4>
+        <p style="margin-bottom: 20px; color: #666;">Define the basic cultural characteristics that will influence all other aspects.</p>
+        
+        <div class="form-grid-3">
+            <div class="form-group">
+                <label for="culture-type">Society Type</label>
+                <select id="culture-type" class="form-control">
+                    <option value="tribal">Tribal Society</option>
+                    <option value="agricultural">Agricultural Society</option>
+                    <option value="nomadic">Nomadic Society</option>
+                    <option value="maritime">Maritime Society</option>
+                    <option value="urban">Urban Society</option>
+                    <option value="mountain">Mountain Society</option>
+                    <option value="desert">Desert Society</option>
+                    <option value="forest">Forest Society</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="social-structure">Social Structure</label>
+                <select id="social-structure" class="form-control">
+                    <option value="egalitarian">Egalitarian</option>
+                    <option value="hierarchical">Hierarchical</option>
+                    <option value="clan-based">Clan-based</option>
+                    <option value="age-based">Age-based</option>
+                    <option value="merit-based">Merit-based</option>
+                    <option value="caste-system">Caste System</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>&nbsp;</label>
+                <button class="btn btn-block" id="generate-culture-btn" style="background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: white; border: none; font-weight: 600; text-shadow: 0 1px 2px rgba(0,0,0,0.2); box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    🎭 Generate Culture
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Cultural Overview -->
+    <div id="cultural-overview" style="display: none;">
+        <div class="result-card">
+            <h4>📋 Cultural Profile</h4>
+            <div id="culture-summary"></div>
+        </div>
+    </div>
+</div>
+
+<div class="section-card">
+    <h3>👥 Naming Systems</h3>
+    <p style="margin-bottom: 20px; color: #666;">Create authentic naming patterns for people, places, and cultural concepts.</p>
+    
+    <!-- Name Type Selection -->
+    <div class="search-filter-bar">
+        <div style="flex: 1;">
+            <label for="name-type" style="font-weight: 600; margin-bottom: 10px; display: block;">Name Type</label>
+            <select id="name-type" class="form-control">
+                <option value="personal">Personal Names</option>
+                <option value="family">Family Names</option>
+                <option value="place">Place Names</option>
+                <option value="title">Titles & Honorifics</option>
+                <option value="clan">Clan Names</option>
+            </select>
+        </div>
+        <div class="filter-buttons">
+            <button class="btn btn-info" id="generate-names-btn">🎲 Generate Names</button>
+            <button class="btn btn-success" id="add-name-pattern-btn">➕ Add Pattern</button>
+        </div>
+    </div>
+    
+    <!-- Name Patterns -->
+    <div id="name-patterns" style="display: none;">
+        <div class="result-card">
+            <h4>🔤 Naming Patterns</h4>
+            <div id="name-pattern-display"></div>
+        </div>
+    </div>
+    
+    <!-- Generated Names -->
+    <div id="generated-names" style="display: none;">
+        <div class="result-card">
+            <h4>📝 Generated Names</h4>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <span id="names-count" style="color: #666;"></span>
+                <button class="btn btn-secondary btn-sm" id="export-names-btn">📄 Export Names</button>
+            </div>
+            <div id="names-display" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;">
+                <!-- Generated names will appear here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="section-card">
+    <h3>💭 Cultural Concepts</h3>
+    <p style="margin-bottom: 20px; color: #666;">Create unique words and concepts that reflect your culture's worldview and values.</p>
+    
+    <!-- Concept Categories -->
+    <div class="checkbox-grid">
+        <div class="checkbox-item">
+            <input type="checkbox" id="concept-emotions" checked>
+            <label for="concept-emotions">Emotional concepts</label>
+        </div>
+        <div class="checkbox-item">
+            <input type="checkbox" id="concept-relationships" checked>
+            <label for="concept-relationships">Relationship terms</label>
+        </div>
+        <div class="checkbox-item">
+            <input type="checkbox" id="concept-time" checked>
+            <label for="concept-time">Time concepts</label>
+        </div>
+        <div class="checkbox-item">
+            <input type="checkbox" id="concept-space" checked>
+            <label for="concept-space">Spatial concepts</label>
+        </div>
+        <div class="checkbox-item">
+            <input type="checkbox" id="concept-honor">
+            <label for="concept-honor">Honor & shame</label>
+        </div>
+        <div class="checkbox-item">
+            <input type="checkbox" id="concept-nature">
+            <label for="concept-nature">Nature concepts</label>
+        </div>
+    </div>
+    
+    <button class="btn btn-info btn-block" id="generate-concepts-btn">
+        🧠 Generate Cultural Concepts
+    </button>
+    
+    <!-- Cultural Concepts Display -->
+    <div id="cultural-concepts" style="display: none;">
+        <div class="result-card">
+            <h4>💡 Unique Cultural Concepts</h4>
+            <div id="concepts-display"></div>
+        </div>
+    </div>
+</div>
+
+<div class="section-card">
+    <h3>🏗️ Social Structure</h3>
+    <p style="margin-bottom: 20px; color: #666;">Generate vocabulary for governance, social roles, leadership, and community values.</p>
+    
+    <div class="form-grid-2">
+        <div class="form-group">
+            <label for="governance-type">Governance System</label>
+            <select id="governance-type" class="form-control">
+                <option value="council">Council Leadership</option>
+                <option value="elder">Elder-based</option>
+                <option value="democratic">Democratic</option>
+                <option value="autocratic">Autocratic</option>
+                <option value="tribal">Tribal Chiefs</option>
+                <option value="meritocratic">Merit-based</option>
+                <option value="spiritual">Spiritual Leaders</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="social-focus">Social Focus</label>
+            <select id="social-focus" class="form-control">
+                <option value="community">Community Cooperation</option>
+                <option value="individual">Individual Achievement</option>
+                <option value="honor">Honor System</option>
+                <option value="duty">Duty & Service</option>
+                <option value="wisdom">Wisdom & Knowledge</option>
+                <option value="harmony">Social Harmony</option>
+                <option value="strength">Strength & Courage</option>
+            </select>
+        </div>
+    </div>
+    
+    <button class="btn btn-info btn-block" id="generate-social-btn">
+        🏛️ Generate Social Structure Vocabulary
+    </button>
+    
+    <!-- Social Structure Display -->
+    <div id="social-terms" style="display: none;">
+        <div class="result-card">
+            <h4>🏛️ Social Structure Vocabulary</h4>
+            <div id="social-display"></div>
+        </div>
+    </div>
+</div>
+
+<div class="section-card">
+    <h3>📅 Cultural Calendar</h3>
+    <p style="margin-bottom: 20px; color: #666;">Create a unique calendar system that reflects your culture's relationship with time and cosmic observations.</p>
+    
+    <div class="form-grid-2">
+        <div class="form-group">
+            <label for="calendar-base">Calendar Base</label>
+            <select id="calendar-base" class="form-control">
+                <option value="lunar">Lunar Phases</option>
+                <option value="solar">Solar Observations</option>
+                <option value="stellar">Star Patterns</option>
+                <option value="tidal">Tidal Cycles</option>
+                <option value="agricultural">Crop Cycles</option>
+                <option value="animal">Animal Migration</option>
+                <option value="weather">Weather Patterns</option>
+                <option value="geological">Geological Events</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="time-concept">Concept of Time</label>
+            <select id="time-concept" class="form-control">
+                <option value="linear">Linear (past → present → future)</option>
+                <option value="cyclical">Cyclical (eternal return)</option>
+                <option value="spiral">Spiral (cyclical but progressing)</option>
+                <option value="layered">Layered (multiple time streams)</option>
+                <option value="punctual">Punctual (moments of significance)</option>
+                <option value="flowing">Flowing (time as river)</option>
+            </select>
+        </div>
+    </div>
+    
+    <button class="btn btn-danger btn-block" id="generate-calendar-btn">
+        📆 Generate Calendar System
+    </button>
+    
+    <!-- Calendar Display -->
+    <div id="calendar-system" style="display: none;">
+        <div class="result-card">
+            <h4>🗓️ Cultural Calendar</h4>
+            <div id="calendar-display"></div>
+        </div>
+    </div>
+</div>
+
+<!-- New Mythology Section -->
+<div class="section-card">
+    <h3>🐉 Mythology & Beliefs</h3>
+    <p style="margin-bottom: 20px; color: #666;">Create creation myths, deities, supernatural beings, and spiritual beliefs that shape your culture's worldview.</p>
+    
+    <div class="form-grid-2">
+        <div class="form-group">
+            <label for="mythology-type">Mythological Focus</label>
+            <select id="mythology-type" class="form-control">
+                <option value="creation">Creation Myths</option>
+                <option value="nature">Nature Spirits</option>
+                <option value="ancestor">Ancestor Worship</option>
+                <option value="cosmic">Cosmic Forces</option>
+                <option value="heroic">Heroic Legends</option>
+                <option value="trickster">Trickster Tales</option>
+                <option value="moral">Moral Parables</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="spiritual-power">Source of Power</label>
+            <select id="spiritual-power" class="form-control">
+                <option value="elemental">Elemental Forces</option>
+                <option value="celestial">Celestial Bodies</option>
+                <option value="natural">Natural Phenomena</option>
+                <option value="ancestral">Ancestral Spirits</option>
+                <option value="abstract">Abstract Concepts</option>
+                <option value="totemic">Totemic Animals</option>
+                <option value="mystical">Mystical Energies</option>
+            </select>
+        </div>
+    </div>
+    
+    <button class="btn btn-success btn-block" id="generate-mythology-btn">
+        🐲 Generate Mythology
+    </button>
+    
+    <!-- Mythology Display -->
+    <div id="mythology-system" style="display: none;">
+        <div class="result-card">
+            <h4>⚡ Mythology & Beliefs</h4>
+            <div id="mythology-display"></div>
+        </div>
+    </div>
+</div>
+
+<!-- New Traditions Section -->
+<div class="section-card">
+    <h3>🎭 Traditions & Customs</h3>
+    <p style="margin-bottom: 20px; color: #666;">Develop cultural practices, rituals, ceremonies, and social customs that define your society's daily life.</p>
+    
+    <div class="checkbox-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px;">
+        <div class="checkbox-item">
+            <input type="checkbox" id="tradition-life">
+            <label for="tradition-life">Life Cycle Rituals</label>
+        </div>
+        <div class="checkbox-item">
+            <input type="checkbox" id="tradition-seasonal">
+            <label for="tradition-seasonal">Seasonal Ceremonies</label>
+        </div>
+        <div class="checkbox-item">
+            <input type="checkbox" id="tradition-social">
+            <label for="tradition-social">Social Customs</label>
+        </div>
+        <div class="checkbox-item">
+            <input type="checkbox" id="tradition-craft">
+            <label for="tradition-craft">Craft Traditions</label>
+        </div>
+        <div class="checkbox-item">
+            <input type="checkbox" id="tradition-food">
+            <label for="tradition-food">Food Customs</label>
+        </div>
+        <div class="checkbox-item">
+            <input type="checkbox" id="tradition-arts">
+            <label for="tradition-arts">Artistic Traditions</label>
+        </div>
+    </div>
+    
+    <button class="btn btn-warning btn-block" id="generate-traditions-btn">
+        🎪 Generate Traditions
+    </button>
+    
+    <!-- Traditions Display -->
+    <div id="traditions-system" style="display: none;">
+        <div class="result-card">
+            <h4>🎨 Cultural Traditions</h4>
+            <div id="traditions-display"></div>
+        </div>
+    </div>
+</div>

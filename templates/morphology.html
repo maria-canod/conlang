@@ -1,0 +1,169 @@
+<div class="section-card">
+    <h3>🔧 Affix Management</h3>
+    <p style="margin-bottom: 20px; color: #666;">View, edit, and manage all morphological affixes in your language. Generate new words by applying these affixes to existing vocabulary.</p>
+    
+    <!-- Add Custom Affix Section -->
+    <div class="word-builder" style="background: linear-gradient(135deg, #fff3e0 0%, #fce4ec 100%); border-color: #ff9800;">
+        <h4>➕ Add Custom Affix</h4>
+        <p style="margin-bottom: 20px; color: #666;">Create your own derivational affixes and morphological rules.</p>
+        
+        <div class="form-grid-4">
+            <div class="form-group">
+                <label for="custom-affix-name">Affix Name</label>
+                <input type="text" id="custom-affix-name" class="form-control" placeholder="e.g., causative, agentive">
+            </div>
+            
+            <div class="form-group">
+                <label for="custom-affix-morpheme">Morpheme</label>
+                <input type="text" id="custom-affix-morpheme" class="form-control" placeholder="e.g., -ish, un-, -er">
+            </div>
+            
+            <div class="form-group">
+                <label for="custom-affix-type">Type</label>
+                <select id="custom-affix-type" class="form-control">
+                    <option value="suffix">Suffix</option>
+                    <option value="prefix">Prefix</option>
+                    <option value="infix">Infix</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="custom-affix-category">Category</label>
+                <select id="custom-affix-category" class="form-control">
+                    <option value="derivational">Derivational</option>
+                    <option value="inflectional">Inflectional</option>
+                    <option value="case">Case</option>
+                    <option value="tense">Tense</option>
+                    <option value="number">Number</option>
+                    <option value="gender">Gender</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="form-grid-2" style="margin-top: 15px;">
+            <div class="form-group">
+                <label for="custom-affix-description">Description</label>
+                <input type="text" id="custom-affix-description" class="form-control" placeholder="What this affix does (e.g., makes verbs from nouns)">
+            </div>
+            
+            <div class="form-group">
+                <label>&nbsp;</label>
+                <button class="btn btn-block" id="add-custom-affix-btn" style="background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);">
+                    ➕ Add Affix
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="affix-display" style="display: none;">
+        <div class="result-card">
+            <h4>📋 Case Affixes</h4>
+            <div id="case-affixes"></div>
+        </div>
+        
+        <div class="result-card">
+            <h4>⏰ Tense Affixes</h4>
+            <div id="tense-affixes"></div>
+        </div>
+        
+        <div class="result-card">
+            <h4>🔢 Number Affixes</h4>
+            <div id="number-affixes"></div>
+        </div>
+        
+        <div class="result-card">
+            <h4>⚥ Gender Affixes</h4>
+            <div id="gender-affixes"></div>
+        </div>
+        
+        <div class="result-card">
+            <h4>🔄 Derivational Affixes</h4>
+            <div id="derivational-affixes"></div>
+        </div>
+        
+        <div class="result-card">
+            <h4>📐 Inflectional Affixes</h4>
+            <div id="inflectional-affixes"></div>
+        </div>
+    </div>
+    
+    <div id="no-affixes" style="text-align: center; color: #999; padding: 40px;">
+        <h4>No affixes generated yet</h4>
+        <p>Generate a grammar system first to see your morphological affixes!</p>
+        <button class="btn" onclick="switchTab('grammar')">Go to Grammar Tab</button>
+    </div>
+</div>
+
+<div class="section-card">
+    <h3>🎯 Affix Applicator</h3>
+    <p style="margin-bottom: 20px; color: #666;">Apply affixes to existing words to create inflected forms.</p>
+    
+    <div class="form-grid-2">
+        <div class="form-group">
+            <label for="base-word">Base Word</label>
+            <select id="base-word" class="form-control">
+                <option value="">Select a word...</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="affix-to-apply">Affix to Apply</label>
+            <select id="affix-to-apply" class="form-control">
+                <option value="">Select an affix...</option>
+            </select>
+        </div>
+    </div>
+    
+    <div id="affix-result" style="display: none; margin: 20px 0;">
+        <div class="generated-word-display">
+            <div class="generated-word" id="inflected-word"></div>
+            <div style="color: #666; margin-bottom: 15px;" id="inflection-description"></div>
+            
+            <button class="btn btn-success" id="add-inflected-btn">
+                ➕ Add Derived Word to Dictionary
+            </button>
+        </div>
+    </div>
+    
+    <button class="btn btn-info btn-block" id="apply-affix-btn">
+        🔧 Apply Affix
+    </button>
+</div>
+
+<!-- Edit Affix Modal -->
+<div id="edit-affix-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>✏️ Edit Affix</h3>
+            <button class="modal-close" onclick="MorphologyModule.closeModal('edit-affix-modal')">&times;</button>
+        </div>
+        <div class="form-group">
+            <label for="edit-affix-name-field">Affix Name</label>
+            <input type="text" id="edit-affix-name-field" class="form-control">
+        </div>
+        <div class="form-group">
+            <label for="edit-affix-morpheme-field">Morpheme</label>
+            <input type="text" id="edit-affix-morpheme-field" class="form-control">
+        </div>
+        <div class="form-group">
+            <label for="edit-affix-type-field">Type</label>
+            <select id="edit-affix-type-field" class="form-control">
+                <option value="suffix">Suffix</option>
+                <option value="prefix">Prefix</option>
+                <option value="infix">Infix</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="edit-affix-description-field">Description</label>
+            <textarea id="edit-affix-description-field" class="form-control" rows="3" placeholder="What this affix does..."></textarea>
+        </div>
+        <div class="form-group">
+            <label for="edit-affix-example-field">Example</label>
+            <input type="text" id="edit-affix-example-field" class="form-control" placeholder="word → result (meaning → meaning)">
+        </div>
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button class="btn btn-success" onclick="MorphologyModule.saveAffixEdit()">💾 Save Changes</button>
+            <button class="btn btn-secondary" onclick="MorphologyModule.closeModal('edit-affix-modal')">❌ Cancel</button>
+        </div>
+    </div>
+</div>

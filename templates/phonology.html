@@ -1,0 +1,465 @@
+<!-- ENHANCED Phonology Tab with Orthography System -->
+<!-- Replace the phonology.html content with this enhanced version -->
+
+<div class="section-card">
+    <h3>🎵 Sound System (Phonology)</h3>
+    <p style="margin-bottom: 20px; color: #666;">Define your language's sound inventory and create the writing system that represents these sounds.</p>
+    
+    <!-- Method Selection -->
+    <div class="form-group">
+        <label for="phonology-method" style="font-weight: 600;">Creation Method</label>
+        <select id="phonology-method" class="form-control" onchange="PhonologyModule.switchMethod()">
+            <option value="simple">Simple Text Input</option>
+            <option value="ipa-builder">IPA Sound Builder</option>
+            <option value="preset">Sound System Presets</option>
+        </select>
+    </div>
+
+    <!-- Simple Text Input Method -->
+    <div id="simple-method" class="method-section">
+        <div class="form-grid-2">
+            <div class="form-group">
+                <label for="vowels">Vowels</label>
+                <input type="text" id="vowels" class="form-control" placeholder="a, e, i, o, u" value="a, e, i, o, u">
+                <small style="color: #666; margin-top: 5px; display: block;">Separate with commas</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="consonants">Consonants</label>
+                <input type="text" id="consonants" class="form-control" placeholder="p, t, k, m, n, s, l, r" value="p, t, k, m, n, s, l, r">
+                <small style="color: #666; margin-top: 5px; display: block;">Separate with commas</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- IPA Sound Builder Method -->
+    <div id="ipa-method" class="method-section" style="display: none;">
+        <div class="ipa-builder">
+            <h4>🔤 IPA Sound Builder</h4>
+            <p style="margin-bottom: 20px; color: #666;">Click sounds to add them to your phoneme inventory. Build your sound system visually!</p>
+            
+            <!-- Vowel Builder -->
+            <div class="sound-category">
+                <h5>Vowels</h5>
+                <div class="ipa-grid vowels-grid">
+                    <div class="ipa-section">
+                        <h6>Front</h6>
+                        <button class="ipa-btn" data-ipa="i" data-type="vowel">i</button>
+                        <button class="ipa-btn" data-ipa="ɪ" data-type="vowel">ɪ</button>
+                        <button class="ipa-btn" data-ipa="e" data-type="vowel">e</button>
+                        <button class="ipa-btn" data-ipa="ɛ" data-type="vowel">ɛ</button>
+                        <button class="ipa-btn" data-ipa="æ" data-type="vowel">æ</button>
+                        <button class="ipa-btn" data-ipa="a" data-type="vowel">a</button>
+                    </div>
+                    <div class="ipa-section">
+                        <h6>Central</h6>
+                        <button class="ipa-btn" data-ipa="ɨ" data-type="vowel">ɨ</button>
+                        <button class="ipa-btn" data-ipa="ə" data-type="vowel">ə</button>
+                        <button class="ipa-btn" data-ipa="ɐ" data-type="vowel">ɐ</button>
+                        <button class="ipa-btn" data-ipa="ɑ" data-type="vowel">ɑ</button>
+                    </div>
+                    <div class="ipa-section">
+                        <h6>Back</h6>
+                        <button class="ipa-btn" data-ipa="ɯ" data-type="vowel">ɯ</button>
+                        <button class="ipa-btn" data-ipa="u" data-type="vowel">u</button>
+                        <button class="ipa-btn" data-ipa="ʊ" data-type="vowel">ʊ</button>
+                        <button class="ipa-btn" data-ipa="o" data-type="vowel">o</button>
+                        <button class="ipa-btn" data-ipa="ɔ" data-type="vowel">ɔ</button>
+                        <button class="ipa-btn" data-ipa="ɒ" data-type="vowel">ɒ</button>
+                    </div>
+                    <div class="ipa-section">
+                        <h6>Rounded</h6>
+                        <button class="ipa-btn" data-ipa="y" data-type="vowel">y</button>
+                        <button class="ipa-btn" data-ipa="ø" data-type="vowel">ø</button>
+                        <button class="ipa-btn" data-ipa="œ" data-type="vowel">œ</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Consonant Builder -->
+            <div class="sound-category">
+                <h5>Consonants</h5>
+                <div class="ipa-grid consonants-grid">
+                    <div class="ipa-section">
+                        <h6>Stops</h6>
+                        <button class="ipa-btn" data-ipa="p" data-type="consonant">p</button>
+                        <button class="ipa-btn" data-ipa="b" data-type="consonant">b</button>
+                        <button class="ipa-btn" data-ipa="t" data-type="consonant">t</button>
+                        <button class="ipa-btn" data-ipa="d" data-type="consonant">d</button>
+                        <button class="ipa-btn" data-ipa="k" data-type="consonant">k</button>
+                        <button class="ipa-btn" data-ipa="g" data-type="consonant">g</button>
+                        <button class="ipa-btn" data-ipa="q" data-type="consonant">q</button>
+                        <button class="ipa-btn" data-ipa="ʔ" data-type="consonant">ʔ</button>
+                    </div>
+                    <div class="ipa-section">
+                        <h6>Nasals</h6>
+                        <button class="ipa-btn" data-ipa="m" data-type="consonant">m</button>
+                        <button class="ipa-btn" data-ipa="n" data-type="consonant">n</button>
+                        <button class="ipa-btn" data-ipa="ŋ" data-type="consonant">ŋ</button>
+                        <button class="ipa-btn" data-ipa="ɲ" data-type="consonant">ɲ</button>
+                        <button class="ipa-btn" data-ipa="ɴ" data-type="consonant">ɴ</button>
+                    </div>
+                    <div class="ipa-section">
+                        <h6>Fricatives</h6>
+                        <button class="ipa-btn" data-ipa="f" data-type="consonant">f</button>
+                        <button class="ipa-btn" data-ipa="v" data-type="consonant">v</button>
+                        <button class="ipa-btn" data-ipa="θ" data-type="consonant">θ</button>
+                        <button class="ipa-btn" data-ipa="ð" data-type="consonant">ð</button>
+                        <button class="ipa-btn" data-ipa="s" data-type="consonant">s</button>
+                        <button class="ipa-btn" data-ipa="z" data-type="consonant">z</button>
+                        <button class="ipa-btn" data-ipa="ʃ" data-type="consonant">ʃ</button>
+                        <button class="ipa-btn" data-ipa="ʒ" data-type="consonant">ʒ</button>
+                        <button class="ipa-btn" data-ipa="x" data-type="consonant">x</button>
+                        <button class="ipa-btn" data-ipa="ɣ" data-type="consonant">ɣ</button>
+                        <button class="ipa-btn" data-ipa="h" data-type="consonant">h</button>
+                    </div>
+                    <div class="ipa-section">
+                        <h6>Liquids</h6>
+                        <button class="ipa-btn" data-ipa="l" data-type="consonant">l</button>
+                        <button class="ipa-btn" data-ipa="r" data-type="consonant">r</button>
+                        <button class="ipa-btn" data-ipa="ɾ" data-type="consonant">ɾ</button>
+                        <button class="ipa-btn" data-ipa="ʀ" data-type="consonant">ʀ</button>
+                        <button class="ipa-btn" data-ipa="ɹ" data-type="consonant">ɹ</button>
+                        <button class="ipa-btn" data-ipa="ɻ" data-type="consonant">ɻ</button>
+                    </div>
+                    <div class="ipa-section">
+                        <h6>Glides</h6>
+                        <button class="ipa-btn" data-ipa="w" data-type="consonant">w</button>
+                        <button class="ipa-btn" data-ipa="j" data-type="consonant">j</button>
+                        <button class="ipa-btn" data-ipa="ɥ" data-type="consonant">ɥ</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Selected Sounds Display -->
+            <div class="selected-sounds">
+                <h5>Selected Sounds</h5>
+                <div class="selected-vowels">
+                    <h6>Vowels (<span id="vowel-count">0</span>)</h6>
+                    <div id="selected-vowels-display" class="sound-chips"></div>
+                </div>
+                <div class="selected-consonants">
+                    <h6>Consonants (<span id="consonant-count">0</span>)</h6>
+                    <div id="selected-consonants-display" class="sound-chips"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Syllable Structure -->
+    <div class="form-group">
+        <label>Syllable Structures</label>
+        <div class="checkbox-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-top: 10px;">
+            <label class="checkbox-item">
+                <input type="checkbox" id="syl-v" checked> V (a)
+            </label>
+            <label class="checkbox-item">
+                <input type="checkbox" id="syl-cv" checked> CV (ka)
+            </label>
+            <label class="checkbox-item">
+                <input type="checkbox" id="syl-cvc"> CVC (kat)
+            </label>
+            <label class="checkbox-item">
+                <input type="checkbox" id="syl-ccv"> CCV (kra)
+            </label>
+            <label class="checkbox-item">
+                <input type="checkbox" id="syl-cvcc"> CVCC (kart)
+            </label>
+            <label class="checkbox-item">
+                <input type="checkbox" id="syl-ccvc"> CCVC (krat)
+            </label>
+        </div>
+    </div>
+
+    <!-- Cultural Environment -->
+    <div class="form-group">
+        <label for="environment">Cultural Environment</label>
+        <select id="environment" class="form-control">
+            <option value="mountain">Mountain/Highland</option>
+            <option value="coastal">Coastal/Maritime</option>
+            <option value="forest">Forest/Woodland</option>
+            <option value="desert">Desert/Arid</option>
+            <option value="plains">Plains/Grassland</option>
+            <option value="arctic">Arctic/Tundra</option>
+            <option value="island">Island/Archipelago</option>
+            <option value="urban">Urban/Metropolitan</option>
+        </select>
+        <small style="color: #666; margin-top: 5px; display: block;">This influences vocabulary and cultural terms</small>
+    </div>
+
+    <button class="btn btn-block" id="generate-phonology-btn">
+        🎵 Generate Sound System
+    </button>
+</div>
+
+<!-- Orthography Mapping Section -->
+<div id="orthography-section" class="section-card" style="display: none;">
+    <h3>✍️ Writing System (Orthography)</h3>
+    <p style="margin-bottom: 20px; color: #666;">Create the writing system for your language by mapping each sound to letters or letter combinations.</p>
+    
+    <div class="orthography-builder">
+        <div class="mapping-controls">
+            <div class="form-grid-3">
+                <button class="btn btn-secondary" id="auto-romanize-btn">📝 Auto-Romanize</button>
+                <button class="btn btn-info" id="suggest-orthography-btn">💡 Smart Suggestions</button>
+                <button class="btn btn-success" id="validate-orthography-btn">✅ Validate System</button>
+            </div>
+        </div>
+
+        <div class="mapping-interface">
+            <div class="mapping-header">
+                <div class="mapping-col">IPA Sound</div>
+                <div class="mapping-col">Written As</div>
+                <div class="mapping-col">Examples</div>
+                <div class="mapping-col">Actions</div>
+            </div>
+            <div id="mapping-rows" class="mapping-body">
+                <!-- Mapping rows will be generated here -->
+            </div>
+        </div>
+
+        <div class="orthography-preview">
+            <h4>📖 Preview</h4>
+            <div class="preview-examples">
+                <div class="preview-item">
+                    <span class="preview-label">Sample words in IPA:</span>
+                    <span id="ipa-examples" class="preview-text">katal, moŋa, ʃiren</span>
+                </div>
+                <div class="preview-item">
+                    <span class="preview-label">Sample words in your writing:</span>
+                    <span id="orthography-examples" class="preview-text">katal, monga, shiren</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Results Section -->
+<div id="phonology-results" style="display: none;">
+    <div class="result-card">
+        <h4>Generated Phonology</h4>
+        <div id="phoneme-display"></div>
+        <div id="orthography-display" style="margin-top: 20px;"></div>
+    </div>
+</div>
+
+<!-- Enhanced CSS for IPA Builder and Orthography -->
+<style>
+.method-section {
+    margin: 20px 0;
+    padding: 20px;
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    background: var(--bg-secondary);
+}
+
+.ipa-builder {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.sound-category {
+    margin-bottom: 30px;
+}
+
+.sound-category h5 {
+    color: var(--accent-primary);
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.ipa-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.ipa-section h6 {
+    margin-bottom: 10px;
+    color: var(--text-secondary);
+    font-weight: 600;
+    font-size: 0.9em;
+}
+
+.ipa-btn {
+    background: var(--bg-secondary);
+    border: 2px solid var(--border-light);
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin: 2px;
+    cursor: pointer;
+    font-family: 'Times New Roman', serif;
+    font-size: 16px;
+    font-weight: bold;
+    transition: all 0.2s ease;
+    min-width: 40px;
+}
+
+.ipa-btn:hover {
+    background: var(--accent-light);
+    border-color: var(--accent-primary);
+}
+
+.ipa-btn.selected {
+    background: var(--accent-primary);
+    color: white;
+    border-color: var(--accent-primary);
+}
+
+.selected-sounds {
+    background: var(--bg-accent);
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+.selected-sounds h5 {
+    color: var(--accent-primary);
+    margin-bottom: 15px;
+}
+
+.selected-sounds h6 {
+    margin-bottom: 10px;
+    color: var(--text-secondary);
+}
+
+.sound-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-height: 40px;
+    padding: 10px;
+    background: white;
+    border-radius: 6px;
+    border: 1px solid var(--border-light);
+}
+
+.sound-chip {
+    background: var(--accent-primary);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-family: 'Times New Roman', serif;
+    font-weight: bold;
+    position: relative;
+    cursor: pointer;
+}
+
+.sound-chip:hover {
+    background: var(--accent-secondary);
+}
+
+.sound-chip .remove-btn {
+    margin-left: 6px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.orthography-builder {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.mapping-controls {
+    margin-bottom: 20px;
+}
+
+.mapping-interface {
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.mapping-header {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr auto;
+    background: var(--bg-secondary);
+    padding: 15px;
+    font-weight: 600;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.mapping-body {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.mapping-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr auto;
+    padding: 12px 15px;
+    border-bottom: 1px solid var(--border-light);
+    align-items: center;
+}
+
+.mapping-row:hover {
+    background: var(--bg-accent);
+}
+
+.ipa-display {
+    font-family: 'Times New Roman', serif;
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--accent-primary);
+}
+
+.orthography-input {
+    padding: 6px 10px;
+    border: 1px solid var(--border-light);
+    border-radius: 4px;
+    width: 100%;
+}
+
+.orthography-preview {
+    margin-top: 30px;
+    padding: 20px;
+    background: var(--bg-accent);
+    border-radius: 8px;
+}
+
+.preview-examples {
+    display: grid;
+    gap: 15px;
+}
+
+.preview-item {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    align-items: center;
+    gap: 15px;
+}
+
+.preview-label {
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.preview-text {
+    font-family: 'Times New Roman', serif;
+    font-size: 16px;
+    padding: 8px 12px;
+    background: white;
+    border-radius: 4px;
+    border: 1px solid var(--border-light);
+}
+
+@media (max-width: 768px) {
+    .ipa-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .mapping-header,
+    .mapping-row {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .preview-item {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+}
+</style>
