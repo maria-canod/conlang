@@ -14,6 +14,78 @@ window.OverviewModule = {
         console.log('Overview events bound');
     },
 
+    generateOrthographyForLanguage(phonology) {
+        const orthographyMap = {};
+        
+        // Smart romanization rules for quick start
+        const vowelMappings = {
+            'a': 'a', 'e': 'e', 'i': 'i', 'o': 'o', 'u': 'u',
+            'ə': 'ë', 'ɛ': 'è', 'ɔ': 'ò', 'ɪ': 'ì', 'ʊ': 'ù',
+            'ʌ': 'ú', 'æ': 'ä', 'ø': 'ö', 'œ': 'ő', 'y': 'ü',
+            'ɨ': 'î', 'ɯ': 'û', 'ɤ': 'ô', 'ɐ': 'á', 'ɑ': 'â',
+            'ɒ': 'å', 'ã': 'ã', 'ẽ': 'ẽ', 'ĩ': 'ĩ', 'õ': 'õ', 'ũ': 'ũ'
+        };
+        
+        const consonantMappings = {
+            'p': 'p', 't': 't', 'k': 'k', 'q': 'q', 'b': 'b', 'd': 'd', 'g': 'g',
+            'm': 'm', 'n': 'n', 'l': 'l', 'r': 'r', 'f': 'f', 'v': 'v', 
+            's': 's', 'z': 'z', 'h': 'h', 'w': 'w', 'j': 'y',
+            'ŋ': 'ng', 'ɲ': 'ñ', 'ɳ': 'ņ', 'ʃ': 'sh', 'ʒ': 'zh', 
+            'θ': 'th', 'ð': 'dh', 'χ': 'x', 'ɣ': 'ġ', 'x': 'kh',
+            'ħ': 'ḥ', 'ʕ': 'ʿ', 'ɸ': 'φ', 'β': 'β', 'ʂ': 'ş', 'ʐ': 'ẑ',
+            'ɕ': 'ś', 'ʑ': 'ź', 'ç': 'ç', 'ʝ': 'ĵ', 'ʔ': "'", 'ɖ': 'ḍ',
+            'ʈ': 'ṭ', 'ɟ': 'ǰ', 'ɡ': 'g', 'ɢ': 'G', 'ʡ': 'ʔ',
+            'tʃ': 'ch', 'dʒ': 'j', 'ts': 'c', 'dz': 'ċ', 'ɾ': 'r̄',
+            'ɻ': 'ř', 'ʀ': 'R', 'ʁ': 'ṟ', 'ɭ': 'ḷ', 'ʎ': 'ľ',
+            'ɬ': 'ł', 'ɮ': 'ƚ', 'pʼ': "p'", 'tʼ': "t'", 'kʼ': "k'"
+        };
+        
+        // Track used symbols to prevent duplicates
+        const usedSymbols = new Set();
+        
+        // Map vowels
+        if (phonology.vowels) {
+            phonology.vowels.forEach(vowel => {
+                let orthoSymbol = vowelMappings[vowel] || vowel;
+                
+                // Resolve conflicts
+                if (usedSymbols.has(orthoSymbol)) {
+                    orthoSymbol = orthoSymbol + '̂'; // Add circumflex
+                    if (usedSymbols.has(orthoSymbol)) {
+                        orthoSymbol = orthoSymbol.replace('̂', '́'); // Try acute
+                    }
+                }
+                
+                orthographyMap[vowel] = orthoSymbol;
+                usedSymbols.add(orthoSymbol);
+            });
+        }
+        
+        // Map consonants
+        if (phonology.consonants) {
+            phonology.consonants.forEach(consonant => {
+                let orthoSymbol = consonantMappings[consonant] || consonant;
+                
+                // Resolve conflicts
+                if (usedSymbols.has(orthoSymbol)) {
+                    if (orthoSymbol.length === 1) {
+                        orthoSymbol = orthoSymbol + 'h';
+                        if (usedSymbols.has(orthoSymbol)) {
+                            orthoSymbol = orthoSymbol.replace('h', 'w');
+                        }
+                    } else {
+                        orthoSymbol = orthoSymbol + 'x';
+                    }
+                }
+                
+                orthographyMap[consonant] = orthoSymbol;
+                usedSymbols.add(orthoSymbol);
+            });
+        }
+        
+        return orthographyMap;
+    },
+
     generateCompleteLanguage() {
         console.log('Starting complete random language generation...');
         
@@ -37,6 +109,42 @@ window.OverviewModule = {
             // Generate the completely random language
             window.generator.generateCompleteLanguage();
             console.log('Random language generated successfully');
+
+            // AUTO-GENERATE ORTHOGRAPHY FOR QUICK START
+            setTimeout(() => {
+                console.log('Auto-generating orthography for quick start language...');
+                
+                // Only generate orthography if we have phonology
+                if (window.generator.language.phonology && 
+                    window.generator.language.phonology.vowels && 
+                    window.generator.language.phonology.consonants) {
+                    
+                    // Generate unique orthography mapping
+                    const orthographyMap = this.generateOrthographyForLanguage(window.generator.language.phonology);
+                    
+                    // Set it in the PhonologyModule
+                    if (window.PhonologyModule) {
+                        window.PhonologyModule.orthographyMap = orthographyMap;
+                        
+                        // Show orthography section if it exists
+                        const orthographySection = document.getElementById('orthography-section');
+                        if (orthographySection) {
+                            orthographySection.style.display = 'block';
+                        }
+                        
+                        // Update the phonology display
+                        window.PhonologyModule.displayPhonology(window.generator.language.phonology);
+                    }
+                    
+                    const uniqueCount = new Set(Object.values(orthographyMap)).size;
+                    const totalCount = Object.keys(orthographyMap).length;
+                    
+                    console.log(`Quick start orthography generated: ${totalCount} sounds → ${uniqueCount} unique symbols`);
+                    showToast(`Orthography generated! ${totalCount} sounds mapped to unique symbols`, 'info');
+                } else {
+                    console.log('No phonology available for orthography generation');
+                }
+            }, 1000); // Short delay to let generation complete
             
             if (progressFill) progressFill.style.width = '80%';
             

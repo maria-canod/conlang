@@ -199,17 +199,268 @@
             }
         });
 
-        // Sample language modal functions
-        function showSampleModal() {
-            document.getElementById('sample-modal').style.display = 'block';
+        // FIXED: Unique orthography generation - each IPA sound gets its own representation
+
+        function generateOrthographyForPreset(phonology) {
+            const orthographyMap = {};
+            
+            // UNIQUE mappings - no duplicates allowed!
+            const vowelMappings = {
+                // Basic vowels - keep simple
+                'a': 'a',
+                'e': 'e', 
+                'i': 'i',
+                'o': 'o',
+                'u': 'u',
+                
+                // Modified vowels - unique representations
+                'ə': 'ë',     // schwa -> e with diaeresis
+                'ɛ': 'è',     // open e -> e with grave
+                'ɔ': 'ò',     // open o -> o with grave  
+                'ɪ': 'ì',     // short i -> i with grave
+                'ʊ': 'ù',     // short u -> u with grave
+                'ʌ': 'ú',     // wedge -> u with acute
+                'æ': 'ä',     // ash -> a with diaeresis
+                'ø': 'ö',     // o with stroke -> o with diaeresis
+                'œ': 'ő',     // o-e ligature -> o with double acute
+                'y': 'ü',     // front rounded -> u with diaeresis  
+                'ɨ': 'î',     // barred i -> i with circumflex
+                'ɯ': 'û',     // turned m -> u with circumflex
+                'ɤ': 'ô',     // rams horn -> o with circumflex
+                'ɐ': 'á',     // turned a -> a with acute
+                'ɑ': 'â',     // script a -> a with circumflex
+                'ɒ': 'å',     // turned script a -> a with ring
+                
+                // Nasal vowels if present
+                'ã': 'ã',     // nasal a
+                'ẽ': 'ẽ',     // nasal e
+                'ĩ': 'ĩ',     // nasal i
+                'õ': 'õ',     // nasal o
+                'ũ': 'ũ',     // nasal u
+                
+                // Long vowels
+                'aː': 'aa',   // long a
+                'eː': 'ee',   // long e
+                'iː': 'ii',   // long i
+                'oː': 'oo',   // long o
+                'uː': 'uu',   // long u
+            };
+            
+            const consonantMappings = {
+                // Basic consonants - keep simple
+                'p': 'p', 't': 't', 'k': 'k', 'q': 'q',
+                'b': 'b', 'd': 'd', 'g': 'g',
+                'm': 'm', 'n': 'n', 'l': 'l', 'r': 'r',
+                'f': 'f', 'v': 'v', 's': 's', 'z': 'z',
+                'h': 'h', 'w': 'w', 'j': 'y',
+                
+                // Unique representations for similar sounds
+                'ŋ': 'ng',     // eng
+                'ɲ': 'ñ',      // palatal nasal -> n with tilde
+                'ɳ': 'ņ',      // retroflex nasal -> n with cedilla
+                
+                // Fricatives - all unique
+                'ʃ': 'sh',     // esh
+                'ʒ': 'zh',     // ezh  
+                'θ': 'th',     // theta
+                'ð': 'dh',     // eth
+                'χ': 'x',      // chi
+                'ɣ': 'ġ',      // gamma -> g with dot
+                'x': 'kh',     // x -> kh to distinguish from chi
+                'ħ': 'ḥ',      // pharyngeal fricative -> h with dot below
+                'ʕ': 'ʿ',      // ayin
+                'ɸ': 'φ',      // phi
+                'β': 'β',      // beta
+                'ʂ': 'ş',      // retroflex s -> s with cedilla
+                'ʐ': 'ẑ',      // retroflex z -> z with circumflex
+                'ɕ': 'ś',      // alveolopalatal s -> s with acute
+                'ʑ': 'ź',      // alveolopalatal z -> z with acute
+                'ç': 'ç',      // palatal fricative
+                'ʝ': 'ĵ',      // palatal fricative -> j with circumflex
+                
+                // Stops and affricates - unique
+                'ʔ': "'",      // glottal stop
+                'ɖ': 'ḍ',      // retroflex d -> d with dot below
+                'ʈ': 'ṭ',      // retroflex t -> t with dot below
+                'ɟ': 'ǰ',      // palatal stop -> j with caron
+                'ɡ': 'g',      // script g (same as regular g)
+                'ɢ': 'G',      // small capital g -> capital G
+                'ʡ': 'ʔ',      // epiglottal stop -> different from glottal
+                'tʃ': 'ch',    // t-esh -> ch
+                'dʒ': 'j',     // d-ezh -> j
+                'ts': 'c',     // t-s -> c
+                'dz': 'ċ',     // d-z -> c with dot
+                
+                // Liquids - all unique
+                'ɾ': 'r̄',      // tap -> r with macron
+                'ɻ': 'ř',      // retroflex approximant -> r with caron
+                'ʀ': 'R',      // uvular trill -> capital R
+                'ʁ': 'ṟ',      // uvular fricative -> r with dot below
+                'ɭ': 'ḷ',      // retroflex l -> l with dot below
+                'ʎ': 'ľ',      // palatal l -> l with caron
+                'ɬ': 'ł',      // lateral fricative -> l with stroke
+                'ɮ': 'ƚ',      // lateral fricative voiced -> different l
+                
+                // Ejectives - unique
+                'pʼ': "p'",    // ejective p
+                'tʼ': "t'",    // ejective t
+                'kʼ': "k'",    // ejective k
+                'qʼ': "q'",    // ejective q
+                'tsʼ': "c'",   // ejective ts
+                'tʃʼ': "ch'",  // ejective ch
+                
+                // Implosives - unique
+                'ɓ': 'ḅ',      // implosive b -> b with dot below
+                'ɗ': 'ḏ',      // implosive d -> d with line below
+                'ɠ': 'ġ',      // implosive g -> g with dot (different from gamma)
+                'ʄ': 'ǰ',      // implosive j -> j with caron
+                'ɢ̄': 'Ḡ',      // implosive G -> G with line
+                
+                // Glides and approximants - unique
+                'ɥ': 'ɥ',      // labial-palatal approximant
+                'ɹ': 'ɹ',      // alveolar approximant (keep IPA)
+                'ʋ': 'v̌',      // labiodental approximant -> v with caron
+                'ɰ': 'ɰ',      // velar approximant (keep IPA)
+                
+                // Click consonants - unique
+                'ǀ': '|',      // dental click
+                'ǃ': '!',      // alveolar click  
+                'ǂ': '‖',      // lateral click
+                'ǁ': '||',     // palatal click
+                
+                // Rare sounds - unique representations
+                'ʘ': 'ʘ',      // bilabial click (keep IPA)
+                'ɺ': 'ɺ',      // lateral flap (keep IPA)
+                'ʢ': 'ʢ',      // epiglottal fricative (keep IPA)
+                'ʜ': 'ʜ',      // voiceless epiglottal fricative (keep IPA)
+            };
+            
+            // Track used orthographic symbols to prevent duplicates
+            const usedSymbols = new Set();
+            
+            // Map vowels first
+            if (phonology.vowels) {
+                phonology.vowels.forEach(vowel => {
+                    let orthoSymbol = vowelMappings[vowel];
+                    
+                    if (!orthoSymbol) {
+                        // Fallback: create unique symbol for unmapped vowels
+                        orthoSymbol = vowel; // Keep original IPA if no mapping
+                    }
+                    
+                    // Check for conflicts and resolve
+                    if (usedSymbols.has(orthoSymbol)) {
+                        // Add modifier to make unique
+                        orthoSymbol = orthoSymbol + '̂'; // Add circumflex
+                        if (usedSymbols.has(orthoSymbol)) {
+                            orthoSymbol = orthoSymbol.replace('̂', '́'); // Try acute instead
+                        }
+                    }
+                    
+                    orthographyMap[vowel] = orthoSymbol;
+                    usedSymbols.add(orthoSymbol);
+                });
+            }
+            
+            // Map consonants
+            if (phonology.consonants) {
+                phonology.consonants.forEach(consonant => {
+                    let orthoSymbol = consonantMappings[consonant];
+                    
+                    if (!orthoSymbol) {
+                        // Fallback: create unique symbol for unmapped consonants
+                        orthoSymbol = consonant; // Keep original IPA if no mapping
+                    }
+                    
+                    // Check for conflicts and resolve
+                    if (usedSymbols.has(orthoSymbol)) {
+                        // Add modifier to make unique
+                        if (orthoSymbol.length === 1) {
+                            orthoSymbol = orthoSymbol + 'h'; // Add h
+                            if (usedSymbols.has(orthoSymbol)) {
+                                orthoSymbol = orthoSymbol.replace('h', 'w'); // Try w instead
+                            }
+                        } else {
+                            orthoSymbol = orthoSymbol + 'x'; // Add x for multi-char
+                        }
+                    }
+                    
+                    orthographyMap[consonant] = orthoSymbol;
+                    usedSymbols.add(orthoSymbol);
+                });
+            }
+            
+            // Verify no duplicates exist
+            const values = Object.values(orthographyMap);
+            const uniqueValues = new Set(values);
+            
+            if (values.length !== uniqueValues.size) {
+                console.warn('Duplicate orthographic symbols detected! Fixing...');
+                
+                // Fix any remaining duplicates
+                const valueCount = {};
+                Object.entries(orthographyMap).forEach(([ipa, ortho]) => {
+                    if (!valueCount[ortho]) {
+                        valueCount[ortho] = [];
+                    }
+                    valueCount[ortho].push(ipa);
+                });
+                
+                // Resolve duplicates
+                Object.entries(valueCount).forEach(([ortho, ipaList]) => {
+                    if (ipaList.length > 1) {
+                        ipaList.forEach((ipa, index) => {
+                            if (index > 0) {
+                                // Modify duplicates
+                                orthographyMap[ipa] = ortho + index;
+                            }
+                        });
+                    }
+                });
+            }
+            
+            console.log('Generated unique orthography:', orthographyMap);
+            console.log('Total mappings:', Object.keys(orthographyMap).length);
+            console.log('Unique symbols:', new Set(Object.values(orthographyMap)).size);
+            
+            return orthographyMap;
         }
 
-        function closeSampleModal() {
-            document.getElementById('sample-modal').style.display = 'none';
-        }
+        // ENHANCED: Display orthography mapping with better organization
+        // Add this function to show the user what mappings were created
 
-        // Load sample language with cultural preset
-        // FIXED loadSampleLanguage function - Replace the entire script section in your index.html
+        function displayOrthographyMappings(orthographyMap, phonology) {
+            console.log('\n=== ORTHOGRAPHY SYSTEM ===');
+            
+            if (phonology.vowels && phonology.vowels.length > 0) {
+                console.log('\nVOWELS:');
+                phonology.vowels.forEach(vowel => {
+                    const ortho = orthographyMap[vowel];
+                    console.log(`  ${vowel} → ${ortho}`);
+                });
+            }
+            
+            if (phonology.consonants && phonology.consonants.length > 0) {
+                console.log('\nCONSONANTS:');
+                phonology.consonants.forEach(consonant => {
+                    const ortho = orthographyMap[consonant];
+                    console.log(`  ${consonant} → ${ortho}`);
+                });
+            }
+            
+            console.log('\n=== EXAMPLE WORDS ===');
+            // Generate a few example words showing the conversion
+            const exampleWords = ['katal', 'ʃiren', 'θəŋma'];
+            exampleWords.forEach(ipaWord => {
+                let orthoWord = ipaWord;
+                Object.entries(orthographyMap).forEach(([ipa, ortho]) => {
+                    orthoWord = orthoWord.replace(new RegExp(ipa, 'g'), ortho);
+                });
+                if (orthoWord !== ipaWord) {
+                    console.log(`  ${ipaWord} → ${orthoWord}`);
+                }
+            });
+        }
 
         // Sample language modal functions
         function showSampleModal() {
@@ -796,6 +1047,36 @@
 
             // Generate core vocabulary using existing system
             window.generator.generateVocabulary();
+
+            setTimeout(() => {
+                console.log('Generating UNIQUE orthography for preset language...');
+                
+                // Generate unique orthography mapping
+                const orthographyMap = generateOrthographyForPreset(window.generator.language.phonology);
+                
+                // Display the mappings for user reference
+                displayOrthographyMappings(orthographyMap, window.generator.language.phonology);
+                
+                // Set it in the PhonologyModule
+                if (window.PhonologyModule) {
+                    window.PhonologyModule.orthographyMap = orthographyMap;
+                    
+                    // Show orthography section if it exists
+                    const orthographySection = document.getElementById('orthography-section');
+                    if (orthographySection) {
+                        orthographySection.style.display = 'block';
+                    }
+                    
+                    // Update the phonology display
+                    window.PhonologyModule.displayPhonology(window.generator.language.phonology);
+                }
+                
+                const uniqueCount = new Set(Object.values(orthographyMap)).size;
+                const totalCount = Object.keys(orthographyMap).length;
+                
+                console.log(`Orthography generated: ${totalCount} sounds mapped to ${uniqueCount} unique symbols`);
+                showToast(`Unique orthography generated! ${totalCount} sounds → ${uniqueCount} unique symbols`, 'success');
+            }, 2000);
             
             // GENERATE AND ADD CULTURAL TERMS TO DICTIONARY
             setTimeout(() => {

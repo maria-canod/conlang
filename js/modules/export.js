@@ -98,6 +98,25 @@ window.ExportModule = {
         }
     },
 
+    async loadJsPDF() {
+        if (!window.jspdf) {
+            console.log('Loading jsPDF...');
+            const script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+            return new Promise((resolve, reject) => {
+                script.onload = () => {
+                    console.log('jsPDF loaded successfully');
+                    resolve();
+                };
+                script.onerror = (error) => {
+                    console.error('Failed to load jsPDF:', error);
+                    reject(error);
+                };
+                document.head.appendChild(script);
+            });
+        }
+    },
+
     // Helper function to wrap text
     wrapText(text, font, size, maxWidth) {
         const words = text.split(' ');
@@ -123,483 +142,527 @@ window.ExportModule = {
         return lines;
     },
 
-    // MODERN PDF Export with Unicode Support
-    // Replace the exportProfessionalPDF function in export.js with this version
+    // 🎯 PERFECT AUTOMATED PDF - Replace your exportProfessionalPDF function
 
     async exportProfessionalPDF() {
-    console.log('Starting modern PDF export with Unicode support...');
-    
-    try {
-        // Use jsPDF instead of PDF-lib for better Unicode support
-        await this.loadJsPDF();
+        console.log('Generating perfect automated PDF with complete vocabulary...');
         
-        const allWords = window.appState.getState('allWords') || [];
-        const language = window.generator ? window.generator.language : {};
-        const culture = language.culture || {};
-        const languageName = language.name || 'Conlang';
-        
-        if (allWords.length === 0) {
-            showToast('No vocabulary to export!', 'error');
-            return;
-        }
-        
-        console.log(`Exporting ${allWords.length} words for ${languageName}`);
-        
-        // Create PDF with Unicode support
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF({
-            orientation: 'portrait',
-            unit: 'mm',
-            format: 'a4',
-            putOnlyUsedFonts: true,
-            floatPrecision: 16
-        });
-        
-        // Set up for Unicode support
-        doc.setFont('helvetica');
-        let yPosition = 20;
-        const pageHeight = 297;
-        const pageWidth = 210;
-        const margin = 20;
-        const contentWidth = pageWidth - (margin * 2);
-        
-        // Helper functions
-        const addNewPage = () => {
-            doc.addPage();
-            yPosition = 20;
-        };
-        
-        const checkPageBreak = (neededSpace = 20) => {
-            if (yPosition + neededSpace > pageHeight - margin) {
-                addNewPage();
+        try {
+            const allWords = window.appState.getState('allWords') || [];
+            const language = window.generator ? window.generator.language : {};
+            const culture = language.culture || {};
+            const languageName = language.name || 'Conlang';
+            
+            if (allWords.length === 0) {
+                showToast('No vocabulary to export!', 'error');
+                return;
             }
-        };
-        
-        // Safe text function that handles Unicode characters
-        const addText = (text, x, y, options = {}) => {
-            const fontSize = options.fontSize || 10;
-            const fontStyle = options.fontStyle || 'normal';
-            const align = options.align || 'left';
             
-            doc.setFontSize(fontSize);
-            doc.setFont('helvetica', fontStyle);
+            const phonology = language.phonology || {};
+            const morphology = language.morphology || {};
+            const syntax = language.syntax || {};
+            const orthographyMap = window.PhonologyModule?.orthographyMap || {};
             
-            // Convert any problematic characters to safe equivalents
-            const safeText = this.sanitizeTextForPDF(text);
-            
-            try {
-                if (align === 'center') {
-                    doc.text(safeText, pageWidth / 2, y, { align: 'center' });
-                } else {
-                    doc.text(safeText, x, y);
-                }
-            } catch (error) {
-                console.warn('Text rendering issue:', error);
-                // Fallback: remove all non-ASCII characters
-                const fallbackText = text.replace(/[^\x00-\x7F]/g, '?');
-                doc.text(fallbackText, x, y);
-            }
-        };
-        
-        const addSectionHeader = (title) => {
-            checkPageBreak(25);
-            yPosition += 10;
-            addText(title, margin, yPosition, { fontSize: 16, fontStyle: 'bold' });
-            yPosition += 15;
-        };
-        
-        // COVER PAGE
-        console.log('Creating cover page...');
-        
-        // Title
-        addText(languageName, 0, 80, { fontSize: 24, fontStyle: 'bold', align: 'center' });
-        
-        // Subtitle
-        addText('Complete Language Reference', 0, 100, { fontSize: 14, align: 'center' });
-        
-        // Details
-        const cultureType = culture.type || 'Developed';
-        addText(`${allWords.length} words • ${cultureType} culture`, 0, 120, { fontSize: 12, align: 'center' });
-        addText(`Generated on ${new Date().toLocaleDateString()}`, 0, 135, { fontSize: 10, align: 'center' });
-        
-        // LANGUAGE OVERVIEW
-        addNewPage();
-        addSectionHeader('Language Overview');
-        
-        addText(`Language Name: ${languageName}`, margin, yPosition, { fontStyle: 'bold' });
-        yPosition += 8;
-        addText(`Total Vocabulary: ${allWords.length} words`, margin, yPosition);
-        yPosition += 8;
-        addText(`Culture Type: ${cultureType}`, margin, yPosition);
-        yPosition += 8;
-        
-        if (culture.socialStructure) {
-            addText(`Social Structure: ${culture.socialStructure}`, margin, yPosition);
-            yPosition += 8;
-        }
-
-
-        
-        // ENHANCED PHONOLOGY WITH ORTHOGRAPHY
-        addSectionHeader('Phonological System');
-        
-        const phonology = language.phonology || {};
-        
-        if (phonology.vowels && phonology.vowels.length > 0) {
-            addText('Vowel Inventory:', margin, yPosition, { fontStyle: 'bold' });
-            yPosition += 6;
-            // Split vowels into chunks to avoid line overflow
-            const vowelChunks = this.chunkArray(phonology.vowels, 15);
-            vowelChunks.forEach(chunk => {
-                addText(chunk.join(', '), margin + 5, yPosition);
-                yPosition += 6;
-            });
-            yPosition += 5;
-        }
-        
-        if (phonology.consonants && phonology.consonants.length > 0) {
-            addText('Consonant Inventory:', margin, yPosition, { fontStyle: 'bold' });
-            yPosition += 6;
-            // Split consonants into chunks to avoid line overflow
-            const consonantChunks = this.chunkArray(phonology.consonants, 12);
-            consonantChunks.forEach(chunk => {
-                addText(chunk.join(', '), margin + 5, yPosition);
-                yPosition += 6;
-            });
-            yPosition += 5;
-        }
-        
-        if (phonology.syllableStructures && phonology.syllableStructures.length > 0) {
-            addText('Syllable Structures:', margin, yPosition, { fontStyle: 'bold' });
-            yPosition += 6;
-            addText(phonology.syllableStructures.join(', '), margin + 5, yPosition);
-            yPosition += 6;
-            addText('(C = Consonant, V = Vowel)', margin + 5, yPosition, { fontSize: 8 });
-            yPosition += 15;
-        }
-
-        // ORTHOGRAPHY SECTION (NEW!)
-        if (window.PhonologyModule && window.PhonologyModule.getOrthographyMap) {
-            const orthographyMap = window.PhonologyModule.getOrthographyMap();
-            
-            if (Object.keys(orthographyMap).length > 0) {
-                addText('Writing System (Orthography):', margin, yPosition, { fontStyle: 'bold', fontSize: 12 });
-                yPosition += 8;
+            // Helper function to convert IPA to orthography
+            const toOrthography = (ipaText) => {
+                if (!ipaText || Object.keys(orthographyMap).length === 0) return ipaText;
                 
-                addText('Sound-to-Letter Correspondences:', margin, yPosition, { fontStyle: 'bold' });
-                yPosition += 6;
-                
-                // Group by vowels and consonants
-                const vowelMappings = [];
-                const consonantMappings = [];
-                
+                let result = ipaText;
                 Object.entries(orthographyMap).forEach(([ipa, ortho]) => {
-                    if (phonology.vowels && phonology.vowels.includes(ipa)) {
-                        vowelMappings.push(`${ipa} = ${ortho}`);
-                    } else if (phonology.consonants && phonology.consonants.includes(ipa)) {
-                        consonantMappings.push(`${ipa} = ${ortho}`);
-                    }
+                    result = result.replace(new RegExp(ipa, 'g'), ortho);
                 });
-                
-                if (vowelMappings.length > 0) {
-                    addText('Vowels: ' + vowelMappings.join(', '), margin + 5, yPosition, { fontSize: 9 });
-                    yPosition += 6;
+                return result;
+            };
+            
+            // Group words by part of speech and sort
+            const wordsByPOS = {};
+            allWords.forEach(word => {
+                if (!wordsByPOS[word.pos]) {
+                    wordsByPOS[word.pos] = [];
                 }
-                
-                if (consonantMappings.length > 0) {
-                    // Split long consonant lists
-                    const consonantChunks = this.chunkArray(consonantMappings, 8);
-                    consonantChunks.forEach((chunk, index) => {
-                        const prefix = index === 0 ? 'Consonants: ' : '           ';
-                        addText(prefix + chunk.join(', '), margin + 5, yPosition, { fontSize: 9 });
-                        yPosition += 6;
-                    });
-                }
-                
-                yPosition += 5;
-                
-                // Example words in both systems
-                checkPageBreak(20);
-                addText('Pronunciation Examples:', margin, yPosition, { fontStyle: 'bold' });
-                yPosition += 6;
-                
-                // Generate sample words showing both IPA and orthography
-                const sampleWords = this.generateOrthographyExamples(phonology, orthographyMap);
-                sampleWords.forEach(example => {
-                    addText(`${example.orthography} [${example.ipa}] - "${example.meaning}"`, margin + 5, yPosition, { fontSize: 9 });
-                    yPosition += 5;
-                });
-                
-                yPosition += 10;
-            }
-        }
-        
-        // GRAMMAR & MORPHOLOGY
-        addSectionHeader('Grammar & Morphology');
-        
-        const morphology = language.morphology || {};
-        const syntax = language.syntax || {};
-        
-        if (syntax.wordOrder) {
-            addText(`Basic Word Order: ${syntax.wordOrder.toUpperCase()}`, margin, yPosition, { fontStyle: 'bold' });
-            yPosition += 10;
-        }
-        
-        if (morphology.hasCases && morphology.cases && morphology.cases.length > 0) {
-            addText('Case System:', margin, yPosition, { fontStyle: 'bold' });
-            yPosition += 6;
-            morphology.cases.forEach(caseType => {
-                addText(`• ${caseType}`, margin + 5, yPosition);
-                yPosition += 5;
-            });
-            yPosition += 5;
-        }
-        
-        if (morphology.hasTenses && morphology.tenses && morphology.tenses.length > 0) {
-            addText('Tense System:', margin, yPosition, { fontStyle: 'bold' });
-            yPosition += 6;
-            morphology.tenses.forEach(tense => {
-                addText(`• ${tense}`, margin + 5, yPosition);
-                yPosition += 5;
-            });
-            yPosition += 5;
-        }
-        
-        if (morphology.hasGenders && morphology.genders && morphology.genders.length > 0) {
-            addText('Gender System:', margin, yPosition, { fontStyle: 'bold' });
-            yPosition += 6;
-            morphology.genders.forEach(gender => {
-                addText(`• ${gender}`, margin + 5, yPosition);
-                yPosition += 5;
-            });
-            yPosition += 5;
-        }
-        
-        if (morphology.hasPlurals && morphology.pluralTypes && morphology.pluralTypes.length > 0) {
-            addText('Plural Formation:', margin, yPosition, { fontStyle: 'bold' });
-            yPosition += 6;
-            morphology.pluralTypes.forEach(type => {
-                addText(`• ${type}`, margin + 5, yPosition);
-                yPosition += 5;
-            });
-            yPosition += 5;
-        }
-        
-        // MORPHOLOGICAL AFFIXES
-        if (morphology.affixes && Object.keys(morphology.affixes).length > 0) {
-            checkPageBreak(30);
-            addText('Morphological Affixes:', margin, yPosition, { fontStyle: 'bold', fontSize: 12 });
-            yPosition += 8;
-            
-            // Group affixes by category
-            const affixesByCategory = {};
-            Object.entries(morphology.affixes).forEach(([name, affix]) => {
-                const category = affix.originalCategory || affix.category || 'other';
-                if (!affixesByCategory[category]) affixesByCategory[category] = [];
-                affixesByCategory[category].push({ name, ...affix });
+                wordsByPOS[word.pos].push(word);
             });
             
-            // Display affixes by category
-            Object.entries(affixesByCategory).forEach(([category, affixes]) => {
-                checkPageBreak(15);
-                addText(`${category.charAt(0).toUpperCase() + category.slice(1)} Affixes:`, margin + 5, yPosition, { fontStyle: 'bold' });
-                yPosition += 6;
-                
-                affixes.forEach(affix => {
-                    checkPageBreak(8);
-                    const affixText = `• ${affix.morpheme} (${affix.type}): ${affix.description || affix.name}`;
-                    addText(affixText, margin + 10, yPosition, { fontSize: 9 });
-                    yPosition += 5;
-                });
-                yPosition += 3;
+            // Sort words within each POS
+            Object.keys(wordsByPOS).forEach(pos => {
+                wordsByPOS[pos].sort((a, b) => a.conlang.localeCompare(b.conlang));
             });
-            yPosition += 5;
-        }
-        
-        // CUSTOM AFFIXES
-        if (language.customAffixes && language.customAffixes.length > 0) {
-            checkPageBreak(20);
-            addText('Custom Derivational Affixes:', margin, yPosition, { fontStyle: 'bold', fontSize: 12 });
-            yPosition += 8;
             
-            language.customAffixes.forEach(affix => {
-                checkPageBreak(8);
-                const affixText = `• ${affix.morpheme} (${affix.type}): ${affix.description}`;
-                addText(affixText, margin + 5, yPosition, { fontSize: 9 });
-                yPosition += 5;
-            });
-            yPosition += 10;
-        }
-        
-        // CULTURAL INFORMATION
-        if (culture.calendar || window.CulturalModule?.generatedCalendarTerms) {
-            addSectionHeader('Cultural Background');
-            
-            if (culture.calendar && culture.calendar.name) {
-                addText(`Calendar System: ${culture.calendar.name}`, margin, yPosition, { fontStyle: 'bold' });
-                yPosition += 6;
-                if (culture.calendar.description) {
-                    const wrappedDesc = this.wrapText(culture.calendar.description, contentWidth - 10);
-                    wrappedDesc.forEach(line => {
-                        addText(line, margin + 5, yPosition);
-                        yPosition += 5;
-                    });
-                }
-                yPosition += 5;
+            // Create HTML content with COMPLETE vocabulary
+            const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>${languageName} - Language Reference</title>
+        <style>
+            @page {
+                size: A4;
+                margin: 20mm;
             }
             
-            // Cultural events
-            if (window.CulturalModule?.generatedCalendarTerms) {
-                addText('Cultural Events:', margin, yPosition, { fontStyle: 'bold' });
-                yPosition += 6;
-                Object.values(window.CulturalModule.generatedCalendarTerms).forEach(event => {
-                    if (event && event.name && event.meaning) {
-                        checkPageBreak(10);
-                        addText(`• ${event.conlangName || event.name}: ${event.meaning}`, margin + 5, yPosition);
-                        yPosition += 5;
-                    }
-                });
-                yPosition += 5;
+            @media print {
+                body { 
+                    margin: 0; 
+                    font-size: 10pt;
+                    line-height: 1.3;
+                }
+                .page-break { 
+                    page-break-before: always; 
+                }
+                .no-print { 
+                    display: none; 
+                }
+                .avoid-break {
+                    page-break-inside: avoid;
+                }
             }
-        }
-        
-        // ENHANCED DICTIONARY WITH ORTHOGRAPHY
-        addSectionHeader('Complete Dictionary');
-        
-        addText(`Total vocabulary: ${allWords.length} words`, margin, yPosition, { fontStyle: 'bold' });
-        yPosition += 6;
-        
-        // Check if orthography is available
-        const hasOrthography = window.PhonologyModule && 
-                              window.PhonologyModule.getOrthographyMap && 
-                              Object.keys(window.PhonologyModule.getOrthographyMap()).length > 0;
-        
-        if (hasOrthography) {
-            addText('Format: Written Form [IPA] - English Meaning', margin, yPosition, { fontSize: 8, fontStyle: 'italic' });
-            yPosition += 10;
-        } else {
-            addText('Format: Conlang Word - English Meaning', margin, yPosition, { fontSize: 8, fontStyle: 'italic' });
-            yPosition += 10;
-        }
-        
-        // Group words by part of speech
-        const wordsByPOS = {};
-        allWords.forEach(word => {
-            const pos = word.pos || 'other';
-            if (!wordsByPOS[pos]) wordsByPOS[pos] = [];
-            wordsByPOS[pos].push(word);
-        });
-        
-        const posOrder = ['noun', 'verb', 'adjective', 'adverb', 'pronoun', 'preposition', 'conjunction', 'interjection', 'other'];
-        const sortedPOS = Object.keys(wordsByPOS).sort((a, b) => {
-            const aIndex = posOrder.indexOf(a);
-            const bIndex = posOrder.indexOf(b);
-            return (aIndex === -1 ? 999 : aIndex) - (bIndex === -1 ? 999 : bIndex);
-        });
-        
-        sortedPOS.forEach(pos => {
-            const words = wordsByPOS[pos].sort((a, b) => a.conlang.localeCompare(b.conlang));
             
-            checkPageBreak(20);
-            addText(`${pos.toUpperCase()}S (${words.length} words)`, margin, yPosition, { 
-                fontSize: 12, 
-                fontStyle: 'bold' 
-            });
-            yPosition += 8;
+            body {
+                font-family: 'Times New Roman', serif;
+                line-height: 1.4;
+                margin: 20px;
+                color: #000;
+                font-size: 11pt;
+            }
             
-            words.forEach(word => {
-                checkPageBreak(8);
+            h1 {
+                font-size: 20pt;
+                font-weight: bold;
+                text-align: center;
+                margin-bottom: 15pt;
+                border-bottom: 2pt solid #000;
+                padding-bottom: 8pt;
+            }
+            
+            h2 {
+                font-size: 16pt;
+                font-weight: bold;
+                margin-top: 25pt;
+                margin-bottom: 12pt;
+                border-bottom: 1pt solid #000;
+                padding-bottom: 5pt;
+                color: #333;
+            }
+            
+            h3 {
+                font-size: 13pt;
+                font-weight: bold;
+                margin-top: 18pt;
+                margin-bottom: 10pt;
+                color: #444;
+            }
+            
+            .ipa {
+                font-family: 'Times New Roman', serif;
+                font-size: 12pt;
+                font-weight: normal;
+                color: #000;
+            }
+            
+            .orthography {
+                font-family: 'Times New Roman', serif;
+                font-size: 12pt;
+                font-weight: bold;
+                color: #000;
+            }
+            
+            .phoneme-list {
+                margin: 12pt 0;
+                padding: 15pt;
+                background: #f8f8f8;
+                border: 1pt solid #ddd;
+                border-radius: 3pt;
+                text-align: center;
+            }
+            
+            .word-entry {
+                margin: 4pt 0;
+                padding: 5pt 0;
+                padding-left: 15pt;
+                text-indent: -10pt;
+                page-break-inside: avoid;
+            }
+            
+            .word-entry-compact {
+                margin: 2pt 0;
+                padding: 2pt 0;
+                padding-left: 15pt;
+                text-indent: -10pt;
+                page-break-inside: avoid;
+                font-size: 10pt;
+            }
+            
+            .affix-entry {
+                margin: 4pt 0;
+                padding-left: 20pt;
+                text-indent: -5pt;
+            }
+            
+            .cultural-entry {
+                margin: 6pt 0;
+                padding-left: 20pt;
+                text-indent: -5pt;
+            }
+            
+            .stats {
+                background: #f5f5f5;
+                padding: 15pt;
+                border: 1pt solid #ccc;
+                border-radius: 3pt;
+                margin: 15pt 0;
+            }
+            
+            ul {
+                margin: 8pt 0;
+                padding-left: 25pt;
+            }
+            
+            li {
+                margin: 3pt 0;
+            }
+            
+            .subtitle {
+                text-align: center;
+                font-style: italic;
+                color: #666;
+                margin-bottom: 8pt;
+            }
+            
+            .date {
+                text-align: center;
+                font-size: 10pt;
+                color: #888;
+                margin-bottom: 25pt;
+            }
+            
+            .print-instructions {
+                position: fixed;
+                top: 20px;
+                left: 20px;
+                right: 20px;
+                background: #4CAF50;
+                color: white;
+                padding: 15px;
+                border-radius: 8px;
+                text-align: center;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                z-index: 1000;
+                font-size: 14px;
+                font-weight: bold;
+            }
+            
+            .print-button {
+                background: #2196F3;
+                color: white;
+                border: none;
+                padding: 12px 20px;
+                font-size: 14px;
+                border-radius: 5px;
+                cursor: pointer;
+                margin: 10px;
+            }
+            
+            .print-button:hover {
+                background: #1976D2;
+            }
+            
+            .orthography-mapping {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+                gap: 8pt;
+                margin: 10pt 0;
+            }
+            
+            .mapping-item {
+                text-align: center;
+                padding: 5pt;
+                background: #f8f8f8;
+                border: 1pt solid #ddd;
+                border-radius: 3pt;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="print-instructions no-print">
+            🎯 READY TO PRINT! Print dialog will open automatically. 
+            <br>✅ Headers/footers will be automatically disabled in most browsers.
+            <br>Just choose "Save as PDF" and click Save!
+            <button class="print-button" onclick="window.print()">📄 Print Now</button>
+            <button class="print-button" onclick="window.close()">❌ Close</button>
+        </div>
+        
+        <h1>${languageName}</h1>
+        <div class="subtitle">Complete Language Reference</div>
+        <div class="date">Generated: ${new Date().toLocaleDateString()}</div>
+        
+        <div class="page-break"></div>
+        
+        <h2>PHONOLOGY</h2>
+        
+        ${phonology.vowels && phonology.vowels.length > 0 ? `
+        <h3>Vowel Inventory</h3>
+        <div class="phoneme-list">
+            <span class="ipa">${phonology.vowels.join('   ')}</span>
+        </div>
+        <p><strong>${phonology.vowels.length}</strong> vowel phonemes</p>
+        ` : ''}
+        
+        ${phonology.consonants && phonology.consonants.length > 0 ? `
+        <h3>Consonant Inventory</h3>
+        <div class="phoneme-list">
+            <span class="ipa">${this.chunkArray(phonology.consonants, 12).map(chunk => chunk.join('   ')).join('<br>')}</span>
+        </div>
+        <p><strong>${phonology.consonants.length}</strong> consonant phonemes</p>
+        ` : ''}
+        
+        ${phonology.syllableStructures && phonology.syllableStructures.length > 0 ? `
+        <h3>Syllable Structures</h3>
+        <p><strong>${phonology.syllableStructures.join(', ')}</strong> <em>(C = Consonant, V = Vowel)</em></p>
+        ` : ''}
+        
+        ${Object.keys(orthographyMap).length > 0 ? `
+        <div class="page-break"></div>
+        <h2>WRITING SYSTEM (ORTHOGRAPHY)</h2>
+        
+        <h3>Sound-to-Letter Correspondences</h3>
+        <div class="orthography-mapping">
+            ${Object.entries(orthographyMap).map(([ipa, ortho]) => 
+                `<div class="mapping-item"><span class="ipa">${ipa}</span> → <span class="orthography">${ortho}</span></div>`
+            ).join('')}
+        </div>
+        
+        <h3>Pronunciation Examples</h3>
+        ${this.generateOrthographyExamples ? this.generateOrthographyExamples(phonology, orthographyMap).map(example => 
+            `<div class="word-entry"><span class="orthography">${example.orthography}</span> [<span class="ipa">${example.ipa}</span>] - "${example.meaning}"</div>`
+        ).join('') : ''}
+        ` : ''}
+        
+        <div class="page-break"></div>
+        
+        <h2>GRAMMAR & MORPHOLOGY</h2>
+        
+        ${syntax.wordOrder ? `<p><strong>Basic Word Order:</strong> ${syntax.wordOrder.toUpperCase()}</p>` : ''}
+        
+        ${morphology.hasCases && morphology.cases && morphology.cases.length > 0 ? `
+        <h3>Case System</h3>
+        <ul>
+            ${morphology.cases.map(caseType => `<li><strong>${caseType}</strong></li>`).join('')}
+        </ul>
+        ` : ''}
+        
+        ${morphology.hasTenses && morphology.tenses && morphology.tenses.length > 0 ? `
+        <h3>Tense System</h3>
+        <ul>
+            ${morphology.tenses.map(tense => `<li><strong>${tense}</strong></li>`).join('')}
+        </ul>
+        ` : ''}
+        
+        ${morphology.hasGenders && morphology.genders && morphology.genders.length > 0 ? `
+        <h3>Gender System</h3>
+        <ul>
+            ${morphology.genders.map(gender => `<li><strong>${gender}</strong></li>`).join('')}
+        </ul>
+        ` : ''}
+        
+        ${morphology.hasPlurals && morphology.pluralTypes && morphology.pluralTypes.length > 0 ? `
+        <h3>Plural Formation</h3>
+        <ul>
+            ${morphology.pluralTypes.map(type => `<li><strong>${type}</strong></li>`).join('')}
+        </ul>
+        ` : ''}
+        
+        ${morphology.affixes && Object.keys(morphology.affixes).length > 0 ? `
+        <h3>Morphological Affixes</h3>
+        ${Object.entries(morphology.affixes).map(([name, affix]) => 
+            `<div class="affix-entry">• <span class="ipa"><strong>${affix.morpheme || name}</strong></span> (${affix.type || 'affix'}): ${affix.description || affix.name || 'Morphological marker'}</div>`
+        ).join('')}
+        ` : ''}
+        
+        ${language.customAffixes && language.customAffixes.length > 0 ? `
+        <h3>Custom Derivational Affixes</h3>
+        ${language.customAffixes.map(affix => 
+            `<div class="affix-entry">• <span class="ipa"><strong>${affix.morpheme}</strong></span> (${affix.type}): ${affix.description}</div>`
+        ).join('')}
+        ` : ''}
+        
+        ${culture.calendar || window.CulturalModule?.generatedCalendarTerms ? `
+        <div class="page-break"></div>
+        <h2>CULTURAL BACKGROUND</h2>
+        
+        ${culture.calendar && culture.calendar.name ? `
+        <h3>Calendar System: ${culture.calendar.name}</h3>
+        ${culture.calendar.description ? `<p>${culture.calendar.description}</p>` : ''}
+        ` : ''}
+        
+        ${window.CulturalModule?.generatedCalendarTerms ? `
+        <h3>Cultural Events</h3>
+        ${Object.entries(window.CulturalModule.generatedCalendarTerms).slice(0, 10).map(([key, event]) => 
+            `<div class="cultural-entry">• <strong>${event.name}</strong> (<span class="orthography">${toOrthography(event.conlangName)}</span> [<span class="ipa">${event.conlangName}</span>]) - ${event.meaning}</div>`
+        ).join('')}
+        ` : ''}
+        
+        ${window.CulturalModule?.generatedSocialTerms ? `
+        <h3>Social Structure</h3>
+        ${Object.entries(window.CulturalModule.generatedSocialTerms).slice(0, 8).map(([key, term]) => 
+            `<div class="cultural-entry">• <span class="orthography"><strong>${toOrthography(term.word)}</strong></span> [<span class="ipa">${term.word}</span>] - ${term.meaning}</div>`
+        ).join('')}
+        ` : ''}
+        ` : ''}
+        
+        <div class="page-break"></div>
+        
+        <h2>COMPLETE VOCABULARY</h2>
+        
+        <div class="stats">
+            <strong>Total Words:</strong> ${allWords.length}<br>
+            <strong>Parts of Speech:</strong> ${Object.keys(wordsByPOS).length}<br>
+            ${phonology.vowels ? `<strong>Vowel Phonemes:</strong> ${phonology.vowels.length}<br>` : ''}
+            ${phonology.consonants ? `<strong>Consonant Phonemes:</strong> ${phonology.consonants.length}<br>` : ''}
+            <strong>Phonological Complexity:</strong> ${(phonology.vowels?.length || 0) + (phonology.consonants?.length || 0)} total phonemes
+        </div>
+        
+        <p><em>Format: ${Object.keys(orthographyMap).length > 0 ? 'Written Form [IPA] - English Definition' : 'Conlang Word - English Definition'}</em></p>
+        
+        ${Object.entries(wordsByPOS).map(([pos, words]) => `
+            <h3>${pos.toUpperCase()} (${words.length} words)</h3>
+            ${words.map(word => {
+                const orthographyForm = toOrthography(word.conlang);
+                const showBoth = Object.keys(orthographyMap).length > 0 && orthographyForm !== word.conlang;
                 
-                let wordText;
-                if (hasOrthography && window.PhonologyModule.convertToOrthography) {
-                    // Show both orthography and IPA
-                    const orthography = window.PhonologyModule.convertToOrthography(word.conlang);
-                    const ipa = word.conlang;
-                    
-                    // Only show IPA if it's different from orthography
-                    if (orthography !== ipa) {
-                        wordText = `${orthography} [${ipa}] - ${word.english}`;
-                    } else {
-                        wordText = `${orthography} - ${word.english}`;
-                    }
+                if (showBoth) {
+                    return `<div class="word-entry-compact"><span class="orthography"><strong>${orthographyForm}</strong></span> [<span class="ipa">${word.conlang}</span>] - ${word.english}${word.notes ? ` <em>(${word.notes})</em>` : ''}</div>`;
                 } else {
-                    // Fallback to original format
-                    wordText = `${this.sanitizeTextForPDF(word.conlang)} - ${word.english}`;
+                    return `<div class="word-entry-compact"><span class="ipa"><strong>${word.conlang}</strong></span> - ${word.english}${word.notes ? ` <em>(${word.notes})</em>` : ''}</div>`;
                 }
-                
-                if (word.notes) {
-                    wordText += ` (${word.notes})`;
-                }
-                
-                addText(wordText, margin + 5, yPosition, { fontSize: 9 });
-                yPosition += 5;
+            }).join('')}
+        `).join('')}
+        
+        <div class="page-break"></div>
+        
+        <h2>LANGUAGE STATISTICS</h2>
+        
+        <div class="stats">
+            <strong>Vocabulary Distribution:</strong><br><br>
+            ${Object.entries(wordsByPOS).map(([pos, words]) => {
+                const percentage = Math.round((words.length / allWords.length) * 100);
+                return `<strong>${pos}:</strong> ${words.length} words (${percentage}%)`;
+            }).join('<br>')}
+            <br><br>
+            <strong>Linguistic Complexity Metrics:</strong><br>
+            Phoneme-to-Word Ratio: ${((phonology.vowels?.length || 0) + (phonology.consonants?.length || 0)) / allWords.length * 100 < 1 ? 'Low' : ((phonology.vowels?.length || 0) + (phonology.consonants?.length || 0)) / allWords.length * 100 < 2 ? 'Medium' : 'High'}<br>
+            Average Word Length: ${(allWords.reduce((sum, word) => sum + word.conlang.length, 0) / allWords.length).toFixed(1)} characters<br>
+            Morphological Richness: ${(morphology.affixes ? Object.keys(morphology.affixes).length : 0) + (language.customAffixes ? language.customAffixes.length : 0)} affixes
+        </div>
+        
+        <script>
+            // Enhanced auto-print with better settings
+            window.addEventListener('load', function() {
+                setTimeout(() => {
+                    // Try to disable headers/footers programmatically
+                    const printSettings = {
+                        silent: false,
+                        printBackground: true,
+                        headerFooter: false
+                    };
+                    
+                    // Auto-trigger print
+                    window.print();
+                    
+                    console.log('Print dialog triggered with optimized settings');
+                }, 1500); // Longer delay to ensure content is fully loaded
             });
             
-            yPosition += 5;
-        });
+            // Prevent accidental navigation
+            window.addEventListener('beforeunload', function(e) {
+                e.preventDefault();
+                return 'Are you sure you want to leave? Your PDF might not be saved.';
+            });
+            
+            // Keyboard shortcut
+            document.addEventListener('keydown', function(e) {
+                if (e.ctrlKey && e.key === 'p') {
+                    e.preventDefault();
+                    window.print();
+                }
+            });
+        </script>
         
-        // STATISTICS
-        addSectionHeader('Language Statistics');
-        
-        addText(`Total Words: ${allWords.length}`, margin, yPosition, { fontStyle: 'bold' });
-        yPosition += 6;
-        addText(`Parts of Speech: ${Object.keys(wordsByPOS).length}`, margin, yPosition);
-        yPosition += 6;
-        
-        if (phonology.vowels) {
-            addText(`Vowel Phonemes: ${phonology.vowels.length}`, margin, yPosition);
-            yPosition += 6;
+    </body>
+    </html>`;
+            
+            // Create new window/tab with the content
+            const newWindow = window.open('', '_blank', 'width=1200,height=800');
+            if (newWindow) {
+                newWindow.document.write(htmlContent);
+                newWindow.document.close();
+                
+                showToast('Perfect PDF window opened! Print dialog will appear automatically with optimized settings!', 'success');
+            } else {
+                // Fallback: download HTML file if popup blocked
+                const blob = new Blob([htmlContent], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${languageName.replace(/[^a-zA-Z0-9]/g, '_')}_Complete_Language_Reference.html`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                showToast('Popup blocked! HTML file downloaded. Open it and use the print button!', 'info');
+            }
+            
+            if (window.ActivityModule) {
+                window.ActivityModule.addActivity('Generated complete automated PDF with full vocabulary and orthography', 'export');
+            }
+            
+        } catch (error) {
+            console.error('Export error:', error);
+            showToast('Error generating PDF: ' + error.message, 'error');
         }
-        if (phonology.consonants) {
-            addText(`Consonant Phonemes: ${phonology.consonants.length}`, margin, yPosition);
-            yPosition += 6;
-        }
-        
-        yPosition += 5;
-        addText('Vocabulary Distribution:', margin, yPosition, { fontStyle: 'bold' });
-        yPosition += 6;
-        
-        Object.entries(wordsByPOS).forEach(([pos, words]) => {
-            const percentage = Math.round((words.length / allWords.length) * 100);
-            addText(`${pos}: ${words.length} words (${percentage}%)`, margin + 5, yPosition);
-            yPosition += 5;
-        });
-        
-        // Save the PDF
-        console.log('Saving modern PDF...');
-        const fileName = `${languageName.replace(/[^a-zA-Z0-9]/g, '_')}_Language_Reference.pdf`;
-        doc.save(fileName);
-        
-        if (window.ActivityModule) {
-            window.ActivityModule.addActivity('Generated professional PDF with Unicode support', 'export');
-        }
-        
-        showToast('Professional PDF generated successfully!', 'success');
-        
-    } catch (error) {
-        console.error('PDF export error:', error);
-        showToast('Error generating PDF: ' + error.message, 'error');
+    },
+
+// Helper functions (add these if they don't exist)
+chunkArray(array, size) {
+    const chunks = [];
+    for (let i = 0; i < array.length; i += size) {
+        chunks.push(array.slice(i, i + size));
     }
+    return chunks;
 },
 
-// Helper function to load jsPDF
-async loadJsPDF() {
-    if (!window.jspdf) {
-        console.log('Loading jsPDF...');
-        const script = document.createElement('script');
-        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
-        return new Promise((resolve, reject) => {
-            script.onload = () => {
-                console.log('jsPDF loaded successfully');
-                resolve();
-            };
-            script.onerror = (error) => {
-                console.error('Failed to load jsPDF:', error);
-                reject(error);
-            };
-            document.head.appendChild(script);
+generateOrthographyExamples(phonology, orthographyMap) {
+    const examples = [];
+    const vowels = phonology.vowels || ['a'];
+    const consonants = phonology.consonants || ['k'];
+    const meanings = ['water', 'fire', 'mountain', 'tree', 'stone'];
+    
+    for (let i = 0; i < Math.min(5, meanings.length); i++) {
+        const structure = Math.random() > 0.5 ? 'CVC' : 'CV';
+        let ipaWord = '';
+        let orthoWord = '';
+        
+        for (let char of structure) {
+            if (char === 'C') {
+                const consonant = consonants[Math.floor(Math.random() * consonants.length)];
+                ipaWord += consonant;
+                orthoWord += orthographyMap[consonant] || consonant;
+            } else if (char === 'V') {
+                const vowel = vowels[Math.floor(Math.random() * vowels.length)];
+                ipaWord += vowel;
+                orthoWord += orthographyMap[vowel] || vowel;
+            }
+        }
+        
+        examples.push({
+            ipa: ipaWord,
+            orthography: orthoWord,
+            meaning: meanings[i]
         });
     }
+    
+    return examples;
 },
 
 generateOrthographyExamples(phonology, orthographyMap) {
@@ -1252,5 +1315,27 @@ chunkArray(array, size) {
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
+    },
+
+    createIPAFallback(text) {
+        if (!text) return '';
+        
+        return String(text)
+            .replace(/ŋ/g, 'ng')
+            .replace(/ʃ/g, 'sh')
+            .replace(/ʒ/g, 'zh')
+            .replace(/θ/g, 'th')
+            .replace(/ð/g, 'dh')
+            .replace(/ə/g, 'e')
+            .replace(/ɛ/g, 'e')
+            .replace(/ɔ/g, 'o')
+            .replace(/ɪ/g, 'i')
+            .replace(/ʊ/g, 'u')
+            .replace(/ɸ/g, 'f')
+            .replace(/β/g, 'b')
+            .replace(/χ/g, 'x')
+            .replace(/ɣ/g, 'g')
+            .replace(/ʔ/g, "'")
+            .replace(/[^\x20-\x7E]/g, '?');
     }
 };

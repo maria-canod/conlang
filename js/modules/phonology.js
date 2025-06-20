@@ -62,9 +62,13 @@ window.PhonologyModule = {
         });
 
         // Show selected method
-        const targetSection = document.getElementById(`${method.split('-')[0]}-method`);
-        if (targetSection) {
-            targetSection.style.display = 'block';
+        if (method === 'preset') {
+            this.showPresetMethod();
+        } else {
+            const targetSection = document.getElementById(`${method.split('-')[0]}-method`);
+            if (targetSection) {
+                targetSection.style.display = 'block';
+            }
         }
 
         // If switching to IPA builder, populate from existing data
@@ -72,6 +76,259 @@ window.PhonologyModule = {
             this.populateIPAFromSimple();
         }
     },
+
+    showPresetMethod() {
+        // Create or update the preset interface
+        let presetSection = document.getElementById('preset-method');
+        
+        if (!presetSection) {
+            // Create the preset section if it doesn't exist
+            presetSection = document.createElement('div');
+            presetSection.id = 'preset-method';
+            presetSection.className = 'method-section';
+            
+            // Insert after the IPA method section
+            const ipaSection = document.getElementById('ipa-method');
+            if (ipaSection) {
+                ipaSection.parentNode.insertBefore(presetSection, ipaSection.nextSibling);
+            }
+        }
+        
+        presetSection.style.display = 'block';
+        presetSection.innerHTML = `
+            <div class="preset-builder">
+                <h4>🎭 Fantasy Sound System Presets</h4>
+                <p style="margin-bottom: 20px; color: #666;">Choose from fictional language archetypes inspired by fantasy worlds and environments.</p>
+                
+                <div class="form-group">
+                    <label for="preset-category" style="font-weight: 600;">Language Type</label>
+                    <select id="preset-category" class="form-control">
+                        <option value="">-- Choose a preset --</option>
+                        <option value="elvish">🧝 Elvish (Flowing & Melodic)</option>
+                        <option value="dwarven">⛏️ Dwarven (Harsh & Guttural)</option>
+                        <option value="draconic">🐉 Draconic (Ancient & Powerful)</option>
+                        <option value="celestial">⭐ Celestial (Ethereal & Pure)</option>
+                        <option value="infernal">🔥 Infernal (Dark & Sinister)</option>
+                        <option value="primal">🌿 Primal (Nature-based)</option>
+                        <option value="mechanical">⚙️ Mechanical (Constructed)</option>
+                        <option value="aquatic">🌊 Aquatic (Ocean-dwelling)</option>
+                        <option value="aerial">💨 Aerial (Sky-bound)</option>
+                        <option value="crystalline">💎 Crystalline (Mineral-based)</option>
+                    </select>
+                </div>
+                
+                <div id="preset-description" class="preset-info" style="display: none; margin: 15px 0; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                    <!-- Description will be populated here -->
+                </div>
+                
+                <div class="form-group" style="margin-top: 20px;">
+                    <button type="button" class="btn btn-primary" id="apply-preset-btn" style="width: 100%;" disabled>
+                        🎵 Apply Selected Preset
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        // Bind events for the preset system
+        this.bindPresetEvents();
+    },
+
+    bindPresetEvents() {
+        const presetSelect = document.getElementById('preset-category');
+        const applyBtn = document.getElementById('apply-preset-btn');
+        const descriptionDiv = document.getElementById('preset-description');
+        
+        if (presetSelect) {
+            presetSelect.addEventListener('change', (e) => {
+                const selectedPreset = e.target.value;
+                
+                if (selectedPreset) {
+                    applyBtn.disabled = false;
+                    descriptionDiv.style.display = 'block';
+                    descriptionDiv.innerHTML = this.getPresetDescription(selectedPreset);
+                } else {
+                    applyBtn.disabled = true;
+                    descriptionDiv.style.display = 'none';
+                }
+            });
+        }
+        
+        if (applyBtn) {
+            applyBtn.addEventListener('click', () => {
+                const selectedPreset = presetSelect.value;
+                if (selectedPreset) {
+                    this.applyPreset(selectedPreset);
+                }
+            });
+        }
+    },
+
+    getPresetDescription(presetType) {
+        const descriptions = {
+            elvish: `
+                <strong>🧝 Elvish Language</strong><br>
+                <strong>Vowels:</strong> Rich vowel system with front rounded vowels<br>
+                <strong>Consonants:</strong> Soft sounds, many liquids and nasals<br>
+                <strong>Feel:</strong> Flowing, melodic, nature-inspired<br>
+                <strong>Example sounds:</strong> /l/, /r/, /n/, /m/, /s/, /f/, /j/
+            `,
+            dwarven: `
+                <strong>⛏️ Dwarven Language</strong><br>
+                <strong>Vowels:</strong> Simple, robust vowel system<br>
+                <strong>Consonants:</strong> Many stops, fricatives, and clusters<br>
+                <strong>Feel:</strong> Harsh, guttural, mountain-forged<br>
+                <strong>Example sounds:</strong> /k/, /g/, /x/, /r/, /θ/, /ð/, /tʃ/
+            `,
+            draconic: `
+                <strong>🐉 Draconic Language</strong><br>
+                <strong>Vowels:</strong> Deep, resonant vowels<br>
+                <strong>Consonants:</strong> Sibilants, fricatives, and uvulars<br>
+                <strong>Feel:</strong> Ancient, powerful, intimidating<br>
+                <strong>Example sounds:</strong> /ʃ/, /ʒ/, /χ/, /ʁ/, /s/, /z/, /ɣ/
+            `,
+            celestial: `
+                <strong>⭐ Celestial Language</strong><br>
+                <strong>Vowels:</strong> Pure, clear vowel tones<br>
+                <strong>Consonants:</strong> Soft, aspirated sounds<br>
+                <strong>Feel:</strong> Ethereal, pure, heavenly<br>
+                <strong>Example sounds:</strong> /h/, /ɸ/, /s/, /l/, /j/, /w/
+            `,
+            infernal: `
+                <strong>🔥 Infernal Language</strong><br>
+                <strong>Vowels:</strong> Dark, back vowels<br>
+                <strong>Consonants:</strong> Ejectives, pharyngeals, harsh fricatives<br>
+                <strong>Feel:</strong> Dark, sinister, otherworldly<br>
+                <strong>Example sounds:</strong> /qʼ/, /ħ/, /ʕ/, /x/, /ɣ/, /ʔ/
+            `,
+            primal: `
+                <strong>🌿 Primal Language</strong><br>
+                <strong>Vowels:</strong> Natural, earthy tones<br>
+                <strong>Consonants:</strong> Clicks, nasals, natural sounds<br>
+                <strong>Feel:</strong> Nature-based, organic, tribal<br>
+                <strong>Example sounds:</strong> /m/, /n/, /ŋ/, /w/, /j/, /ʔ/
+            `,
+            mechanical: `
+                <strong>⚙️ Mechanical Language</strong><br>
+                <strong>Vowels:</strong> Precise, systematic vowels<br>
+                <strong>Consonants:</strong> Stops, precise articulation<br>
+                <strong>Feel:</strong> Constructed, logical, artificial<br>
+                <strong>Example sounds:</strong> /p/, /t/, /k/, /b/, /d/, /g/, /s/
+            `,
+            aquatic: `
+                <strong>🌊 Aquatic Language</strong><br>
+                <strong>Vowels:</strong> Flowing, liquid-like transitions<br>
+                <strong>Consonants:</strong> Liquids, nasals, soft fricatives<br>
+                <strong>Feel:</strong> Fluid, oceanic, flowing<br>
+                <strong>Example sounds:</strong> /l/, /r/, /m/, /n/, /w/, /β/, /ɣ/
+            `,
+            aerial: `
+                <strong>💨 Aerial Language</strong><br>
+                <strong>Vowels:</strong> Breathy, airy quality<br>
+                <strong>Consonants:</strong> Fricatives, aspirated sounds<br>
+                <strong>Feel:</strong> Light, airy, wind-like<br>
+                <strong>Example sounds:</strong> /f/, /s/, /ʃ/, /h/, /θ/, /x/
+            `,
+            crystalline: `
+                <strong>💎 Crystalline Language</strong><br>
+                <strong>Vowels:</strong> Sharp, precise vowel qualities<br>
+                <strong>Consonants:</strong> Ejectives, sharp stops<br>
+                <strong>Feel:</strong> Sharp, mineral-like, precise<br>
+                <strong>Example sounds:</strong> /pʼ/, /tʼ/, /kʼ/, /s/, /ʃ/, /t/
+            `
+        };
+        
+        return descriptions[presetType] || '';
+    },
+
+    applyPreset(presetType) {
+        const presets = {
+            elvish: {
+                vowels: ['a', 'e', 'i', 'o', 'u', 'y', 'ø'],
+                consonants: ['l', 'r', 'n', 'm', 's', 'f', 'v', 'j', 'w', 'θ', 'ð', 'ɲ', 'ʎ']
+            },
+            dwarven: {
+                vowels: ['a', 'e', 'i', 'o', 'u', 'ʌ'],
+                consonants: ['k', 'g', 'p', 'b', 't', 'd', 'x', 'ɣ', 'r', 'θ', 'ð', 'f', 'v', 'tʃ', 'dʒ']
+            },
+            draconic: {
+                vowels: ['a', 'ɑ', 'e', 'i', 'o', 'ɔ', 'u'],
+                consonants: ['ʃ', 'ʒ', 'χ', 'ʁ', 's', 'z', 'ɣ', 'r', 'l', 'k', 'g', 'θ', 'ð']
+            },
+            celestial: {
+                vowels: ['a', 'e', 'i', 'o', 'u'],
+                consonants: ['h', 'ɸ', 's', 'l', 'j', 'w', 'm', 'n', 'r']
+            },
+            infernal: {
+                vowels: ['ɑ', 'ɔ', 'o', 'u', 'ʌ', 'ə'],
+                consonants: ['qʼ', 'ħ', 'ʕ', 'x', 'ɣ', 'ʔ', 'r', 'l', 'k', 'g']
+            },
+            primal: {
+                vowels: ['a', 'e', 'i', 'o', 'u', 'ə'],
+                consonants: ['m', 'n', 'ŋ', 'w', 'j', 'ʔ', 'h', 'k', 'g', 'p', 't']
+            },
+            mechanical: {
+                vowels: ['a', 'e', 'i', 'o', 'u'],
+                consonants: ['p', 't', 'k', 'b', 'd', 'g', 's', 'z', 'f', 'v', 'l', 'r']
+            },
+            aquatic: {
+                vowels: ['a', 'e', 'i', 'o', 'u', 'ə'],
+                consonants: ['l', 'r', 'm', 'n', 'w', 'β', 'ɣ', 'f', 'v', 'j']
+            },
+            aerial: {
+                vowels: ['a', 'e', 'i', 'o', 'u'],
+                consonants: ['f', 's', 'ʃ', 'h', 'θ', 'x', 'ɸ', 'p', 't', 'k']
+            },
+            crystalline: {
+                vowels: ['a', 'e', 'i', 'o', 'u'],
+                consonants: ['pʼ', 'tʼ', 'kʼ', 's', 'ʃ', 't', 'k', 'l', 'r', 'n']
+            }
+        };
+        
+        const preset = presets[presetType];
+        if (!preset) {
+            showToast('Invalid preset selected!', 'error');
+            return;
+        }
+        
+        // Apply the preset to simple inputs
+        document.getElementById('vowels').value = preset.vowels.join(', ');
+        document.getElementById('consonants').value = preset.consonants.join(', ');
+        
+        // Update the language object directly
+        if (!window.generator.language.phonology) {
+            window.generator.language.phonology = {};
+        }
+        
+        window.generator.language.phonology.vowels = [...preset.vowels];
+        window.generator.language.phonology.consonants = [...preset.consonants];
+        
+        // Generate syllable structures appropriate for the preset
+        const syllableStructures = this.generateSyllableStructures(presetType);
+        window.generator.language.phonology.syllableStructures = syllableStructures;
+        
+        showToast(`${presetType.charAt(0).toUpperCase() + presetType.slice(1)} preset applied successfully!`, 'success');
+        
+        // Auto-generate the phonology
+        this.generatePhonology();
+    },
+
+    generateSyllableStructures(presetType) {
+        const structures = {
+            elvish: ['CV', 'CVC', 'V', 'CCV'],
+            dwarven: ['CVC', 'CCVC', 'CVCC', 'CV'],
+            draconic: ['CVC', 'CV', 'CCV', 'CCVC'],
+            celestial: ['CV', 'CVC', 'V'],
+            infernal: ['CVC', 'CVCC', 'CCV'],
+            primal: ['CV', 'CVC', 'V'],
+            mechanical: ['CVC', 'CV'],
+            aquatic: ['CV', 'CVC', 'CCV'],
+            aerial: ['CV', 'CVC', 'V'],
+            crystalline: ['CVC', 'CV', 'CCVC']
+        };
+        
+        return structures[presetType] || ['CV', 'CVC'];
+    },
+
 
     populateIPAFromSimple() {
         // Get current simple input
