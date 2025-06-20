@@ -1,1798 +1,481 @@
-// AI Assistant Module - Main coordinator for intelligent language assistance
-window.AIAssistant = {
-    // Core state
-    initialized: false,
-    localAI: null,
-    cloudAI: null,
-    settings: {
-        provider: 'local',
-        apiKey: null,
-        remoteEndpoint: 'http://192.168.1.100:11434',
-        remoteModel: 'llama3.1',
-        openRouterModel: 'meta-llama/llama-3.1-8b-instruct:free',
-        autoApply: true,
-        culturalFiltering: true,
-        learningMode: true
-    },
+// AI Assistant Module - Simplified for Vocabulary Expansion Only
+window.AIAssistantModule = {
     stats: {
-        totalSuggestions: 0,
-        acceptedSuggestions: 0,
+        aiSuggestedWords: 0,
         aiAddedWords: 0,
-        accuracyRate: 0
+        aiSessions: 0,
+        acceptanceRate: 0
     },
 
-    async init() {
-        console.log('Initializing AI Assistant...');
-        
-        // Always re-initialize to fix tab switching issues
-        this.initialized = false;
-
-        try {
-            // Load settings FIRST before initializing AI
-            this.loadSettings();
-            this.loadStats();
-
-            // Initialize local AI with saved settings
-            if (window.LocalAI) {
-                this.localAI = window.LocalAI;
-                if (!this.localAI.initialized) {
-                    await this.localAI.init();
-                    console.log('Local AI initialized successfully');
-                }
-                
-                // Apply saved settings to LocalAI
-                this.applySavedSettingsToAI();
-            }
-
-            // Bind events every time (important for tab switching)
-            this.bindEvents();
-
-            // Update UI and populate dropdowns
-            this.updateAnalysisOverview();
-            this.updateUIState();
-            
-            // Populate morphology dropdowns after a delay to ensure DOM is ready
-            setTimeout(() => {
-                this.populateBaseWordDropdown();
-            }, 500);
-            
-            this.initialized = true;
-            console.log('AI Assistant initialized successfully');
-
-        } catch (error) {
-            console.error('Failed to initialize AI Assistant:', error);
-            showToast('AI Assistant initialization failed', 'error');
-        }
+    init() {
+        console.log('AI Assistant Module initialized (simplified version)');
+        this.bindEvents();
+        this.updateStats();
+        this.populateBaseWordDropdowns();
     },
 
     bindEvents() {
-        console.log('Binding AI Assistant events...');
-        
-        // Update debug info and bind events with a longer delay to ensure DOM is ready
-        setTimeout(() => {
-            if (this.updateDebugInfo) {
-                this.updateDebugInfo();
-            }
-            // Also refresh the analysis overview in case vocabulary was loaded after init
-            this.updateAnalysisOverview();
-            
-            // Re-bind critical events that might have failed
-            this.rebindCriticalEvents();
-            
-            // Force initial UI state update
-            this.updateUIState();
-        }, 1000); // Even longer delay to ensure DOM is fully loaded
-        
-        // Vocabulary expansion events
-        const generateBtn = document.getElementById('generate-suggestions-btn');
-        if (generateBtn) {
-            generateBtn.onclick = () => this.generateVocabularySuggestions();
-            console.log('Generate suggestions button bound');
-        } else {
-            console.warn('Generate suggestions button not found');
+        // Vocabulary expansion buttons
+        const generateVocabBtn = document.getElementById('generate-vocabulary-btn');
+        if (generateVocabBtn) {
+            generateVocabBtn.onclick = () => this.generateVocabulary();
         }
 
-        const analyzeBtn = document.getElementById('analyze-gaps-btn');
-        if (analyzeBtn) {
-            analyzeBtn.onclick = () => this.analyzeVocabularyGaps();
-            console.log('Analyze gaps button bound');
-        } else {
-            console.warn('Analyze gaps button not found');
+        const fillGapsBtn = document.getElementById('fill-gaps-btn');
+        if (fillGapsBtn) {
+            fillGapsBtn.onclick = () => this.fillVocabularyGaps();
         }
 
-        // Translation events
-        const translateBtn = document.getElementById('translate-text-btn');
-        if (translateBtn) {
-            translateBtn.onclick = () => this.translateText();
-        } else {
-            console.warn('Translate button not found');
-        }
-
-        const identifyBtn = document.getElementById('identify-missing-btn');
-        if (identifyBtn) {
-            identifyBtn.onclick = () => this.identifyMissingWords();
-        } else {
-            console.warn('Identify missing button not found');
-        }
-
-        // Morphological events - FIXED
-        const derivativesBtn = document.getElementById('generate-derivatives-btn');
-        if (derivativesBtn) {
-            derivativesBtn.onclick = () => this.generateDerivatives();
-            console.log('Generate derivatives button bound');
-        } else {
-            console.warn('Generate derivatives button not found');
-        }
-
-        const compoundsBtn = document.getElementById('generate-compounds-btn');
-        if (compoundsBtn) {
-            compoundsBtn.onclick = () => this.generateCompounds();
-            console.log('Generate compounds button bound');
-        } else {
-            console.warn('Generate compounds button not found');
-        }
-
-        const wordFamilyBtn = document.getElementById('expand-word-family-btn');
-        if (wordFamilyBtn) {
-            wordFamilyBtn.onclick = () => this.expandWordFamily();
-            console.log('Expand word family button bound');
-        } else {
-            console.warn('Expand word family button not found');
-        }
-
-        // Cultural analysis events - FIXED
-        const consistencyBtn = document.getElementById('check-consistency-btn');
-        if (consistencyBtn) {
-            consistencyBtn.onclick = () => this.checkCulturalConsistency();
-            console.log('Check consistency button bound');
-        } else {
-            console.warn('Check consistency button not found');
-        }
-
-        const culturalVocabBtn = document.getElementById('suggest-cultural-vocab-btn');
+        const culturalVocabBtn = document.getElementById('cultural-vocab-btn');
         if (culturalVocabBtn) {
-            culturalVocabBtn.onclick = () => this.suggestCulturalVocabulary();
-            console.log('Suggest cultural vocab button bound');
-        } else {
-            console.warn('Suggest cultural vocab button not found');
+            culturalVocabBtn.onclick = () => this.generateCulturalVocab();
         }
 
-        // Bind provider events
-        this.bindProviderEvents();
+        // Batch operations
+        const generateFamiliesBtn = document.getElementById('generate-word-families-btn');
+        if (generateFamiliesBtn) {
+            generateFamiliesBtn.onclick = () => this.generateWordFamilies();
+        }
 
-        console.log('AI Assistant events binding completed');
+        const analyzeGapsBtn = document.getElementById('analyze-gaps-btn');
+        if (analyzeGapsBtn) {
+            analyzeGapsBtn.onclick = () => this.analyzeVocabularyGaps();
+        }
+
+        console.log('AI Assistant events bound');
     },
 
-    bindProviderEvents() {
-        // Settings events
-        const providerSelect = document.getElementById('ai-provider');
-        if (providerSelect) {
-            providerSelect.onchange = (e) => this.changeProvider(e.target.value);
-        }
-
-        // API key input
-        const apiKeyInput = document.getElementById('api-key-input');
-        if (apiKeyInput) {
-            apiKeyInput.oninput = (e) => this.updateApiKey(e.target.value);
-        }
-
-        // Remote Ollama inputs
-        const remoteEndpointInput = document.getElementById('remote-endpoint-input');
-        if (remoteEndpointInput) {
-            remoteEndpointInput.oninput = (e) => this.updateRemoteEndpoint(e.target.value);
-        }
-
-        const remoteModelInput = document.getElementById('remote-model-input');
-        if (remoteModelInput) {
-            remoteModelInput.oninput = (e) => this.updateRemoteModel(e.target.value);
-        }
-
-        // OpenRouter model selection
-        const openRouterModelSelect = document.getElementById('openrouter-model-select');
-        if (openRouterModelSelect) {
-            openRouterModelSelect.onchange = (e) => this.updateOpenRouterModel(e.target.value);
-        }
-
-        // Test connection button
-        const testRemoteBtn = document.getElementById('test-remote-connection-btn');
-        if (testRemoteBtn) {
-            testRemoteBtn.onclick = () => this.testRemoteConnection();
-        }
-
-        // Debug refresh button
-        const refreshBtn = document.getElementById('refresh-ai-status-btn');
-        if (refreshBtn) {
-            refreshBtn.onclick = () => this.refreshAIStatus();
-        }
-    },
-
-    // Enhanced provider change handler
-    changeProvider(provider) {
-        console.log(`Changing AI provider to: ${provider}`);
-        
-        this.settings.provider = provider;
-        
-        // Configure LocalAI based on provider
-        if (this.localAI) {
-            switch (provider) {
-                case 'local':
-                    this.localAI.provider = 'local';
-                    this.localAI.apiEndpoint = 'http://localhost:11434';
-                    this.localAI.apiKey = null;
-                    console.log('Configured for local Ollama');
-                    break;
-                    
-                case 'remote_ollama':
-                    this.localAI.provider = 'remote_ollama';
-                    this.localAI.apiEndpoint = null; // Will be set by remote endpoint
-                    this.localAI.apiKey = null;
-                    this.localAI.remoteEndpoint = this.settings.remoteEndpoint || 'http://192.168.1.100:11434';
-                    this.localAI.remoteModel = this.settings.remoteModel || 'llama3.1';
-                    console.log('Configured for remote Ollama');
-                    break;
-                    
-                case 'openrouter':
-                    this.localAI.provider = 'openrouter';
-                    this.localAI.apiEndpoint = 'https://openrouter.ai/api/v1';
-                    this.localAI.apiKey = this.settings.apiKey;
-                    this.localAI.openRouterModel = this.settings.openRouterModel || 'meta-llama/llama-3.1-8b-instruct:free';
-                    console.log('Configured for OpenRouter');
-                    break;
-                    
-                case 'openai':
-                    this.localAI.provider = 'openai';
-                    this.localAI.apiEndpoint = 'https://api.openai.com/v1';
-                    this.localAI.apiKey = this.settings.apiKey;
-                    console.log('Configured for OpenAI');
-                    break;
-                    
-                case 'anthropic':
-                    this.localAI.provider = 'anthropic';
-                    this.localAI.apiEndpoint = 'https://api.anthropic.com/v1';
-                    this.localAI.apiKey = this.settings.apiKey;
-                    console.log('Configured for Anthropic');
-                    break;
-                    
-                default:
-                    console.warn('Unknown provider:', provider);
-                    return;
-            }
-        }
-        
-        this.saveSettings();
-        this.updateUIState();
-        showToast(`Switched to ${this.getProviderDisplayName(provider)}`, 'success');
-    },
-
-    // Enhanced API key handler
-    updateApiKey(apiKey) {
-        console.log('Updating API key...');
-        
-        this.settings.apiKey = apiKey;
-        
-        // Apply to LocalAI if using a cloud provider
-        if (this.localAI && ['openrouter', 'openai', 'anthropic'].includes(this.settings.provider)) {
-            this.localAI.apiKey = apiKey;
-        }
-        
-        this.saveSettings();
-        
-        if (apiKey && apiKey.trim()) {
-            showToast('API key saved', 'success');
-        }
-    },
-
-    // Remote Ollama handlers
-    updateRemoteEndpoint(endpoint) {
-        console.log('Updating remote endpoint:', endpoint);
-        
-        this.settings.remoteEndpoint = endpoint;
-        
-        if (this.localAI && this.settings.provider === 'remote_ollama') {
-            this.localAI.remoteEndpoint = endpoint;
-        }
-        
-        this.saveSettings();
-        showToast('Remote endpoint saved', 'success');
-    },
-
-    updateRemoteModel(model) {
-        console.log('Updating remote model:', model);
-        
-        this.settings.remoteModel = model;
-        
-        if (this.localAI && this.settings.provider === 'remote_ollama') {
-            this.localAI.remoteModel = model;
-        }
-        
-        this.saveSettings();
-        showToast('Remote model saved', 'success');
-    },
-
-    updateOpenRouterModel(model) {
-        console.log('Updating OpenRouter model:', model);
-        
-        this.settings.openRouterModel = model;
-        
-        if (this.localAI && this.settings.provider === 'openrouter') {
-            this.localAI.openRouterModel = model;
-        }
-        
-        this.saveSettings();
-        showToast('OpenRouter model saved', 'success');
-    },
-
-    // Test remote connection
-    async testRemoteConnection() {
-        const endpoint = this.settings.remoteEndpoint || document.getElementById('remote-endpoint-input')?.value;
-        
-        if (!endpoint) {
-            showToast('Please enter a remote endpoint', 'error');
-            return;
-        }
-        
-        this.showLoading('test-remote-connection-btn');
-        
-        try {
-            console.log('Testing remote connection to:', endpoint);
-            
-            const response = await fetch(`${endpoint}/api/tags`, {
-                method: 'GET',
-                headers: { 'Content-Type': 'application/json' }
-            });
-            
-            if (response.ok) {
-                const data = await response.json();
-                console.log('Remote connection successful:', data);
-                showToast(`✅ Connected! Found ${data.models?.length || 0} models`, 'success');
-                
-                // Update available models display if exists
-                const modelsList = data.models?.map(m => m.name).join(', ') || 'None';
-                showToast(`Available models: ${modelsList}`, 'info');
-                
-            } else {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            }
-            
-        } catch (error) {
-            console.error('Remote connection failed:', error);
-            showToast(`❌ Connection failed: ${error.message}`, 'error');
-        }
-        
-        this.hideLoading('test-remote-connection-btn');
-    },
-
-    // Enhanced settings application
-    applySavedSettingsToAI() {
-        if (!this.localAI) return;
-        
-        console.log('Applying saved settings to AI:', this.settings);
-        
-        // Use the changeProvider method to properly configure everything
-        this.changeProvider(this.settings.provider || 'local');
-    },
-
-    // Helper method for display names
-    getProviderDisplayName(provider) {
-        const names = {
-            'local': 'Local Ollama',
-            'remote_ollama': 'Remote Ollama',
-            'openrouter': 'OpenRouter',
-            'openai': 'OpenAI',
-            'anthropic': 'Anthropic Claude'
-        };
-        return names[provider] || provider;
-    },
-
-    // FIXED: Populate base word dropdown for morphology
-    populateBaseWordDropdown() {
-        const baseWordSelect = document.getElementById('base-word-select');
-        if (!baseWordSelect) return;
-        
-        console.log('Populating base word dropdown...');
-        
-        // Get vocabulary from the same source as other methods
-        const context = this.getLanguageContext();
-        const vocabulary = context.vocabulary;
-        
-        if (!vocabulary || vocabulary.length === 0) {
-            baseWordSelect.innerHTML = '<option value="">No vocabulary available. Add some words first!</option>';
-            return;
-        }
-        
-        // Clear existing options
-        baseWordSelect.innerHTML = '<option value="">Select a word to expand...</option>';
-        
-        // Add vocabulary words
-        vocabulary.forEach((word, index) => {
-            const option = document.createElement('option');
-            option.value = word.english; // Use English word as value
-            option.textContent = `${word.conlang} (${word.english}) - ${word.pos}`;
-            option.dataset.index = index;
-            option.dataset.conlang = word.conlang;
-            option.dataset.pos = word.pos;
-            baseWordSelect.appendChild(option);
-        });
-        
-        console.log(`Populated dropdown with ${vocabulary.length} words`);
-    },
-
-    // Add this method to refresh dropdowns when vocabulary changes
-    refreshMorphologyDropdowns() {
-        this.populateBaseWordDropdown();
-        
-        // Also refresh other dropdowns if they exist
-        if (window.MorphologyModule && window.MorphologyModule.updateAffixDropdowns) {
-            window.MorphologyModule.updateAffixDropdowns();
-        }
-    },
-
-    // FIXED: Generate derivatives
-    async generateDerivatives() {
-        const selectedWord = document.getElementById('base-word-select')?.value;
-        if (!selectedWord) {
-            showToast('Please select a base word first!', 'warning');
-            return;
-        }
-
-        this.showLoading('generate-derivatives-btn');
-
-        try {
-            // Get the selected word details
-            const baseWordSelect = document.getElementById('base-word-select');
-            const selectedOption = baseWordSelect.options[baseWordSelect.selectedIndex];
-            const wordData = {
-                english: selectedWord,
-                conlang: selectedOption.dataset.conlang,
-                pos: selectedOption.dataset.pos
-            };
-
-            console.log('Generating AI derivatives for:', wordData);
-
-            const context = this.getLanguageContext();
-            
-            // Use AI if available
-            let derivatives;
-            if (this.localAI && this.localAI.initialized && this.localAI.apiEndpoint) {
-                try {
-                    derivatives = await this.generateAIDerivatives(context, wordData);
-                } catch (error) {
-                    console.log('AI derivative generation failed:', error.message);
-                    derivatives = this.generateBasicDerivatives(wordData);
-                }
-            } else {
-                derivatives = this.generateBasicDerivatives(wordData);
-            }
-            
-            this.displayMorphologicalResults(derivatives, 'Derivatives', wordData.english);
-            showToast(`Generated ${derivatives.length} derivatives!`, 'success');
-
-        } catch (error) {
-            console.error('Error generating derivatives:', error);
-            showToast('Failed to generate derivatives', 'error');
-        }
-
-        this.hideLoading('generate-derivatives-btn');
-    },
-
-
-    // REAL AI-powered compound generation - replace in ai-assistant.js
-
-async generateCompounds() {
-    const selectedWord = document.getElementById('base-word-select')?.value;
-    if (!selectedWord) {
-        showToast('Please select a base word first!', 'warning');
-        return;
-    }
-
-    this.showLoading('generate-compounds-btn');
-
-    try {
-        const baseWordSelect = document.getElementById('base-word-select');
-        const selectedOption = baseWordSelect.options[baseWordSelect.selectedIndex];
-        const wordData = {
-            english: selectedWord,
-            conlang: selectedOption.dataset.conlang,
-            pos: selectedOption.dataset.pos
-        };
-
-        console.log('Generating AI compounds for:', wordData);
-
-        const context = this.getLanguageContext();
-        
-        // Use AI if available
-        let compounds;
-        if (this.localAI && this.localAI.initialized && this.localAI.apiEndpoint) {
-            try {
-                compounds = await this.generateAICompounds(context, wordData);
-            } catch (error) {
-                console.log('AI compound generation failed:', error.message);
-                compounds = this.generateBasicCompounds(context, wordData);
-            }
-        } else {
-            compounds = this.generateBasicCompounds(context, wordData);
-        }
-        
-        this.displayMorphologicalResults(compounds, 'Compound Words', wordData.english);
-        showToast(`Generated ${compounds.length} compound words using "${wordData.english}"!`, 'success');
-
-    } catch (error) {
-        console.error('Error generating compounds:', error);
-        showToast('Failed to generate compounds', 'error');
-    }
-
-    this.hideLoading('generate-compounds-btn');
-},
-
-// AI-POWERED DERIVATIVES
-async generateAIDerivatives(context, baseWord) {
-    try {
-        const morphologyInfo = context.morphology && Object.keys(context.morphology).length > 0 ? 
-            `Your language has these morphological features: ${JSON.stringify(context.morphology)}` :
-            'Your language uses prefixes, suffixes, and infixes to create derived words.';
-
-        const prompt = `You are creating derivative words for a constructed language by modifying the base word "${baseWord.english}" (conlang: "${baseWord.conlang}").
-
-BASE WORD: ${baseWord.english} = ${baseWord.conlang} (${baseWord.pos})
-
-${morphologyInfo}
-
-TASK: Create 5 derivative forms by adding morphemes (prefixes, suffixes, infixes) to the conlang word "${baseWord.conlang}". 
-
-Think about:
-- Agent forms (person who does the action): add -er, -ar, -ist
-- Result forms (result of the action): add -tion, -ment, -ing  
-- Adjective forms: add -able, -ive, -ous
-- Opposite forms: add un-, non-, anti-
-- Diminutive/augmentative: add -let, -ling, -mega
-
-Example: if base is "learn" (katal), you might create:
-- katalar = learner (person who learns)
-- katalum = learning/lesson (result of learning)
-- katalik = learnable (able to learn)
-
-Return ONLY a JSON object:
-{
-  "derivatives": [
-    {
-      "conlang": "modified conlang word",
-      "english": "English meaning", 
-      "pos": "noun/verb/adjective/adverb",
-      "morpheme_added": "what was added to create this",
-      "derivation_type": "agent/result/adjective/opposite/etc",
-      "explanation": "why this derivation makes sense"
-    }
-  ]
-}
-
-Make the conlang derivatives by actually modifying "${baseWord.conlang}"!`;
-
-        const response = await this.localAI.callAI(prompt);
-        
-        if (!response) {
-            throw new Error('No response from AI');
-        }
-
-        const jsonMatch = response.match(/\{[\s\S]*\}/);
-        if (!jsonMatch) {
-            throw new Error('No JSON found in AI response');
-        }
-
-        const result = JSON.parse(jsonMatch[0]);
-        
-        if (!result.derivatives || !Array.isArray(result.derivatives)) {
-            throw new Error('Invalid response structure from AI');
-        }
-
-        return result.derivatives.map(derivative => ({
-            conlang: derivative.conlang,
-            english: derivative.english,
-            pos: derivative.pos,
-            derivation: `${baseWord.conlang} + ${derivative.morpheme_added}`,
-            meaning: `${derivative.derivation_type}: ${derivative.explanation}`,
-            baseWord: baseWord.english
-        }));
-
-    } catch (error) {
-        console.error('Error in AI derivative generation:', error);
-        throw error;
-    }
-},
-
-// AI-POWERED WORD FAMILY
-async generateAIWordFamily(context, baseWord) {
-    try {
-        const prompt = `You are creating a word family for a constructed language based on the root word "${baseWord.english}" (conlang: "${baseWord.conlang}").
-
-BASE WORD: ${baseWord.english} = ${baseWord.conlang} (${baseWord.pos})
-
-TASK: Create 5 related words in the same word family by modifying the conlang root "${baseWord.conlang}". Think of different forms, variations, and related concepts.
-
-Examples of word family variations:
-- Size variations: little, big, huge versions
-- Intensity variations: mild, strong, extreme versions  
-- Time variations: past, present, future forms
-- Quality variations: good, bad, neutral versions
-- Related concepts: similar meaning but different nuance
-
-For "${baseWord.english}" (${baseWord.conlang}), create variations like:
-- Different intensities or sizes
-- Related but distinct meanings
-- Grammatical variations
-- Semantic extensions
-
-Return ONLY a JSON object:
-{
-  "word_family": [
-    {
-      "conlang": "modified conlang word",
-      "english": "English meaning",
-      "pos": "noun/verb/adjective/adverb", 
-      "variation_type": "diminutive/augmentative/intensive/etc",
-      "relationship": "how this relates to the base word",
-      "morphological_change": "what changed in the conlang word"
-    }
-  ]
-}
-
-Modify "${baseWord.conlang}" to create the family members!`;
-
-        const response = await this.localAI.callAI(prompt);
-        
-        if (!response) {
-            throw new Error('No response from AI');
-        }
-
-        const jsonMatch = response.match(/\{[\s\S]*\}/);
-        if (!jsonMatch) {
-            throw new Error('No JSON found in AI response');
-        }
-
-        const result = JSON.parse(jsonMatch[0]);
-        
-        if (!result.word_family || !Array.isArray(result.word_family)) {
-            throw new Error('Invalid response structure from AI');
-        }
-
-        return result.word_family.map(word => ({
-            conlang: word.conlang,
-            english: word.english,
-            pos: word.pos,
-            derivation: `${baseWord.conlang} → ${word.conlang} (${word.morphological_change})`,
-            meaning: `${word.variation_type}: ${word.relationship}`,
-            baseWord: baseWord.english
-        }));
-
-    } catch (error) {
-        console.error('Error in AI word family generation:', error);
-        throw error;
-    }
-},
-
-// AI-POWERED COMPOUNDS (FIXED)
-async generateAICompounds(context, baseWord) {
-    try {
-        const vocabularyList = context.vocabulary
-            .filter(word => word.english.toLowerCase() !== baseWord.english.toLowerCase())
-            .map(word => `${word.english} = ${word.conlang}`)
-            .join(', ');
-
-        const prompt = `You are creating compound words for a constructed language by combining the base word "${baseWord.english}" (conlang: "${baseWord.conlang}") with other words from the vocabulary.
-
-BASE WORD: ${baseWord.english} = ${baseWord.conlang} (${baseWord.pos})
-
-AVAILABLE VOCABULARY TO COMBINE WITH: ${vocabularyList}
-
-TASK: Create 5 meaningful compound words by taking the conlang word "${baseWord.conlang}" and combining it with other conlang words from the vocabulary.
-
-Examples of good compounds:
-- fire + place = fireplace
-- water + house = bathroom  
-- hand + book = handbook
-- sun + light = sunlight
-
-For "${baseWord.english}" (${baseWord.conlang}), think of logical combinations:
-1. ${baseWord.conlang} + another_conlang_word = new compound
-2. another_conlang_word + ${baseWord.conlang} = new compound
-
-Return ONLY a JSON object:
-{
-  "compounds": [
-    {
-      "conlang": "actual combined conlang words",
-      "english": "compound meaning in English",
-      "first_word": "first conlang word used",
-      "second_word": "second conlang word used", 
-      "combination_logic": "why these two make sense together",
-      "pos": "noun/verb/adjective"
-    }
-  ]
-}
-
-IMPORTANT: Use actual conlang words from the vocabulary, not English words!`;
-
-        const response = await this.localAI.callAI(prompt);
-        
-        if (!response) {
-            throw new Error('No response from AI');
-        }
-
-        const jsonMatch = response.match(/\{[\s\S]*\}/);
-        if (!jsonMatch) {
-            throw new Error('No JSON found in AI response');
-        }
-
-        const result = JSON.parse(jsonMatch[0]);
-        
-        if (!result.compounds || !Array.isArray(result.compounds)) {
-            throw new Error('Invalid response structure from AI');
-        }
-
-        return result.compounds.map(compound => ({
-            conlang: compound.conlang,
-            english: compound.english,
-            pos: compound.pos || 'noun',
-            derivation: `${compound.first_word} + ${compound.second_word}`,
-            meaning: compound.combination_logic,
-            baseWords: [compound.first_word, compound.second_word]
-        }));
-
-    } catch (error) {
-        console.error('Error in AI compound generation:', error);
-        throw error;
-    }
-},
-
-    // Simple fallbacks (non-hardcoded)
-    generateBasicDerivatives(baseWord) {
-        const derivatives = [];
-        const base = baseWord.conlang;
-        
-        // Add some basic morphemes
-        const morphemes = ['ar', 'um', 'ik', 'en', 'al'];
-        
-        morphemes.forEach((morpheme, index) => {
-            derivatives.push({
-                conlang: base + morpheme,
-                english: `${baseWord.english}-derivative-${index + 1}`,
-                pos: index < 2 ? 'noun' : index < 4 ? 'adjective' : 'verb',
-                derivation: `${base} + -${morpheme}`,
-                meaning: `Related to ${baseWord.english}`,
-                baseWord: baseWord.english
-            });
-        });
-        
-        return derivatives;
-    },
-
-    generateBasicWordFamily(baseWord) {
-        const family = [];
-        const base = baseWord.conlang;
-        
-        const variations = ['eth', 'ok', 'il', 'an', 'est'];
-        
-        variations.forEach((variation, index) => {
-            family.push({
-                conlang: base + variation,
-                english: `${baseWord.english}-variant-${index + 1}`,
-                pos: baseWord.pos,
-                derivation: `${base} + -${variation}`,
-                meaning: `Variation of ${baseWord.english}`,
-                baseWord: baseWord.english
-            });
-        });
-        
-        return family;
-    },
-
-    generateBasicCompounds(context, baseWord) {
-        const compounds = [];
-        const base = baseWord.conlang;
-        
-        // Get a few other words to combine with
-        const otherWords = context.vocabulary
-            .filter(word => word.english.toLowerCase() !== baseWord.english.toLowerCase())
-            .slice(0, 5);
-        
-        otherWords.forEach(word => {
-            compounds.push({
-                conlang: base + word.conlang,
-                english: `${baseWord.english}-${word.english}`,
-                pos: 'noun',
-                derivation: `${base} + ${word.conlang}`,
-                meaning: `Combination of ${baseWord.english} and ${word.english}`,
-                baseWords: [baseWord.english, word.english]
-            });
-        });
-        
-        return compounds;
-    },
-    // Simple fallback when AI is not available
-    generateBasicCompounds(context, baseWord) {
-        const vocabulary = context.vocabulary;
-        const compounds = [];
-        const baseEnglish = baseWord.english.toLowerCase();
-        const baseConlang = baseWord.conlang;
-        
-        console.log(`Generating basic compounds for: ${baseEnglish}`);
-        
-        // Find other words to combine with (exclude the base word itself)
-        const otherWords = vocabulary.filter(word => 
-            word.english.toLowerCase() !== baseEnglish
-        ).slice(0, 10); // Limit to 10 for performance
-        
-        // Generate a few combinations
-        otherWords.slice(0, 5).forEach(word => {
-            // Base word + other word
-            compounds.push({
-                conlang: baseConlang + word.conlang,
-                english: `${baseWord.english}-${word.english}`,
-                pos: 'noun',
-                derivation: `${baseConlang} + ${word.conlang}`,
-                meaning: `Something that combines ${baseWord.english} and ${word.english}`,
-                baseWords: [baseWord.english, word.english]
-            });
-        });
-        
-        return compounds;
-    },
-
-    async expandWordFamily() {
-        const selectedWord = document.getElementById('base-word-select')?.value;
-        if (!selectedWord) {
-            showToast('Please select a base word first!', 'warning');
-            return;
-        }
-
-        this.showLoading('expand-word-family-btn');
-
-        try {
-            const baseWordSelect = document.getElementById('base-word-select');
-            const selectedOption = baseWordSelect.options[baseWordSelect.selectedIndex];
-            const wordData = {
-                english: selectedWord,
-                conlang: selectedOption.dataset.conlang,
-                pos: selectedOption.dataset.pos
-            };
-
-            console.log('Generating AI word family for:', wordData);
-
-            const context = this.getLanguageContext();
-            
-            // Use AI if available
-            let wordFamily;
-            if (this.localAI && this.localAI.initialized && this.localAI.apiEndpoint) {
-                try {
-                    wordFamily = await this.generateAIWordFamily(context, wordData);
-                } catch (error) {
-                    console.log('AI word family generation failed:', error.message);
-                    wordFamily = this.generateBasicWordFamily(wordData);
-                }
-            } else {
-                wordFamily = this.generateBasicWordFamily(wordData);
-            }
-
-            this.displayMorphologicalResults(wordFamily, 'Word Family', wordData.english);
-            showToast(`Generated word family with ${wordFamily.length} related words!`, 'success');
-
-        } catch (error) {
-            console.error('Error expanding word family:', error);
-            showToast('Failed to expand word family', 'error');
-        }
-
-        this.hideLoading('expand-word-family-btn');
-    },
-
-    // Simple derivative generation (fallback when AI is not available)
-    generateSimpleDerivatives(baseWord) {
-        const derivatives = [];
-        const baseConlang = baseWord.conlang;
-        
-        // Common derivative patterns
-        const patterns = [
-            { suffix: 'ar', meaning: 'agent/doer', pos: 'noun', example: `${baseConlang}ar (one who ${baseWord.english}s)` },
-            { suffix: 'um', meaning: 'result/product', pos: 'noun', example: `${baseConlang}um (result of ${baseWord.english}ing)` },
-            { suffix: 'ik', meaning: 'adjective form', pos: 'adjective', example: `${baseConlang}ik (related to ${baseWord.english})` },
-            { suffix: 'en', meaning: 'causative', pos: 'verb', example: `${baseConlang}en (to cause to ${baseWord.english})` },
-            { suffix: 'al', meaning: 'place/location', pos: 'noun', example: `${baseConlang}al (place for ${baseWord.english}ing)` }
-        ];
-        
-        patterns.forEach(pattern => {
-            derivatives.push({
-                conlang: baseConlang + pattern.suffix,
-                english: `${baseWord.english}-${pattern.meaning}`,
-                pos: pattern.pos,
-                derivation: `${baseWord.conlang} + -${pattern.suffix}`,
-                meaning: pattern.example,
-                baseWord: baseWord.english
-            });
-        });
-        
-        return derivatives;
-    },
-
-    generateSimpleCompounds(context) {
-        const vocabulary = context.vocabulary;
-        const compounds = [];
-        
-        // Simple compound patterns
-        const compoundPairs = [
-            ['water', 'house', 'bathroom'],
-            ['fire', 'place', 'fireplace'],
-            ['sun', 'light', 'sunlight'],
-            ['hand', 'book', 'handbook'],
-            ['eye', 'water', 'tears']
-        ];
-        
-        compoundPairs.forEach(([word1, word2, meaning]) => {
-            const vocab1 = vocabulary.find(w => w.english.toLowerCase() === word1);
-            const vocab2 = vocabulary.find(w => w.english.toLowerCase() === word2);
-            
-            if (vocab1 && vocab2) {
-                compounds.push({
-                    conlang: vocab1.conlang + vocab2.conlang,
-                    english: meaning,
-                    pos: 'noun',
-                    derivation: `${vocab1.conlang} + ${vocab2.conlang}`,
-                    meaning: `${word1} + ${word2} = ${meaning}`,
-                    baseWords: [word1, word2]
-                });
-            }
-        });
-        
-        return compounds;
-    },
-
-    generateWordFamily(baseWord) {
-        const family = [];
-        const base = baseWord.conlang;
-        
-        // Generate various related words
-        const familyPatterns = [
-            { form: base + 'eth', meaning: `${baseWord.english} (diminutive)`, pos: 'noun' },
-            { form: base + 'ok', meaning: `${baseWord.english} (augmentative)`, pos: 'noun' },
-            { form: base + 'il', meaning: `little ${baseWord.english}`, pos: 'noun' },
-            { form: base + 'an', meaning: `${baseWord.english}-like`, pos: 'adjective' },
-            { form: base + 'est', meaning: `most ${baseWord.english}`, pos: 'adjective' }
-        ];
-        
-        familyPatterns.forEach(pattern => {
-            family.push({
-                conlang: pattern.form,
-                english: pattern.meaning,
-                pos: pattern.pos,
-                derivation: `${baseWord.conlang} + morphological variation`,
-                meaning: pattern.meaning,
-                baseWord: baseWord.english
-            });
-        });
-        
-        return family;
-    },
-
-    displayMorphologicalResults(results, title, baseWord = '') {
-        const resultDiv = document.getElementById('morphological-results');
-        const contentDiv = document.getElementById('morphological-content');
-        
-        if (!resultDiv || !contentDiv) return;
-
-        if (results.length === 0) {
-            contentDiv.innerHTML = `
-                <div class="morphological-expansion">
-                    <p style="text-align: center; color: #666;">No ${title.toLowerCase()} could be generated.</p>
-                </div>
-            `;
-        } else {
-            contentDiv.innerHTML = `
-                <div class="morphological-expansion">
-                    <div class="word-family">
-                        <h5>${title}${baseWord ? ` for "${baseWord}"` : ''}</h5>
-                        <div class="derived-words">
-                            ${results.map((word, index) => `
-                                <div class="derived-word">
-                                    <div class="derived-word-info">
-                                        <div class="derived-word-conlang">${word.conlang}</div>
-                                        <div class="derived-word-meaning">${word.english} (${word.pos})</div>
-                                        <div class="derived-word-process">${word.derivation || word.meaning}</div>
-                                    </div>
-                                    <button class="btn btn-sm btn-success" onclick="AIAssistant.addDerivedWord(${index})" style="margin-left: 10px;">
-                                        ➕ Add
-                                    </button>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        // Store results for adding
-        this.currentMorphologicalResults = results;
-        resultDiv.style.display = 'block';
-    },
-
-    addDerivedWord(index) {
-        const word = this.currentMorphologicalResults[index];
-        if (!word) return;
-
-        // Create new word object
-        const newWord = {
-            english: word.english,
-            conlang: word.conlang,
-            pos: word.pos,
-            meaning: word.meaning || word.english,
-            source: 'ai_morphology',
-            derivation: word.derivation,
-            type: 'derived'
-        };
-
-        // Add to vocabulary using existing systems
-        if (window.VocabularyModule && window.VocabularyModule.addWord) {
-            window.VocabularyModule.addWord(newWord);
-        } else {
-            // Fallback method
-            const allWords = window.appState ? window.appState.getState('allWords') || [] : [];
-            allWords.push(newWord);
-            if (window.appState) {
-                window.appState.setState('allWords', allWords);
-            }
-        }
-
-        // Update displays
-        this.refreshMorphologyDropdowns();
-
-        // Update the button to show it was added
-        const button = document.querySelector(`button[onclick="AIAssistant.addDerivedWord(${index})"]`);
-        if (button) {
-            button.textContent = '✅ Added';
-            button.disabled = true;
-            button.style.opacity = '0.6';
-        }
-
-        showToast(`Added "${word.conlang}" meaning "${word.english}" to vocabulary!`, 'success');
-        
-        // Log activity
-        if (window.ActivityModule) {
-            window.ActivityModule.addActivity(`Added derived word "${word.conlang}" meaning "${word.english}"`, 'vocabulary');
-        }
-    },
-
-    // FIXED: Cultural consistency analysis
-    async checkCulturalConsistency() {
-        this.showLoading('check-consistency-btn');
-
-        try {
-            console.log('Checking cultural consistency...');
-            const context = this.getLanguageContext();
-            
-            // Check if we have cultural settings and vocabulary
-            if (!context.culture || Object.keys(context.culture).length === 0) {
-                showToast('No cultural settings found. Please configure your culture first!', 'warning');
-                this.hideLoading('check-consistency-btn');
-                return;
-            }
-            
-            if (!context.vocabulary || context.vocabulary.length === 0) {
-                showToast('No vocabulary found. Please add some words first!', 'warning');
-                this.hideLoading('check-consistency-btn');
-                return;
-            }
-
-            // Try AI analysis first, fallback to simple analysis
-            let analysis;
-            if (this.localAI && this.localAI.initialized && this.localAI.apiEndpoint) {
-                try {
-                    analysis = await this.localAI.analyzeCulturalConsistency(context);
-                } catch (error) {
-                    console.log('AI cultural analysis failed, using simple analysis:', error.message);
-                    analysis = this.generateSimpleCulturalAnalysis(context);
-                }
-            } else {
-                console.log('AI not available, using simple cultural analysis');
-                analysis = this.generateSimpleCulturalAnalysis(context);
-            }
-            
-            this.displayConsistencyAnalysis(analysis);
-            showToast('Cultural consistency analysis completed!', 'success');
-
-        } catch (error) {
-            console.error('Error checking cultural consistency:', error);
-            showToast('Failed to analyze cultural consistency', 'error');
-        }
-
-        this.hideLoading('check-consistency-btn');
-    },
-
-    async suggestCulturalVocabulary() {
-        this.showLoading('suggest-cultural-vocab-btn');
-
-        try {
-            console.log('Suggesting cultural vocabulary...');
-            const context = this.getLanguageContext();
-            
-            // Check if we have cultural settings
-            if (!context.culture || Object.keys(context.culture).length === 0) {
-                showToast('No cultural settings found. Please configure your culture first!', 'warning');
-                this.hideLoading('suggest-cultural-vocab-btn');
-                return;
-            }
-
-            // Try AI suggestions first, fallback to simple suggestions
-            let suggestions;
-            if (this.localAI && this.localAI.initialized && this.localAI.apiEndpoint) {
-                try {
-                    suggestions = await this.localAI.generateCulturalVocabulary(context);
-                } catch (error) {
-                    console.log('AI cultural vocabulary failed, using simple suggestions:', error.message);
-                    suggestions = this.generateSimpleCulturalVocabulary(context);
-                }
-            } else {
-                console.log('AI not available, using simple cultural vocabulary');
-                suggestions = this.generateSimpleCulturalVocabulary(context);
-            }
-            
-            this.displayCulturalVocabulary(suggestions);
-            showToast('Cultural vocabulary suggestions generated!', 'success');
-
-        } catch (error) {
-            console.error('Error suggesting cultural vocabulary:', error);
-            showToast('Failed to suggest cultural vocabulary', 'error');
-        }
-
-        this.hideLoading('suggest-cultural-vocab-btn');
-    },
-
-    // Simple cultural analysis (fallback when AI is not available)
-    generateSimpleCulturalAnalysis(context) {
-        const culture = context.culture;
-        const vocabulary = context.vocabulary;
-        
-        const analysis = {
-            consistency_score: 75, // Default reasonable score
-            issues: [],
-            cultural_strengths: [],
-            missing_cultural_vocabulary: []
-        };
-        
-        // Analyze based on environment
-        if (culture.environment) {
-            const environment = culture.environment.toLowerCase();
-            const environmentWords = vocabulary.filter(word => 
-                this.isEnvironmentRelated(word.english, environment)
-            );
-            
-            if (environmentWords.length > 5) {
-                analysis.cultural_strengths.push({
-                    aspect: `${environment} environment vocabulary`,
-                    supporting_vocabulary: environmentWords.slice(0, 5).map(w => w.english)
-                });
-            } else {
-                analysis.missing_cultural_vocabulary.push({
-                    domain: `${environment} environment`,
-                    missing_words: this.getEnvironmentWords(environment),
-                    importance: `Essential for ${environment} societies`
-                });
-            }
-        }
-        
-        // Analyze technology level
-        if (culture.technologyLevel) {
-            const techLevel = culture.technologyLevel.toLowerCase();
-            const modernWords = vocabulary.filter(word => 
-                this.isModernWord(word.english)
-            );
-            
-            if (techLevel.includes('stone') || techLevel.includes('bronze') || techLevel.includes('medieval')) {
-                if (modernWords.length > 0) {
-                    analysis.issues.push({
-                        type: 'anachronism',
-                        description: `Modern words found in ${techLevel} society`,
-                        words_involved: modernWords.slice(0, 3).map(w => w.english),
-                        severity: 'medium',
-                        suggestion: 'Replace with period-appropriate alternatives'
-                    });
-                    analysis.consistency_score -= 15;
-                }
-            }
-        }
-        
-        // Check social structure
-        if (culture.socialStructure) {
-            const socialWords = vocabulary.filter(word => 
-                this.isSocialWord(word.english)
-            );
-            
-            if (socialWords.length < 3) {
-                analysis.missing_cultural_vocabulary.push({
-                    domain: 'social relationships',
-                    missing_words: ['leader', 'family', 'community', 'elder', 'child'],
-                    importance: 'Essential for describing social interactions'
-                });
-            }
-        }
-        
-        return analysis;
-    },
-
-    // Simple cultural vocabulary suggestions
-    generateSimpleCulturalVocabulary(context) {
-        const culture = context.culture;
-        const suggestions = [];
-        
-        // Environment-based suggestions
-        if (culture.environment) {
-            const environment = culture.environment.toLowerCase();
-            const environmentWords = this.getEnvironmentWords(environment);
-            
-            environmentWords.forEach(word => {
-                suggestions.push({
-                    english: word,
-                    pos: this.guessPartOfSpeech(word),
-                    category: `${environment} environment`,
-                    priority: 8,
-                    reasoning: `Essential for ${environment} societies`,
-                    confidence: 0.9
-                });
-            });
-        }
-        
-        // Technology level suggestions
-        if (culture.technologyLevel) {
-            const techLevel = culture.technologyLevel.toLowerCase();
-            const techWords = this.getTechnologyWords(techLevel);
-            
-            techWords.forEach(word => {
-                suggestions.push({
-                    english: word,
-                    pos: this.guessPartOfSpeech(word),
-                    category: `${techLevel} technology`,
-                    priority: 7,
-                    reasoning: `Appropriate for ${techLevel} societies`,
-                    confidence: 0.8
-                });
-            });
-        }
-        
-        // Social structure suggestions
-        if (culture.socialStructure) {
-            const socialWords = ['leader', 'elder', 'community', 'family', 'tradition'];
-            
-            socialWords.forEach(word => {
-                suggestions.push({
-                    english: word,
-                    pos: this.guessPartOfSpeech(word),
-                    category: 'social structure',
-                    priority: 9,
-                    reasoning: 'Essential for social organization',
-                    confidence: 0.95
-                });
-            });
-        }
-        
-        return suggestions.slice(0, 10); // Limit to 10 suggestions
-    },
-
-    // Helper methods for cultural analysis
-    isEnvironmentRelated(word, environment) {
-        const environmentalWords = {
-            'desert': ['sand', 'dune', 'oasis', 'camel', 'heat', 'dry', 'sun', 'water', 'scarce'],
-            'forest': ['tree', 'wood', 'leaf', 'hunt', 'deer', 'bear', 'green', 'shade', 'wild'],
-            'mountain': ['peak', 'snow', 'cold', 'climb', 'stone', 'high', 'wind', 'valley'],
-            'coastal': ['sea', 'fish', 'boat', 'wave', 'salt', 'tide', 'shore', 'ocean'],
-            'arctic': ['ice', 'snow', 'cold', 'seal', 'whale', 'freeze', 'white', 'winter']
-        };
-        
-        const words = environmentalWords[environment] || [];
-        return words.some(envWord => word.toLowerCase().includes(envWord));
-    },
-
-    isModernWord(word) {
-        const modernWords = ['computer', 'internet', 'phone', 'car', 'airplane', 'electricity', 'plastic', 'television'];
-        return modernWords.some(modern => word.toLowerCase().includes(modern));
-    },
-
-    isSocialWord(word) {
-        const socialWords = ['leader', 'chief', 'elder', 'family', 'tribe', 'community', 'friend', 'enemy', 'ally'];
-        return socialWords.some(social => word.toLowerCase().includes(social));
-    },
-
-    getEnvironmentWords(environment) {
-        const environmentWords = {
-            'desert': ['oasis', 'dune', 'sand', 'camel', 'mirage'],
-            'forest': ['grove', 'clearing', 'undergrowth', 'canopy', 'wildlife'],
-            'mountain': ['peak', 'valley', 'cliff', 'summit', 'avalanche'],
-            'coastal': ['harbor', 'reef', 'tide', 'lighthouse', 'anchor'],
-            'arctic': ['igloo', 'blizzard', 'glacier', 'tundra', 'aurora']
-        };
-        
-        return environmentWords[environment] || ['nature', 'land', 'weather', 'animal', 'plant'];
-    },
-
-    getTechnologyWords(techLevel) {
-        const techWords = {
-            'stone': ['spear', 'flint', 'fire', 'cave', 'hunt'],
-            'bronze': ['bronze', 'metal', 'tool', 'wheel', 'pottery'],
-            'iron': ['iron', 'sword', 'plow', 'forge', 'smith'],
-            'medieval': ['castle', 'knight', 'armor', 'siege', 'guild'],
-            'industrial': ['machine', 'factory', 'steam', 'coal', 'railroad'],
-            'modern': ['engine', 'radio', 'medicine', 'school', 'hospital']
-        };
-        
-        return techWords[techLevel] || ['tool', 'craft', 'make', 'build', 'work'];
-    },
-
-    displayConsistencyAnalysis(analysis) {
-        const resultDiv = document.getElementById('consistency-results');
-        const contentDiv = document.getElementById('consistency-content');
-        
-        if (!resultDiv || !contentDiv) return;
-
-        contentDiv.innerHTML = `
-            <div class="cultural-analysis">
-                <div class="cultural-score">
-                    <h5>Cultural Consistency Score: ${analysis.consistency_score}%</h5>
-                    <div style="background: #e9ecef; border-radius: 10px; overflow: hidden; margin: 10px 0;">
-                        <div style="background: linear-gradient(90deg, #dc3545 0%, #ffc107 50%, #28a745 100%); width: ${analysis.consistency_score}%; height: 20px; transition: width 0.3s ease;"></div>
-                    </div>
-                </div>
-                
-                ${analysis.cultural_strengths && analysis.cultural_strengths.length > 0 ? `
-                    <div style="margin: 20px 0;">
-                        <h6>🌟 Cultural Strengths</h6>
-                        ${analysis.cultural_strengths.map(strength => `
-                            <div class="consistency-item">
-                                <div class="consistency-icon good">✅</div>
-                                <div class="consistency-info">
-                                    <div class="consistency-title">${strength.aspect}</div>
-                                    <div class="consistency-description">Supporting words: ${strength.supporting_vocabulary.join(', ')}</div>
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                ` : ''}
-                
-                ${analysis.issues && analysis.issues.length > 0 ? `
-                    <div style="margin: 20px 0;">
-                        <h6>⚠️ Cultural Issues</h6>
-                        ${analysis.issues.map(issue => `
-                            <div class="consistency-item">
-                                <div class="consistency-icon ${issue.severity === 'high' ? 'issue' : 'warning'}">${issue.severity === 'high' ? '❌' : '⚠️'}</div>
-                                <div class="consistency-info">
-                                    <div class="consistency-title">${issue.description}</div>
-                                    <div class="consistency-description">
-                                        Words: ${issue.words_involved.join(', ')}<br>
-                                        Suggestion: ${issue.suggestion}
-                                    </div>
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                ` : ''}
-                
-                ${analysis.missing_cultural_vocabulary && analysis.missing_cultural_vocabulary.length > 0 ? `
-                    <div style="margin: 20px 0;">
-                        <h6>🎯 Missing Cultural Vocabulary</h6>
-                        ${analysis.missing_cultural_vocabulary.map(domain => `
-                            <div class="consistency-item">
-                                <div class="consistency-icon warning">📝</div>
-                                <div class="consistency-info">
-                                    <div class="consistency-title">${domain.domain}</div>
-                                    <div class="consistency-description">
-                                        Suggested words: ${domain.missing_words.join(', ')}<br>
-                                        ${domain.importance}
-                                    </div>
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                ` : ''}
-            </div>
-        `;
-
-        resultDiv.style.display = 'block';
-    },
-
-    displayCulturalVocabulary(suggestions) {
-        const resultDiv = document.getElementById('consistency-results');
-        const contentDiv = document.getElementById('consistency-content');
-        
-        if (!resultDiv || !contentDiv) return;
-
-        if (suggestions.length === 0) {
-            contentDiv.innerHTML = `
-                <div class="cultural-analysis">
-                    <h5>No Cultural Vocabulary Suggestions</h5>
-                    <p>Your vocabulary already covers the main cultural areas, or no cultural context is available.</p>
-                </div>
-            `;
-        } else {
-            contentDiv.innerHTML = `
-                <div class="cultural-analysis">
-                    <h5>🌟 Cultural Vocabulary Suggestions</h5>
-                    <p>Words that would enhance your language's cultural authenticity:</p>
-                    
-                    <div class="missing-words-grid">
-                        ${suggestions.map((word, index) => `
-                            <div class="missing-word-card">
-                                <div class="missing-word-header">
-                                    <strong>${word.english}</strong>
-                                    <span class="word-pos-tag">${word.pos}</span>
-                                </div>
-                                <div class="missing-word-meaning">Category: ${word.category}</div>
-                                <div class="missing-word-priority">Priority: ${word.priority}/10</div>
-                                <div style="font-size: 12px; color: #666; margin: 8px 0;">${word.reasoning}</div>
-                                <div class="missing-word-actions">
-                                    <button class="btn btn-sm btn-success" onclick="AIAssistant.addCulturalWord(${index})">
-                                        ✨ Add to Vocabulary
-                                    </button>
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-            `;
-        }
-
-        // Store suggestions for adding
-        this.currentCulturalSuggestions = suggestions;
-        resultDiv.style.display = 'block';
-    },
-
-    addCulturalWord(index) {
-        const word = this.currentCulturalSuggestions[index];
-        if (!word) return;
-
-        // Generate conlang word using existing systems
-        const context = this.getLanguageContext();
-        const finalConlangWord = window.VocabularyModule ? 
-            window.VocabularyModule.generateWord(word.english, word.pos, context) :
-            this.generateFallbackWord();
-        
-        // Add to vocabulary
-        const newWord = {
-            english: word.english,
-            conlang: finalConlangWord,
-            pos: word.pos || 'noun',
-            meaning: word.english,
-            source: 'ai_cultural',
-            category: word.category
-        };
-        
-        // Add using existing vocabulary system
-        if (window.VocabularyModule && window.VocabularyModule.addWord) {
-            window.VocabularyModule.addWord(newWord);
-        } else {
-            // Fallback method
-            const allWords = window.appState ? window.appState.getState('allWords') || [] : [];
-            allWords.push(newWord);
-            if (window.appState) {
-                window.appState.setState('allWords', allWords);
-            }
-        }
-
-        // Update displays
-        this.refreshMorphologyDropdowns();
-
-        // Update the button to show it was added
-        const button = document.querySelector(`button[onclick="AIAssistant.addCulturalWord(${index})"]`);
-        if (button) {
-            button.textContent = '✅ Added';
-            button.disabled = true;
-            button.style.opacity = '0.6';
-        }
-
-        showToast(`Added "${word.english}" → "${finalConlangWord}" to vocabulary!`, 'success');
-        
-        // Log activity
-        if (window.ActivityModule) {
-            window.ActivityModule.addActivity(`Added cultural word "${finalConlangWord}" meaning "${word.english}"`, 'vocabulary');
-        }
-    },
-
-    // [Continue with existing methods...]
-    async generateVocabularySuggestions() {
-        const category = document.getElementById('suggestion-category')?.value || 'auto';
+    async generateVocabulary() {
+        const category = document.getElementById('suggestion-category')?.value || 'basic';
         const count = parseInt(document.getElementById('suggestion-count')?.value) || 10;
 
-        this.showLoading('generate-suggestions-btn');
+        this.showLoading('generate-vocabulary-btn');
 
         try {
-            // Check if AI is available
-            if (!this.localAI || !this.localAI.initialized) {
-                throw new Error('AI engine not initialized');
-            }
-
-            if (!this.localAI.apiEndpoint) {
-                throw new Error('No AI provider available. Please check Ollama setup or configure cloud API.');
-            }
-
-            console.log('Generating vocabulary suggestions with AI...');
-            
-            // Get current language context
             const context = this.getLanguageContext();
-            console.log('Language context:', context);
+            const suggestions = await this.localGenerateVocabulary(context, category, count);
             
-            // Generate suggestions using local AI
-            const rawSuggestions = await this.localAI.generateVocabularySuggestions(context, category, count);
-            console.log('Raw suggestions from AI:', rawSuggestions);
-            
-            // Let the vocabulary system handle duplicate checking now
-            // Just do basic filtering for obviously bad suggestions
-            const suggestions = rawSuggestions.filter(suggestion => {
-                return suggestion.english && suggestion.english.trim().length > 0;
-            });
-            
-            console.log(`Filtered suggestions (removed ${rawSuggestions.length - suggestions.length} invalid):`, suggestions);
-            
-            if (!suggestions || suggestions.length === 0) {
-                showToast('AI returned no new suggestions (all were duplicates or invalid)', 'warning');
-                return;
-            }
-            
-            // Display suggestions
-            this.displaySuggestions(suggestions);
-            
-            // Update stats
-            this.stats.totalSuggestions += suggestions.length;
+            this.displayVocabularySuggestions(suggestions);
+            this.stats.aiSuggestedWords += suggestions.length;
+            this.stats.aiSessions++;
             this.updateStats();
-
+            
             showToast(`Generated ${suggestions.length} vocabulary suggestions!`, 'success');
 
         } catch (error) {
-            console.error('Error generating vocabulary suggestions:', error);
-            showToast(`Failed to generate suggestions: ${error.message}`, 'error');
-            
-            // Show debug info
-            console.log('AI Debug Info:');
-            console.log('- LocalAI initialized:', this.localAI?.initialized);
-            console.log('- API endpoint:', this.localAI?.apiEndpoint);
-            console.log('- Available models:', this.localAI?.availableModels);
-            console.log('- Selected model:', this.localAI?.selectedModel);
+            console.error('Error generating vocabulary:', error);
+            showToast('Failed to generate vocabulary suggestions', 'error');
         }
 
-        this.hideLoading('generate-suggestions-btn');
+        this.hideLoading('generate-vocabulary-btn');
     },
 
-    async identifyMissingWords() {
-        const input = document.getElementById('translation-input')?.value?.trim();
-        if (!input) {
-            showToast('Please enter text to analyze', 'warning');
-            return;
-        }
-
-        this.showLoading('identify-missing-btn');
+    async fillVocabularyGaps() {
+        this.showLoading('fill-gaps-btn');
 
         try {
-            console.log('Starting AI-powered word analysis...');
             const context = this.getLanguageContext();
+            const gapWords = await this.identifyVocabularyGaps(context);
             
-            // Check if AI is available
-            if (!this.localAI || !this.localAI.initialized) {
-                console.log('AI not available, falling back to simple analysis');
-                return await this.identifyMissingWordsSimple();
-            }
-
-            // Use AI to analyze the text and understand word relationships
-            console.log('Calling AI for smart analysis...');
-            const analysisResult = await this.analyzeTextWithAI(input, context);
+            this.displayVocabularySuggestions(gapWords);
+            this.stats.aiSuggestedWords += gapWords.length;
+            this.stats.aiSessions++;
+            this.updateStats();
             
-            if (analysisResult.error) {
-                console.log('AI analysis failed, using fallback:', analysisResult.error);
-                return await this.identifyMissingWordsSimple();
-            }
-
-            this.displaySmartMissingWords(analysisResult);
-            
-            if (analysisResult.missing_concepts.length === 0) {
-                showToast('All concepts in the text are covered by your vocabulary! 🎉', 'success');
-            } else {
-                showToast(`AI found ${analysisResult.missing_concepts.length} missing concepts (understanding conjugated forms)`, 'info');
-            }
+            showToast(`Identified ${gapWords.length} critical missing words!`, 'success');
 
         } catch (error) {
-            console.error('Error in AI word analysis:', error);
-            showToast('AI analysis failed, using simple word matching', 'warning');
-            return await this.identifyMissingWordsSimple();
+            console.error('Error identifying gaps:', error);
+            showToast('Failed to identify vocabulary gaps', 'error');
         }
 
-        this.hideLoading('identify-missing-btn');
+        this.hideLoading('fill-gaps-btn');
     },
 
-    async analyzeTextWithAI(text, context) {
+    async generateCulturalVocab() {
+        this.showLoading('cultural-vocab-btn');
+
         try {
-            // Create a vocabulary list for the AI to reference
-            const vocabularyList = context.vocabulary.map(word => 
-                `${word.english} (${word.pos})`
-            ).join(', ');
-
-            const prompt = `You are analyzing English text to identify missing vocabulary for a constructed language dictionary.
-
-CURRENT VOCABULARY (${context.vocabulary.length} words):
-${vocabularyList}
-
-ANALYZE THIS TEXT: "${text}"
-
-Your task:
-1. Identify ALL unique CONCEPTS/MEANINGS in the text
-2. For each concept, determine if it exists in the vocabulary (understanding that words can have different forms)
-3. Understand that "live/living/lived/lives" are all forms of the same concept "live"
-4. Understand that "run/running/ran/runs" are all forms of the same concept "run"
-5. Only mark a concept as "missing" if NO form of that word exists in the vocabulary
-
-Return ONLY a JSON object with this exact structure:
-{
-  "available_concepts": [
-    {"base_form": "live", "text_form": "living", "pos": "verb", "meaning": "to be alive"},
-    {"base_form": "house", "text_form": "house", "pos": "noun", "meaning": "dwelling place"}
-  ],
-  "missing_concepts": [
-    {"base_form": "work", "text_form": "working", "pos": "verb", "meaning": "to perform labor", "priority": 8},
-    {"base_form": "beautiful", "text_form": "beautiful", "pos": "adjective", "meaning": "pleasing to look at", "priority": 6}
-  ],
-  "analysis_notes": "Found 2 available concepts and 2 missing concepts. 'Living' matches existing 'live' in vocabulary."
-}
-
-Important: Be intelligent about word relationships. If the vocabulary contains "live", then "living", "lived", "lives" should all be considered available. Only suggest truly missing base concepts.`;
-
-            // Call AI with the analysis prompt
-            const response = await this.localAI.callAI(prompt);
+            const context = this.getLanguageContext();
+            const culturalWords = await this.generateCulturallyRelevantVocab(context);
             
-            if (!response) {
-                throw new Error('No response from AI');
-            }
-
-            console.log('Raw AI response:', response);
-
-            // Parse the JSON response
-            const jsonMatch = response.match(/\{[\s\S]*\}/);
-            if (!jsonMatch) {
-                throw new Error('No JSON found in AI response');
-            }
-
-            const result = JSON.parse(jsonMatch[0]);
+            this.displayVocabularySuggestions(culturalWords);
+            this.stats.aiSuggestedWords += culturalWords.length;
+            this.stats.aiSessions++;
+            this.updateStats();
             
-            // Validate the response structure
-            if (!result.available_concepts || !result.missing_concepts) {
-                throw new Error('Invalid response structure from AI');
-            }
-
-            console.log('AI analysis result:', result);
-            return result;
+            showToast(`Generated ${culturalWords.length} culturally relevant words!`, 'success');
 
         } catch (error) {
-            console.error('Error in AI text analysis:', error);
-            return { error: error.message };
-        }
-    },
-
-    displaySmartMissingWords(analysisResult) {
-        const resultDiv = document.getElementById('translation-results');
-        const contentDiv = document.getElementById('translation-content');
-        
-        if (!resultDiv || !contentDiv) return;
-
-        const { available_concepts, missing_concepts, analysis_notes } = analysisResult;
-
-        if (missing_concepts.length === 0) {
-            contentDiv.innerHTML = `
-                <div class="translation-analysis">
-                    <div class="translation-section">
-                        <h5>✅ Complete Conceptual Coverage</h5>
-                        <p>All concepts in the text are covered by your vocabulary!</p>
-                        <div class="analysis-details">
-                            <h6>📊 AI Analysis:</h6>
-                            <p><em>${analysis_notes}</em></p>
-                        </div>
-                        <div class="word-coverage">
-                            <h6>Available concepts (${available_concepts.length}):</h6>
-                            <div class="available-words">
-                                ${available_concepts.map(concept => 
-                                    `<span class="available-word" title="${concept.meaning}">
-                                        ${concept.text_form} → ${concept.base_form} (${concept.pos})
-                                    </span>`
-                                ).join('')}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        } else {
-            contentDiv.innerHTML = `
-                <div class="translation-analysis">
-                    <div class="translation-section">
-                        <h5>🧠 AI-Powered Concept Analysis</h5>
-                        <div class="analysis-details">
-                            <p><strong>AI Analysis:</strong> <em>${analysis_notes}</em></p>
-                        </div>
-                        
-                        <div class="coverage-stats">
-                            <div class="coverage-item available">
-                                <span class="coverage-number">${available_concepts.length}</span>
-                                <span class="coverage-label">Available Concepts</span>
-                            </div>
-                            <div class="coverage-item missing">
-                                <span class="coverage-number">${missing_concepts.length}</span>
-                                <span class="coverage-label">Missing Concepts</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="translation-section">
-                        <h5>✅ Available Concepts (AI Recognized)</h5>
-                        <div class="available-words">
-                            ${available_concepts.map(concept => 
-                                `<span class="available-word" title="${concept.meaning}">
-                                    <strong>${concept.text_form}</strong> → ${concept.base_form} (${concept.pos})
-                                </span>`
-                            ).join('')}
-                        </div>
-                    </div>
-
-                    <div class="translation-section">
-                        <h5>🎯 Missing Concepts (Need to Add)</h5>
-                        <div class="missing-words-grid">
-                            ${missing_concepts.map((concept, index) => `
-                                <div class="missing-word-card smart-analysis">
-                                    <div class="missing-word-header">
-                                        <strong>${concept.base_form}</strong>
-                                        <span class="word-pos-tag">${concept.pos}</span>
-                                        <span class="ai-badge">🧠 AI</span>
-                                    </div>
-                                    <div class="missing-word-form">Text form: "${concept.text_form}"</div>
-                                    <div class="missing-word-meaning">${concept.meaning}</div>
-                                    <div class="missing-word-priority">Priority: ${concept.priority || 5}/10</div>
-                                    <div class="missing-word-actions">
-                                        <button class="btn btn-sm btn-success" 
-                                                onclick="AIAssistant.addSmartMissingWord('${concept.base_form}', '${concept.pos}', '${concept.meaning}', ${index})">
-                                            ✨ Add to Vocabulary
-                                        </button>
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                </div>
-            `;
+            console.error('Error generating cultural vocabulary:', error);
+            showToast('Failed to generate cultural vocabulary', 'error');
         }
 
-        resultDiv.style.display = 'block';
+        this.hideLoading('cultural-vocab-btn');
     },
 
-    addSmartMissingWord(englishWord, pos, meaning, index) {
+    async generateWordFamilies() {
+        this.showLoading('generate-word-families-btn');
+
         try {
-            // Generate the conlang word using existing systems
             const context = this.getLanguageContext();
-            const finalConlangWord = window.VocabularyModule.generateWord(englishWord, pos, context);
+            const families = await this.localGenerateWordFamilies(context);
             
-            // Add to vocabulary
-            const newWord = {
-                english: englishWord,
-                conlang: finalConlangWord,
-                pos: pos || 'noun',
-                meaning: meaning || englishWord,
-                source: 'ai_smart_analysis'
+            this.displayBatchResults(families, 'Word Families');
+            showToast(`Generated ${families.length} word families!`, 'success');
+
+        } catch (error) {
+            console.error('Error generating word families:', error);
+            showToast('Failed to generate word families', 'error');
+        }
+
+        this.hideLoading('generate-word-families-btn');
+    },
+
+    async analyzeVocabularyGaps() {
+        this.showLoading('analyze-gaps-btn');
+
+        try {
+            const context = this.getLanguageContext();
+            const analysis = await this.performGapAnalysis(context);
+            
+            this.displayBatchResults([analysis], 'Gap Analysis');
+            showToast('Vocabulary gap analysis completed!', 'success');
+
+        } catch (error) {
+            console.error('Error analyzing gaps:', error);
+            showToast('Failed to analyze vocabulary gaps', 'error');
+        }
+
+        this.hideLoading('analyze-gaps-btn');
+    },
+
+    // Local vocabulary generation methods
+    async localGenerateVocabulary(context, category, count) {
+        // Basic vocabulary suggestions based on category
+        const categories = {
+            basic: ['water', 'fire', 'earth', 'sky', 'sun', 'moon', 'tree', 'stone', 'wind', 'rain'],
+            nature: ['mountain', 'river', 'forest', 'flower', 'animal', 'bird', 'fish', 'grass', 'leaf', 'root'],
+            social: ['family', 'friend', 'leader', 'community', 'tradition', 'law', 'peace', 'conflict', 'alliance', 'honor'],
+            emotions: ['love', 'hate', 'fear', 'joy', 'anger', 'sadness', 'hope', 'despair', 'trust', 'doubt'],
+            actions: ['walk', 'run', 'speak', 'listen', 'see', 'hear', 'touch', 'smell', 'taste', 'think'],
+            objects: ['tool', 'weapon', 'container', 'clothing', 'shelter', 'food', 'drink', 'medicine', 'rope', 'fire'],
+            abstract: ['time', 'space', 'truth', 'beauty', 'wisdom', 'strength', 'power', 'freedom', 'justice', 'knowledge'],
+            cultural: ['god', 'spirit', 'ritual', 'ceremony', 'art', 'music', 'dance', 'story', 'legend', 'sacred']
+        };
+
+        const baseWords = category === 'all' ? 
+            Object.values(categories).flat() : 
+            categories[category] || categories.basic;
+
+        // Filter out words that already exist
+        const existingWords = context.vocabulary.map(v => v.english.toLowerCase());
+        const newWords = baseWords.filter(word => !existingWords.includes(word.toLowerCase()));
+
+        // Take only the requested count
+        const selectedWords = newWords.slice(0, count);
+
+        return selectedWords.map(word => ({
+            english: word,
+            priority: Math.floor(Math.random() * 10) + 1,
+            category: category,
+            reasoning: `Essential ${category} vocabulary for basic communication`,
+            culturalNote: this.getCulturalNote(word, context.culture)
+        }));
+    },
+
+    async identifyVocabularyGaps(context) {
+        // Essential words every language should have
+        const essentialWords = [
+            'I', 'you', 'he', 'she', 'we', 'they', 'this', 'that',
+            'what', 'where', 'when', 'why', 'how', 'who',
+            'yes', 'no', 'good', 'bad', 'big', 'small',
+            'one', 'two', 'three', 'many', 'few', 'all', 'none'
+        ];
+
+        const existingWords = context.vocabulary.map(v => v.english.toLowerCase());
+        const missingEssential = essentialWords.filter(word => !existingWords.includes(word.toLowerCase()));
+
+        return missingEssential.map(word => ({
+            english: word,
+            priority: 10,
+            category: 'essential',
+            reasoning: 'Critical gap - essential for basic communication',
+            culturalNote: 'Universal concept needed in all languages'
+        }));
+    },
+
+    async generateCulturallyRelevantVocab(context) {
+        const culture = context.culture || {};
+        const environment = culture.environment || 'temperate';
+        const socialStructure = culture.socialStructure || 'tribal';
+
+        let culturalWords = [];
+
+        // Environment-based vocabulary
+        switch (environment.toLowerCase()) {
+            case 'desert':
+                culturalWords = ['oasis', 'dune', 'sand', 'drought', 'mirage', 'camel', 'nomad', 'caravan'];
+                break;
+            case 'arctic':
+                culturalWords = ['ice', 'snow', 'blizzard', 'seal', 'igloo', 'tundra', 'aurora', 'frost'];
+                break;
+            case 'tropical':
+                culturalWords = ['jungle', 'vine', 'monsoon', 'humidity', 'coconut', 'palm', 'coral', 'lagoon'];
+                break;
+            case 'mountain':
+                culturalWords = ['peak', 'valley', 'cliff', 'avalanche', 'altitude', 'echo', 'cave', 'glacier'];
+                break;
+            case 'forest':
+                culturalWords = ['canopy', 'undergrowth', 'clearing', 'moss', 'mushroom', 'deer', 'oak', 'pine'];
+                break;
+            default:
+                culturalWords = ['field', 'meadow', 'stream', 'hill', 'grove', 'meadow', 'harvest', 'season'];
+        }
+
+        // Social structure vocabulary
+        switch (socialStructure.toLowerCase()) {
+            case 'monarchy':
+                culturalWords.push('king', 'queen', 'crown', 'throne', 'royal', 'noble', 'peasant', 'court');
+                break;
+            case 'tribal':
+                culturalWords.push('chief', 'elder', 'tribe', 'clan', 'warrior', 'shaman', 'council', 'ritual');
+                break;
+            case 'democracy':
+                culturalWords.push('vote', 'citizen', 'assembly', 'representative', 'law', 'freedom', 'equality', 'debate');
+                break;
+            case 'nomadic':
+                culturalWords.push('wanderer', 'journey', 'camp', 'herd', 'migration', 'path', 'guide', 'traveler');
+                break;
+        }
+
+        const existingWords = context.vocabulary.map(v => v.english.toLowerCase());
+        const newCulturalWords = culturalWords.filter(word => !existingWords.includes(word.toLowerCase()));
+
+        return newCulturalWords.slice(0, 15).map(word => ({
+            english: word,
+            priority: 8,
+            category: 'cultural',
+            reasoning: `Important for ${environment} ${socialStructure} culture`,
+            culturalNote: `Reflects the ${environment} environment and ${socialStructure} social structure`
+        }));
+    },
+
+    async localGenerateWordFamilies(context) {
+        const vocabulary = context.vocabulary.filter(v => v.pos === 'noun' || v.pos === 'verb');
+        const families = [];
+
+        for (let i = 0; i < Math.min(5, vocabulary.length); i++) {
+            const baseWord = vocabulary[i];
+            const family = {
+                root: baseWord.english,
+                members: [
+                    {
+                        word: baseWord.english + 'er',
+                        meaning: `one who ${baseWord.english}s`,
+                        type: 'agent noun'
+                    },
+                    {
+                        word: baseWord.english + 'ing',
+                        meaning: `the act of ${baseWord.english}ing`,
+                        type: 'gerund'
+                    },
+                    {
+                        word: baseWord.english + 'able',
+                        meaning: `capable of being ${baseWord.english}ed`,
+                        type: 'adjective'
+                    }
+                ]
             };
-            
-            window.VocabularyModule.addWord(newWord);
-            
-            // Remove the word card from display
-            const wordCard = document.querySelector(`.missing-word-card:nth-child(${index + 1})`);
-            if (wordCard) {
-                wordCard.style.opacity = '0.5';
-                wordCard.querySelector('button').disabled = true;
-                wordCard.querySelector('button').textContent = '✅ Added';
-            }
-            
-            showToast(`Added "${englishWord}" → "${finalConlangWord}" (${pos}) to vocabulary!`, 'success');
-            
-            // Log activity
-            if (window.ActivityModule) {
-                window.ActivityModule.addActivity(`Added word "${finalConlangWord}" meaning "${englishWord}" via AI smart analysis`, 'vocabulary');
-            }
-        } catch (error) {
-            console.error('Error adding smart missing word:', error);
-            showToast(`Error adding word: ${error.message}`, 'error');
+            families.push(family);
         }
+
+        return families;
+    },
+
+    async performGapAnalysis(context) {
+        const vocabulary = context.vocabulary;
+        const posCount = {};
+        
+        vocabulary.forEach(word => {
+            const pos = word.pos || 'unknown';
+            posCount[pos] = (posCount[pos] || 0) + 1;
+        });
+
+        const totalWords = vocabulary.length;
+        const recommendations = [];
+
+        // Analyze part-of-speech distribution
+        if ((posCount.verb || 0) < totalWords * 0.25) {
+            recommendations.push('Add more verbs - they make up less than 25% of your vocabulary');
+        }
+        if ((posCount.noun || 0) < totalWords * 0.4) {
+            recommendations.push('Add more nouns - they should be about 40% of your vocabulary');
+        }
+        if ((posCount.adjective || 0) < totalWords * 0.15) {
+            recommendations.push('Add more adjectives for descriptive richness');
+        }
+
+        return {
+            analysis: 'Vocabulary Gap Analysis',
+            totalWords: totalWords,
+            posDistribution: posCount,
+            recommendations: recommendations,
+            completionEstimate: Math.min(100, Math.floor((totalWords / 1000) * 100)) + '%'
+        };
+    },
+
+    // Display methods
+    displayVocabularySuggestions(suggestions) {
+        const container = document.getElementById('suggestions-content');
+        const resultsDiv = document.getElementById('vocabulary-suggestions');
+        
+        if (!container || !resultsDiv) return;
+
+        container.innerHTML = suggestions.map((suggestion, index) => `
+            <div class="suggestion-item" style="border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin-bottom: 10px; background: white;">
+                <div style="display: flex; justify-content: between; align-items: center;">
+                    <div style="flex: 1;">
+                        <div style="font-weight: bold; color: #2196F3; font-size: 1.1em;">${suggestion.english}</div>
+                        <div style="color: #666; margin: 5px 0;">${suggestion.reasoning}</div>
+                        ${suggestion.culturalNote ? `<div style="color: #ff9800; font-style: italic; font-size: 0.9em;">${suggestion.culturalNote}</div>` : ''}
+                        <div style="margin-top: 8px;">
+                            <span style="background: #e3f2fd; color: #1976d2; padding: 2px 8px; border-radius: 12px; font-size: 0.8em; margin-right: 8px;">
+                                Priority: ${suggestion.priority}/10
+                            </span>
+                            <span style="background: #f3e5f5; color: #7b1fa2; padding: 2px 8px; border-radius: 12px; font-size: 0.8em;">
+                                ${suggestion.category}
+                            </span>
+                        </div>
+                    </div>
+                    <div style="margin-left: 15px;">
+                        <button class="btn btn-success btn-sm" onclick="AIAssistantModule.acceptSuggestion(${index}, '${suggestion.english}')">
+                            ✅ Add
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+
+        resultsDiv.style.display = 'block';
+    },
+
+    displayBatchResults(results, title) {
+        const container = document.getElementById('batch-content');
+        const resultsDiv = document.getElementById('batch-results');
+        
+        if (!container || !resultsDiv) return;
+
+        let content = `<h4>${title}</h4>`;
+        
+        results.forEach(result => {
+            if (result.analysis) {
+                // Gap analysis result
+                content += `
+                    <div style="margin-bottom: 20px;">
+                        <h5>${result.analysis}</h5>
+                        <p><strong>Total Words:</strong> ${result.totalWords}</p>
+                        <p><strong>Estimated Completion:</strong> ${result.completionEstimate}</p>
+                        <h6>Part of Speech Distribution:</h6>
+                        <ul>
+                            ${Object.entries(result.posDistribution).map(([pos, count]) => 
+                                `<li>${pos}: ${count} words (${Math.round((count/result.totalWords)*100)}%)</li>`
+                            ).join('')}
+                        </ul>
+                        <h6>Recommendations:</h6>
+                        <ul>
+                            ${result.recommendations.map(rec => `<li>${rec}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            } else if (result.root) {
+                // Word family result
+                content += `
+                    <div style="margin-bottom: 20px; border: 1px solid #ddd; padding: 15px; border-radius: 8px;">
+                        <h5>Family: "${result.root}"</h5>
+                        ${result.members.map(member => `
+                            <div style="margin: 8px 0; padding: 8px; background: #f5f5f5; border-radius: 4px;">
+                                <strong>${member.word}</strong> (${member.type}): ${member.meaning}
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+        });
+
+        container.innerHTML = content;
+        resultsDiv.style.display = 'block';
+    },
+
+    acceptSuggestion(index, englishWord) {
+        // Generate a conlang word for this suggestion
+        const conlangWord = window.generator ? window.generator.generateWord() : this.generateSimpleWord();
+        
+        // Add to vocabulary
+        const newWord = {
+            english: englishWord,
+            conlang: conlangWord,
+            pos: 'unknown',
+            addedBy: 'AI Assistant'
+        };
+
+        // Add to the vocabulary through the proper channels
+        if (window.VocabularyModule && window.VocabularyModule.addWord) {
+            window.VocabularyModule.addWord(newWord);
+        } else if (window.appState) {
+            const allWords = window.appState.getState('allWords') || [];
+            allWords.push(newWord);
+            window.appState.setState('allWords', allWords);
+        }
+
+        // Update the suggestion display
+        const suggestionItems = document.querySelectorAll('.suggestion-item');
+        if (suggestionItems[index]) {
+            suggestionItems[index].innerHTML = `
+                <div style="text-align: center; color: #4caf50; padding: 20px;">
+                    <span style="font-weight: bold;">✅ Added: ${conlangWord}</span>
+                </div>
+            `;
+        }
+
+        // Update stats
+        this.stats.aiAddedWords++;
+        this.updateStats();
+
+        showToast(`Added "${englishWord}" → "${conlangWord}" to vocabulary!`, 'success');
+    },
+
+    generateSimpleWord() {
+        // Simple word generator if the main generator is not available
+        const consonants = 'ptkbdgmnlrsf';
+        const vowels = 'aiueo';
+        let word = '';
+        
+        const length = Math.random() > 0.5 ? 2 : 3; // 2-3 syllables
+        
+        for (let i = 0; i < length; i++) {
+            word += consonants[Math.floor(Math.random() * consonants.length)];
+            word += vowels[Math.floor(Math.random() * vowels.length)];
+        }
+        
+        return word;
+    },
+
+    getCulturalNote(word, culture) {
+        if (!culture) return '';
+        
+        const environment = culture.environment || '';
+        const socialStructure = culture.socialStructure || '';
+        
+        // Add contextual notes based on culture
+        const notes = {
+            'water': environment === 'desert' ? 'Extremely precious in desert cultures' : '',
+            'fire': environment === 'arctic' ? 'Essential for survival in cold climates' : '',
+            'leader': socialStructure === 'democracy' ? 'Elected representative' : socialStructure === 'monarchy' ? 'Hereditary ruler' : '',
+            'family': socialStructure === 'tribal' ? 'Extended clan relationships important' : ''
+        };
+        
+        return notes[word] || '';
     },
 
     // Helper methods
@@ -1800,28 +483,19 @@ Important: Be intelligent about word relationships. If the vocabulary contains "
         // Get vocabulary from multiple possible sources
         let vocabulary = [];
         
-        // Try app state first (most likely location)
         if (window.appState) {
             const allWords = window.appState.getState('allWords');
             if (allWords && Array.isArray(allWords)) {
                 vocabulary = allWords;
-                console.log(`Found ${vocabulary.length} words in appState`);
             }
         }
         
-        // If no words in app state, try other locations
-        if (vocabulary.length === 0) {
-            // Try vocabulary module
-            if (window.VocabularyModule && window.VocabularyModule.words) {
-                vocabulary = window.VocabularyModule.words;
-                console.log(`Found ${vocabulary.length} words in VocabularyModule`);
-            }
-            
-            // Try generator state
-            if (vocabulary.length === 0 && window.generator && window.generator.generatedWords) {
-                vocabulary = window.generator.generatedWords;
-                console.log(`Found ${vocabulary.length} words in generator`);
-            }
+        if (vocabulary.length === 0 && window.VocabularyModule && window.VocabularyModule.words) {
+            vocabulary = window.VocabularyModule.words;
+        }
+        
+        if (vocabulary.length === 0 && window.generator && window.generator.generatedWords) {
+            vocabulary = window.generator.generatedWords;
         }
 
         // Ensure vocabulary has the right format
@@ -1837,134 +511,47 @@ Important: Be intelligent about word relationships. If the vocabulary contains "
             };
         });
 
-        console.log('Final vocabulary context:', vocabulary.length, 'words');
-        
         return {
-            phonology: window.generator?.language?.phonology || {},
-            morphology: window.generator?.language?.morphology || {},
-            syntax: window.generator?.language?.syntax || {},
-            culture: window.generator?.language?.culture || {},
             vocabulary: vocabulary,
-            grammarRules: window.generator?.language?.grammarRules || []
+            culture: window.generator?.language?.culture || {},
+            phonology: window.generator?.language?.phonology || {},
+            morphology: window.generator?.language?.morphology || {}
         };
     },
 
-    generateFallbackWord() {
-        // Simple fallback word generation if main generator isn't available
-        const consonants = ['p', 't', 'k', 'm', 'n', 'l', 'r', 's', 'h'];
-        const vowels = ['a', 'e', 'i', 'o', 'u'];
-        
-        let word = '';
-        const length = 2 + Math.floor(Math.random() * 3); // 2-4 syllables
-        
-        for (let i = 0; i < length; i++) {
-            word += consonants[Math.floor(Math.random() * consonants.length)];
-            word += vowels[Math.floor(Math.random() * vowels.length)];
-        }
-        
-        return word;
-    },
-
-    guessPartOfSpeech(word) {
-        // Simple heuristics for POS guessing
-        const word_lower = word.toLowerCase();
-        
-        // Common function words
-        if (['the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'with', 'by'].includes(word_lower)) {
-            return 'function';
-        }
-        
-        // Pronouns
-        if (['i', 'you', 'he', 'she', 'it', 'we', 'they', 'me', 'him', 'her', 'us', 'them', 'my', 'your', 'his', 'her', 'its', 'our', 'their'].includes(word_lower)) {
-            return 'pronoun';
-        }
-        
-        // Common verb endings
-        if (word_lower.endsWith('ing') || word_lower.endsWith('ed') || word_lower.endsWith('es')) {
-            return 'verb';
-        }
-        
-        // Common adjective endings
-        if (word_lower.endsWith('ly')) {
-            return 'adverb';
-        }
-        
-        if (word_lower.endsWith('ful') || word_lower.endsWith('less') || word_lower.endsWith('ous') || word_lower.endsWith('ive')) {
-            return 'adjective';
-        }
-        
-        // Common verbs
-        const commonVerbs = ['is', 'are', 'was', 'were', 'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'can', 'could', 'should', 'may', 'might'];
-        if (commonVerbs.includes(word_lower)) {
-            return 'verb';
-        }
-        
-        // Default to noun for most content words
-        return 'noun';
-    },
-
-    updateAnalysisOverview() {
-        console.log('Updating analysis overview...');
-        const context = this.getLanguageContext();
-        console.log('Context for analysis:', context);
-        
-        // Update vocabulary count
-        const vocabCountEl = document.getElementById('ai-vocab-count');
-        if (vocabCountEl) {
-            vocabCountEl.textContent = context.vocabulary.length;
-            console.log(`Updated vocab count to: ${context.vocabulary.length}`);
-        }
-
-        // Calculate missing categories (simplified)
-        const missingCategoriesEl = document.getElementById('ai-missing-categories');
-        if (missingCategoriesEl && this.localAI) {
-            const analysis = this.localAI.quickGapAnalysis(context);
-            missingCategoriesEl.textContent = analysis.missingCategories || 0;
-        }
-
-        // Calculate completion percentage
-        const completionEl = document.getElementById('ai-completion-percent');
-        if (completionEl) {
-            const completion = Math.min(100, Math.round((context.vocabulary.length / 500) * 100));
-            completionEl.textContent = `${completion}%`;
-        }
-
-        // Cultural consistency score
-        const culturalEl = document.getElementById('ai-cultural-consistency');
-        if (culturalEl && this.localAI) {
-            const score = this.localAI.quickCulturalCheck(context);
-            culturalEl.textContent = score;
-        }
+    populateBaseWordDropdowns() {
+        // This method would populate dropdowns with existing vocabulary
+        // Implementation depends on your existing vocabulary system
+        console.log('Populating vocabulary dropdowns...');
     },
 
     updateStats() {
-        // Update accuracy rate
-        if (this.stats.totalSuggestions > 0) {
-            this.stats.accuracyRate = Math.round((this.stats.acceptedSuggestions / this.stats.totalSuggestions) * 100);
-        }
-
-        // Update UI elements
-        const elements = {
-            'total-suggestions': this.stats.totalSuggestions,
-            'accepted-suggestions': this.stats.acceptedSuggestions,
-            'ai-added-words': this.stats.aiAddedWords,
-            'accuracy-rate': this.stats.accuracyRate + '%'
-        };
-
-        Object.entries(elements).forEach(([id, value]) => {
-            const element = document.getElementById(id);
-            if (element) element.textContent = value;
-        });
-
-        // Save stats
-        this.saveStats();
+        // Update statistics display
+        document.getElementById('ai-vocab-count').textContent = this.getLanguageContext().vocabulary.length;
+        document.getElementById('ai-suggested-words').textContent = this.stats.aiSuggestedWords;
+        document.getElementById('ai-words-added').textContent = this.stats.aiAddedWords;
+        document.getElementById('ai-sessions').textContent = this.stats.aiSessions;
+        
+        const acceptanceRate = this.stats.aiSuggestedWords > 0 ? 
+            Math.round((this.stats.aiAddedWords / this.stats.aiSuggestedWords) * 100) : 0;
+        document.getElementById('ai-acceptance-rate').textContent = acceptanceRate + '%';
+        
+        // Update missing categories (simplified calculation)
+        const vocab = this.getLanguageContext().vocabulary;
+        const categories = ['basic', 'nature', 'social', 'emotions', 'actions'];
+        const missingCount = categories.length - Math.min(categories.length, Math.floor(vocab.length / 50));
+        document.getElementById('ai-missing-categories').textContent = Math.max(0, missingCount);
+        
+        // Update completion percentage
+        const completionPercent = Math.min(100, Math.floor((vocab.length / 200) * 100));
+        document.getElementById('ai-completion-percent').textContent = completionPercent + '%';
     },
 
     showLoading(buttonId) {
         const button = document.getElementById(buttonId);
         if (button) {
             button.disabled = true;
-            button.innerHTML = '<div class="loading"></div> Processing...';
+            button.innerHTML = button.innerHTML.replace(/^[^a-zA-Z]*/, '⏳ ');
         }
     },
 
@@ -1972,121 +559,17 @@ Important: Be intelligent about word relationships. If the vocabulary contains "
         const button = document.getElementById(buttonId);
         if (button) {
             button.disabled = false;
-            // Restore original text based on button ID
-            const originalTexts = {
-                'generate-suggestions-btn': '✨ Generate Smart Suggestions',
-                'analyze-gaps-btn': '🔍 Analyze Vocabulary Gaps',
-                'translate-text-btn': '🔄 Analyze & Translate',
-                'identify-missing-btn': '🎯 Identify Missing Words Only',
-                'generate-derivatives-btn': '📊 Generate Derivatives',
-                'generate-compounds-btn': '🔗 Generate Compounds',
-                'expand-word-family-btn': '👨‍👩‍👧‍👦 Expand Word Family',
-                'check-consistency-btn': '🔍 Check Cultural Consistency',
-                'suggest-cultural-vocab-btn': '🌟 Suggest Cultural Vocabulary',
-                'test-remote-connection-btn': '🔗 Test Remote Connection'
-            };
-            button.innerHTML = originalTexts[buttonId] || '✨ Generate';
+            // Restore original text (this is simplified - you might want to store original text)
+            button.innerHTML = button.innerHTML.replace('⏳ ', '✨ ');
         }
-    },
-
-    // Enhanced settings management
-    loadSettings() {
-        const saved = localStorage.getItem('ai_assistant_settings');
-        if (saved) {
-            try {
-                const savedSettings = JSON.parse(saved);
-                this.settings = { ...this.settings, ...savedSettings };
-                console.log('Loaded saved AI settings:', this.settings);
-            } catch (error) {
-                console.error('Error loading AI settings:', error);
-            }
-        }
-    },
-
-    saveSettings() {
-        localStorage.setItem('ai_assistant_settings', JSON.stringify(this.settings));
-        console.log('AI settings saved:', this.settings);
-    },
-
-    loadStats() {
-        const saved = localStorage.getItem('ai_assistant_stats');
-        if (saved) {
-            this.stats = { ...this.stats, ...JSON.parse(saved) };
-        }
-    },
-
-    saveStats() {
-        localStorage.setItem('ai_assistant_stats', JSON.stringify(this.stats));
-    },
-
-    // Enhanced UI state update
-    updateUIState() {
-        // Update provider selection
-        const providerSelect = document.getElementById('ai-provider');
-        if (providerSelect) {
-            providerSelect.value = this.settings.provider || 'local';
-        }
-
-        // Update API key field
-        const apiKeyInput = document.getElementById('api-key-input');
-        if (apiKeyInput && this.settings.apiKey) {
-            apiKeyInput.value = this.settings.apiKey;
-        }
-
-        // Update remote endpoint
-        const remoteEndpointInput = document.getElementById('remote-endpoint-input');
-        if (remoteEndpointInput && this.settings.remoteEndpoint) {
-            remoteEndpointInput.value = this.settings.remoteEndpoint;
-        }
-
-        // Update remote model
-        const remoteModelInput = document.getElementById('remote-model-input');
-        if (remoteModelInput && this.settings.remoteModel) {
-            remoteModelInput.value = this.settings.remoteModel;
-        }
-
-        // Update OpenRouter model
-        const openRouterModelSelect = document.getElementById('openrouter-model-select');
-        if (openRouterModelSelect && this.settings.openRouterModel) {
-            openRouterModelSelect.value = this.settings.openRouterModel;
-        }
-
-        // Show/hide API key section
-        const apiKeySection = document.getElementById('api-key-section');
-        if (apiKeySection) {
-            const needsApiKey = ['openai', 'anthropic', 'openrouter'].includes(this.settings.provider);
-            apiKeySection.style.display = needsApiKey ? 'block' : 'none';
-        }
-
-        // Show/hide remote Ollama section
-        const remoteSection = document.getElementById('remote-ollama-section');
-        if (remoteSection) {
-            remoteSection.style.display = (this.settings.provider === 'remote_ollama') ? 'block' : 'none';
-        }
-
-        // Show/hide OpenRouter model section
-        const openRouterModelSection = document.getElementById('openrouter-model-section');
-        if (openRouterModelSection) {
-            openRouterModelSection.style.display = (this.settings.provider === 'openrouter') ? 'block' : 'none';
-        }
-
-        console.log('UI state updated for provider:', this.settings.provider);
-    },
-
-    // Placeholder methods for other functionality (add more as needed)
-    async translateText() {
-        showToast('Translation feature coming soon!', 'info');
-    },
-
-    async analyzeVocabularyGaps() {
-        showToast('Vocabulary gap analysis feature coming soon!', 'info');
-    },
-
-    displaySuggestions(suggestions) {
-        showToast('Vocabulary suggestions display coming soon!', 'info');
-    },
-
-    async identifyMissingWordsSimple() {
-        showToast('Simple word analysis fallback activated', 'warning');
     }
 };
+
+// Auto-initialize when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        if (window.AIAssistantModule) window.AIAssistantModule.init();
+    });
+} else {
+    if (window.AIAssistantModule) window.AIAssistantModule.init();
+}

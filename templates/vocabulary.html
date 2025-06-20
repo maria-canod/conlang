@@ -48,17 +48,35 @@
         </div>
     </div>
     
+    <!-- Updated Search Filter Section for vocabulary.html -->
+    <!-- Replace the existing search-filter-bar section with this: -->
+
     <div class="search-filter-bar">
+        <!-- Search Box Row -->
         <div class="search-box">
-            <input type="text" id="search" class="form-control" placeholder="Search words..." onkeyup="searchWords()">
+            <input type="text" id="search" class="form-control" placeholder="Search words...">
         </div>
-        <div class="filter-buttons">
-            <button class="filter-btn active">All</button>
-            <button class="filter-btn">Nouns</button>
-            <button class="filter-btn">Verbs</button>
-            <button class="filter-btn">Adjectives</button>
-            <button class="filter-btn">Derived</button>
-            <button class="filter-btn">Custom</button>
+        
+        <!-- Filters and Sort Row -->
+        <div class="filter-sort-row">
+            <div class="filter-buttons">
+                <button class="filter-btn active" onclick="VocabularyModule.filterWords('all')">All</button>
+                <button class="filter-btn" onclick="VocabularyModule.filterWords('nouns')">Nouns</button>
+                <button class="filter-btn" onclick="VocabularyModule.filterWords('verbs')">Verbs</button>
+                <button class="filter-btn" onclick="VocabularyModule.filterWords('adjectives')">Adjectives</button>
+                <button class="filter-btn" onclick="VocabularyModule.filterWords('derived')">Derived</button>
+                <button class="filter-btn" onclick="VocabularyModule.filterWords('custom')">Custom</button>
+            </div>
+            
+            <div class="sort-controls" id="sort-controls">
+                <label for="sort-select">Sort by:</label>
+                <select id="sort-select">
+                    <option value="alphabetical" selected>Alphabetical</option>
+                    <option value="chronological">Date Added</option>
+                    <option value="pos">Part of Speech</option>
+                    <option value="length">Word Length</option>
+                </select>
+            </div>
         </div>
     </div>
 

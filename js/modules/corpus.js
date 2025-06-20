@@ -682,6 +682,8 @@ window.CorpusModule = {
     },
 
     suggestTranslation() {
+        console.log('Translation button clicked!'); // Debug log
+        
         const inputText = document.getElementById('translate-input')?.value.trim();
         
         if (!inputText) {
@@ -689,14 +691,423 @@ window.CorpusModule = {
             return;
         }
         
-        const suggestion = this.generateTranslationSuggestion(inputText);
-        this.displayTranslationSuggestion(suggestion, inputText);
-        
-        if (window.ActivityModule) {
-            window.ActivityModule.addActivity(`Generated translation suggestion for: "${inputText.substring(0, 30)}..."`, 'corpus');
+        try {
+            // Use improved translation with error handling
+            const translationData = this.createImprovedTranslation(inputText);
+            this.displaySimpleTranslation(translationData);
+            
+            this.currentSuggestion = {
+                original: inputText,
+                suggestion: translationData.translation,
+                confidence: translationData.confidence
+            };
+            
+            if (window.ActivityModule) {
+                window.ActivityModule.addActivity(`Generated translation suggestion`, 'corpus');
+            }
+            showToast('Translation suggestion generated!', 'success');
+            
+        } catch (error) {
+            console.error('Translation error:', error);
+            showToast('Error generating translation. Using basic method.', 'warning');
+            
+            // Fallback to simple translation
+            const simpleTranslation = this.translateSentence(inputText);
+            this.displaySimpleTranslation({
+                translation: simpleTranslation,
+                confidence: 50,
+                note: 'Basic word-for-word translation'
+            });
+            
+            this.currentSuggestion = {
+                original: inputText,
+                suggestion: simpleTranslation,
+                confidence: 50
+            };
         }
-        showToast('Translation suggestion generated!', 'success');
     },
+
+intelligentTranslate(englishText) {
+    const allWords = window.appState.getState('allWords') || [];
+    const morphology = window.generator?.language?.morphology || {};
+    const syntax = window.generator?.language?.syntax || {};
+    
+    // Parse the English sentence
+    const parsedSentence = this.parseEnglishSentence(englishText);
+    
+    // Translate individual words
+    const wordTranslations = this.translateWords(parsedSentence.words, allWords);
+    
+    // Apply morphological rules
+    const inflectedWords = this.applyMorphology(wordTranslations, parsedSentence, morphology);
+    
+    // Apply word order rules
+    const orderedWords = this.applyWordOrder(inflectedWords, parsedSentence, syntax);
+    
+    // Generate the final translation
+    const translation = orderedWords.filter(w => w.translated).map(w => w.translated).join(' ');
+    
+    return {
+        translation: translation,
+        originalWords: parsedSentence.words,
+        wordTranslations: wordTranslations,
+        inflectedWords: inflectedWords,
+        orderedWords: orderedWords,
+        missingWords: wordTranslations.filter(w => !w.found),
+        appliedRules: this.getAppliedRules(parsedSentence, morphology, syntax),
+        confidence: this.calculateTranslationConfidence(wordTranslations)
+    };
+},
+
+parseEnglishSentence(text) {
+    // Basic sentence parsing
+    const cleanText = text.toLowerCase().replace(/[.,!?";]/g, '');
+    const words = cleanText.split(/\s+/).filter(word => word.length > 0);
+    
+    // Detect sentence type
+    let sentenceType = 'statement';
+    if (text.includes('?')) sentenceType = 'question';
+    else if (text.includes('!')) sentenceType = 'exclamation';
+    
+    // Basic grammatical analysis
+    const analysis = {
+        words: words,
+        sentenceType: sentenceType,
+        tense: this.detectTense(text),
+        hasNegation: text.toLowerCase().includes('not') || text.toLowerCase().includes("n't"),
+        isPlural: this.detectPlural(words)
+    };
+    
+    return analysis;
+},
+
+detectTense(text) {
+    const lowerText = text.toLowerCase();
+    
+    // Past tense indicators
+    if (lowerText.includes('was') || lowerText.includes('were') || 
+        lowerText.includes('had') || lowerText.includes('did') ||
+        /\w+ed\b/.test(lowerText)) {
+        return 'past';
+    }
+    
+    // Future tense indicators
+    if (lowerText.includes('will') || lowerText.includes('shall') || 
+        lowerText.includes('going to')) {
+        return 'future';
+    }
+    
+    // Present tense (default)
+    return 'present';
+},
+
+detectPlural(words) {
+    // Simple plural detection
+    return words.some(word => 
+        word.endsWith('s') && !['is', 'was', 'has', 'this', 'us'].includes(word)
+    );
+},
+
+translateWords(words, vocabulary) {
+    return words.map(word => {
+        // Skip function words that might not have direct translations
+        const functionWords = ['the', 'a', 'an', 'is', 'are', 'was', 'were', 'be', 'been', 'being'];
+        
+        if (functionWords.includes(word)) {
+            return {
+                english: word,
+                translated: '',
+                found: true,
+                type: 'function',
+                skip: true
+            };
+        }
+        
+        // Look for exact match
+        let vocabMatch = vocabulary.find(v => v.english.toLowerCase() === word);
+        
+        // Try partial matches for inflected forms
+        if (!vocabMatch) {
+            vocabMatch = vocabulary.find(v => 
+                word.includes(v.english.toLowerCase()) || 
+                v.english.toLowerCase().includes(word)
+            );
+        }
+        
+        if (vocabMatch) {
+            return {
+                english: word,
+                translated: vocabMatch.conlang,
+                found: true,
+                pos: vocabMatch.pos || 'unknown',
+                vocabEntry: vocabMatch
+            };
+        } else {
+            return {
+                english: word,
+                translated: `[${word}]`, // Mark as missing
+                found: false,
+                pos: 'unknown'
+            };
+        }
+    });
+},
+
+applyMorphology(wordTranslations, parsedSentence, morphology) {
+    if (!morphology.affixes) return wordTranslations;
+    
+    return wordTranslations.map(wordData => {
+        if (wordData.skip || !wordData.found) return wordData;
+        
+        let inflectedWord = wordData.translated;
+        const appliedAffixes = [];
+        
+        // Apply tense affixes to verbs
+        if (wordData.pos === 'verb' && morphology.hasTenses && morphology.tenses) {
+            const tenseAffix = this.getTenseAffix(parsedSentence.tense, morphology);
+            if (tenseAffix) {
+                inflectedWord = this.applyAffix(inflectedWord, tenseAffix);
+                appliedAffixes.push(`${parsedSentence.tense} tense`);
+            }
+        }
+        
+        // Apply number affixes to nouns
+        if (wordData.pos === 'noun' && parsedSentence.isPlural && morphology.hasPlurals) {
+            const pluralAffix = this.getPluralAffix(morphology);
+            if (pluralAffix) {
+                inflectedWord = this.applyAffix(inflectedWord, pluralAffix);
+                appliedAffixes.push('plural');
+            }
+        }
+        
+        // Apply case affixes (simplified - would need more complex analysis)
+        if (wordData.pos === 'noun' && morphology.hasCases && morphology.cases) {
+            // For now, just apply nominative (subject) case as default
+            const caseAffix = this.getCaseAffix('nominative', morphology);
+            if (caseAffix) {
+                inflectedWord = this.applyAffix(inflectedWord, caseAffix);
+                appliedAffixes.push('nominative case');
+            }
+        }
+        
+        return {
+            ...wordData,
+            translated: inflectedWord,
+            appliedAffixes: appliedAffixes
+        };
+    });
+},
+
+getTenseAffix(tense, morphology) {
+    if (!morphology.affixes || !morphology.tenses?.includes(tense)) return null;
+    return morphology.affixes[tense] || null;
+},
+
+getPluralAffix(morphology) {
+    if (!morphology.affixes) return null;
+    // Look for plural affix
+    return morphology.affixes['plural'] || morphology.affixes['plural-suffix'] || null;
+},
+
+getCaseAffix(caseName, morphology) {
+    if (!morphology.affixes || !morphology.cases?.includes(caseName)) return null;
+    return morphology.affixes[caseName] || null;
+},
+
+applyAffix(word, affix) {
+    if (!affix || !affix.morpheme) return word;
+    
+    switch (affix.type) {
+        case 'prefix':
+            return affix.morpheme + word;
+        case 'suffix':
+            return word + affix.morpheme;
+        case 'infix':
+            // Simple infix - insert in middle
+            const middle = Math.floor(word.length / 2);
+            return word.slice(0, middle) + affix.morpheme + word.slice(middle);
+        default:
+            return word + affix.morpheme; // Default to suffix
+    }
+},
+
+applyWordOrder(wordTranslations, parsedSentence, syntax) {
+    const wordOrder = syntax.wordOrder || 'svo';
+    
+    // Simple word order application
+    const contentWords = wordTranslations.filter(w => !w.skip && w.found);
+    
+    if (contentWords.length < 2) return wordTranslations;
+    
+    // Identify basic sentence components
+    let subject = null, verb = null, object = null, others = [];
+    
+    contentWords.forEach(word => {
+        if (word.pos === 'verb' && !verb) {
+            verb = word;
+        } else if (word.pos === 'noun' && !subject) {
+            subject = word;
+        } else if (word.pos === 'noun' && !object && verb) {
+            object = word;
+        } else {
+            others.push(word);
+        }
+    });
+    
+    // Apply word order
+    let orderedWords = [];
+    
+    switch (wordOrder.toLowerCase()) {
+        case 'svo': // Subject-Verb-Object
+            if (subject) orderedWords.push(subject);
+            if (verb) orderedWords.push(verb);
+            if (object) orderedWords.push(object);
+            orderedWords.push(...others);
+            break;
+        case 'sov': // Subject-Object-Verb
+            if (subject) orderedWords.push(subject);
+            if (object) orderedWords.push(object);
+            if (verb) orderedWords.push(verb);
+            orderedWords.push(...others);
+            break;
+        case 'vso': // Verb-Subject-Object
+            if (verb) orderedWords.push(verb);
+            if (subject) orderedWords.push(subject);
+            if (object) orderedWords.push(object);
+            orderedWords.push(...others);
+            break;
+        case 'vos': // Verb-Object-Subject
+            if (verb) orderedWords.push(verb);
+            if (object) orderedWords.push(object);
+            if (subject) orderedWords.push(subject);
+            orderedWords.push(...others);
+            break;
+        case 'osv': // Object-Subject-Verb
+            if (object) orderedWords.push(object);
+            if (subject) orderedWords.push(subject);
+            if (verb) orderedWords.push(verb);
+            orderedWords.push(...others);
+            break;
+        case 'ovs': // Object-Verb-Subject
+            if (object) orderedWords.push(object);
+            if (verb) orderedWords.push(verb);
+            if (subject) orderedWords.push(subject);
+            orderedWords.push(...others);
+            break;
+        default: // Default to SVO
+            if (subject) orderedWords.push(subject);
+            if (verb) orderedWords.push(verb);
+            if (object) orderedWords.push(object);
+            orderedWords.push(...others);
+    }
+    
+    return orderedWords.length > 0 ? orderedWords : contentWords;
+},
+
+getAppliedRules(parsedSentence, morphology, syntax) {
+    const rules = [];
+    
+    if (syntax.wordOrder) {
+        rules.push(`Word order: ${syntax.wordOrder.toUpperCase()}`);
+    }
+    
+    if (morphology.hasTenses && parsedSentence.tense !== 'present') {
+        rules.push(`Tense marking: ${parsedSentence.tense}`);
+    }
+    
+    if (morphology.hasPlurals && parsedSentence.isPlural) {
+        rules.push('Plural marking');
+    }
+    
+    if (morphology.hasCases) {
+        rules.push('Case marking (basic)');
+    }
+    
+    return rules;
+},
+
+calculateTranslationConfidence(wordTranslations) {
+    const totalWords = wordTranslations.filter(w => !w.skip).length;
+    const foundWords = wordTranslations.filter(w => w.found && !w.skip).length;
+    
+    if (totalWords === 0) return 0;
+    return Math.round((foundWords / totalWords) * 100);
+},
+
+displayTranslationSuggestion(translationData) {
+    const contentDiv = document.getElementById('translation-content');
+    const resultDiv = document.getElementById('translation-result');
+    
+    if (!contentDiv || !resultDiv) return;
+    
+    let content = `
+        <div class="translation-suggestion">
+            <div class="translation-result-box">
+                <h5>🌐 Suggested Translation:</h5>
+                <div class="generated-word" style="font-size: 1.2em; margin: 10px 0; color: #28a745;">
+                    ${translationData.translation}
+                </div>
+                <div style="color: #666; font-size: 0.9em;">
+                    Confidence: ${translationData.confidence}% 
+                    ${translationData.confidence > 80 ? '✅' : translationData.confidence > 50 ? '⚠️' : '❌'}
+                </div>
+            </div>
+    `;
+    
+    // Show applied grammar rules
+    if (translationData.appliedRules.length > 0) {
+        content += `
+            <div style="margin: 15px 0;">
+                <h6>📏 Applied Grammar Rules:</h6>
+                <ul style="margin: 5px 0; padding-left: 20px;">
+                    ${translationData.appliedRules.map(rule => `<li>${rule}</li>`).join('')}
+                </ul>
+            </div>
+        `;
+    }
+    
+    // Show word-by-word breakdown
+    if (translationData.orderedWords.length > 0) {
+        content += `
+            <div style="margin: 15px 0;">
+                <h6>🔍 Word-by-Word Breakdown:</h6>
+                <div style="display: grid; gap: 8px; margin: 10px 0;">
+                    ${translationData.orderedWords.map(word => `
+                        <div style="display: flex; justify-content: space-between; padding: 5px; background: #f8f9fa; border-radius: 4px; font-size: 0.9em;">
+                            <span><strong>${word.english}</strong></span>
+                            <span>→</span>
+                            <span style="color: #28a745;">${word.translated}</span>
+                            ${word.appliedAffixes?.length ? `<span style="color: #666; font-size: 0.8em;">(${word.appliedAffixes.join(', ')})</span>` : ''}
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+    
+    // Show missing words
+    if (translationData.missingWords.length > 0) {
+        content += `
+            <div style="margin: 15px 0; padding: 10px; background: #fff3cd; border-radius: 4px; border-left: 4px solid #ffc107;">
+                <h6 style="color: #856404;">⚠️ Missing Vocabulary:</h6>
+                <p style="color: #856404; margin: 5px 0; font-size: 0.9em;">
+                    Add these words to improve translation quality:
+                </p>
+                <div style="display: flex; flex-wrap: wrap; gap: 5px; margin: 10px 0;">
+                    ${translationData.missingWords.map(word => `
+                        <span style="background: #ffc107; color: #212529; padding: 2px 8px; border-radius: 12px; font-size: 0.8em;">
+                            ${word.english}
+                        </span>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+    
+    content += '</div>';
+    contentDiv.innerHTML = content;
+    resultDiv.style.display = 'block';
+},
 
     generateTranslationSuggestion(englishText) {
         const words = englishText.toLowerCase().replace(/[.,!?]/g, '').split(/\s+/);
@@ -933,33 +1344,8 @@ window.CorpusModule = {
     },
 
     translateSentence(englishText) {
-        const allWords = window.appState.getState('allWords') || [];
-        
-        if (allWords.length === 0) return englishText;
-        
-        // Simple word-for-word translation
-        const words = englishText.toLowerCase()
-            .replace(/[.,!?";]/g, ' ')
-            .split(/\s+/)
-            .filter(word => word.length > 0);
-        
-        const translatedWords = words.map(word => {
-            // Remove common English words that might not have direct translations
-            if (['the', 'a', 'an', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'could', 'should', 'may', 'might', 'can'].includes(word)) {
-                return ''; // Skip these words
-            }
-            
-            // Look for translation in vocabulary
-            const translation = allWords.find(w => 
-                w.english.toLowerCase() === word || 
-                w.english.toLowerCase().includes(word) ||
-                word.includes(w.english.toLowerCase())
-            );
-            
-            return translation ? translation.conlang : word;
-        }).filter(word => word.length > 0);
-        
-        return translatedWords.join(' ');
+        const translationData = this.intelligentTranslate(englishText);
+        return translationData.translation;
     },
 
     addSampleToCorpus(englishText, conlangText) {
@@ -972,5 +1358,182 @@ window.CorpusModule = {
         document.getElementById('english-sentence').scrollIntoView({ behavior: 'smooth' });
         
         showToast('Sample text added to form! Click "Add Pair" to save it.', 'info');
+    },
+    
+    createImprovedTranslation(englishText) {
+        const allWords = window.appState.getState('allWords') || [];
+        const morphology = window.generator?.language?.morphology || {};
+        const syntax = window.generator?.language?.syntax || {};
+        
+        // Basic sentence analysis
+        const words = englishText.toLowerCase()
+            .replace(/[.,!?";]/g, '')
+            .split(/\s+/)
+            .filter(word => word.length > 0);
+        
+        // Detect basic grammar features
+        const isPast = englishText.includes('ed ') || englishText.includes('was ') || englishText.includes('were ');
+        const isFuture = englishText.includes('will ') || englishText.includes('shall ');
+        const isPlural = words.some(word => word.endsWith('s') && !['is', 'was', 'this', 'us'].includes(word));
+        
+        // Translate words
+        const translatedWords = [];
+        const missingWords = [];
+        
+        words.forEach(word => {
+            // Skip function words
+            if (['the', 'a', 'an', 'is', 'are', 'was', 'were'].includes(word)) {
+                return; // Skip these
+            }
+            
+            // Find translation
+            const vocabMatch = allWords.find(v => 
+                v.english.toLowerCase() === word ||
+                v.english.toLowerCase().includes(word) ||
+                word.includes(v.english.toLowerCase())
+            );
+            
+            if (vocabMatch) {
+                let translatedWord = vocabMatch.conlang;
+                
+                // Apply basic morphology
+                if (vocabMatch.pos === 'verb' && morphology.affixes) {
+                    if (isPast && morphology.affixes['past']) {
+                        translatedWord = this.applySimpleAffix(translatedWord, morphology.affixes['past']);
+                    } else if (isFuture && morphology.affixes['future']) {
+                        translatedWord = this.applySimpleAffix(translatedWord, morphology.affixes['future']);
+                    }
+                }
+                
+                if (vocabMatch.pos === 'noun' && isPlural && morphology.affixes) {
+                    const pluralAffix = morphology.affixes['plural'] || morphology.affixes['plural-suffix'];
+                    if (pluralAffix) {
+                        translatedWord = this.applySimpleAffix(translatedWord, pluralAffix);
+                    }
+                }
+                
+                translatedWords.push(translatedWord);
+            } else {
+                missingWords.push(word);
+                translatedWords.push(`[${word}]`);
+            }
+        });
+        
+        // Apply word order
+        let finalTranslation = translatedWords.join(' ');
+        
+        if (syntax.wordOrder && translatedWords.length >= 2) {
+            // Very basic word order adjustment
+            if (syntax.wordOrder === 'sov' && translatedWords.length >= 3) {
+                // Move last word (object) before second-to-last (verb)
+                const reordered = [...translatedWords];
+                if (reordered.length >= 3) {
+                    const lastWord = reordered.pop();
+                    reordered.splice(-1, 0, lastWord);
+                    finalTranslation = reordered.join(' ');
+                }
+            }
+        }
+        
+        // Calculate confidence
+        const foundWords = words.length - missingWords.length;
+        const confidence = words.length > 0 ? Math.round((foundWords / words.length) * 100) : 0;
+        
+        return {
+            translation: finalTranslation,
+            confidence: confidence,
+            missingWords: missingWords,
+            appliedRules: this.getSimpleAppliedRules(isPast, isFuture, isPlural, syntax),
+            note: missingWords.length > 0 ? `${missingWords.length} words need to be added to vocabulary` : 'All words found!'
+        };
+    },
+
+    applySimpleAffix(word, affix) {
+        if (!affix || !affix.morpheme) return word;
+        
+        switch (affix.type) {
+            case 'prefix':
+                return affix.morpheme + word;
+            case 'suffix':
+                return word + affix.morpheme;
+            default:
+                return word + affix.morpheme;
+        }
+    },
+
+    getSimpleAppliedRules(isPast, isFuture, isPlural, syntax) {
+        const rules = [];
+        
+        if (syntax.wordOrder) {
+            rules.push(`Word order: ${syntax.wordOrder.toUpperCase()}`);
+        }
+        
+        if (isPast) rules.push('Past tense marking');
+        if (isFuture) rules.push('Future tense marking');
+        if (isPlural) rules.push('Plural marking');
+        
+        return rules;
+    },
+
+    displaySimpleTranslation(translationData) {
+        const contentDiv = document.getElementById('translation-content');
+        const resultDiv = document.getElementById('translation-result');
+        
+        if (!contentDiv || !resultDiv) {
+            console.error('Translation display elements not found');
+            return;
+        }
+        
+        let content = `
+            <div class="translation-suggestion">
+                <div class="translation-result-box">
+                    <h5>🌐 Suggested Translation:</h5>
+                    <div class="generated-word" style="font-size: 1.2em; margin: 10px 0; color: #28a745;">
+                        ${translationData.translation}
+                    </div>
+                    <div style="color: #666; font-size: 0.9em;">
+                        Confidence: ${translationData.confidence}% 
+                        ${translationData.confidence > 70 ? '✅' : translationData.confidence > 40 ? '⚠️' : '❌'}
+                    </div>
+                </div>
+        `;
+        
+        if (translationData.appliedRules && translationData.appliedRules.length > 0) {
+            content += `
+                <div style="margin: 15px 0;">
+                    <h6>📏 Applied Grammar Rules:</h6>
+                    <ul style="margin: 5px 0; padding-left: 20px;">
+                        ${translationData.appliedRules.map(rule => `<li>${rule}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+        }
+        
+        if (translationData.note) {
+            content += `
+                <div style="margin: 10px 0; padding: 10px; background: #f8f9fa; border-radius: 4px; border-left: 4px solid #007bff;">
+                    <strong>Note:</strong> ${translationData.note}
+                </div>
+            `;
+        }
+        
+        if (translationData.missingWords && translationData.missingWords.length > 0) {
+            content += `
+                <div style="margin: 15px 0; padding: 10px; background: #fff3cd; border-radius: 4px; border-left: 4px solid #ffc107;">
+                    <h6 style="color: #856404;">⚠️ Missing Vocabulary:</h6>
+                    <div style="display: flex; flex-wrap: wrap; gap: 5px; margin: 10px 0;">
+                        ${translationData.missingWords.map(word => `
+                            <span style="background: #ffc107; color: #212529; padding: 2px 8px; border-radius: 12px; font-size: 0.8em;">
+                                ${word}
+                            </span>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+        
+        content += '</div>';
+        contentDiv.innerHTML = content;
+        resultDiv.style.display = 'block';
     }
 };

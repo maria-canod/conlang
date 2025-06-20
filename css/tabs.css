@@ -569,3 +569,194 @@
         min-height: 70px;
     }
 }
+
+/* Navigation Bar Fix - Add this to your css/tabs.css file */
+
+/* Improved responsive navigation */
+.nav-tabs {
+    display: flex;
+    background-color: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-light);
+    overflow-x: auto;
+    scrollbar-width: thin;
+    padding: 0 var(--spacing-xs);
+    width: 100%;
+    box-sizing: border-box;
+    flex-wrap: nowrap;
+    min-height: 50px;
+    align-items: center;
+    transition: background-color var(--transition), border-color var(--transition);
+    
+    /* Ensure scrolling works properly */
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Better scrollbar styling */
+.nav-tabs::-webkit-scrollbar {
+    height: 4px;
+}
+
+.nav-tabs::-webkit-scrollbar-track {
+    background-color: var(--bg-accent);
+    border-radius: 2px;
+}
+
+.nav-tabs::-webkit-scrollbar-thumb {
+    background-color: var(--border-medium);
+    border-radius: 2px;
+}
+
+.nav-tabs::-webkit-scrollbar-thumb:hover {
+    background-color: var(--accent-primary);
+}
+
+/* Improved tab styling */
+.nav-tab {
+    flex: 0 0 auto;
+    padding: var(--spacing-sm) var(--spacing-xs);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: var(--text-xs);
+    color: var(--text-secondary);
+    transition: color var(--transition), background-color var(--transition);
+    border-bottom: 3px solid transparent;
+    white-space: nowrap;
+    font-family: inherit;
+    text-align: center;
+    box-sizing: border-box;
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    position: relative;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    
+    /* Fixed sizing for better layout */
+    min-width: 75px;
+    max-width: 110px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 2px;
+}
+
+.nav-tab:hover:not(.active) {
+    color: var(--text-primary);
+    background-color: var(--bg-hover);
+    border-bottom-color: var(--border-medium);
+}
+
+.nav-tab.active {
+    color: var(--accent-primary);
+    border-bottom-color: var(--accent-primary);
+    background-color: var(--bg-accent);
+    font-weight: 700;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .nav-tabs {
+        padding: 0 8px;
+        min-height: 48px;
+    }
+    
+    .nav-tab {
+        font-size: 11px;
+        padding: 8px 6px;
+        min-width: 70px;
+        max-width: 90px;
+        height: 40px;
+        margin-right: 1px;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .nav-tabs {
+        padding: 0 12px;
+        min-height: 52px;
+    }
+    
+    .nav-tab {
+        font-size: 13px;
+        padding: 10px 8px;
+        min-width: 85px;
+        max-width: 110px;
+        height: 42px;
+        margin-right: 2px;
+    }
+}
+
+@media (min-width: 1025px) {
+    .nav-tabs {
+        padding: 0 20px;
+        min-height: 56px;
+        justify-content: center;
+        overflow-x: visible; /* On large screens, don't scroll */
+    }
+    
+    .nav-tab {
+        font-size: 14px;
+        padding: 12px 16px;
+        min-width: 100px;
+        max-width: 140px;
+        height: 46px;
+        margin-right: 4px;
+        flex: 1;
+    }
+}
+
+/* Add visual indicator when scrollable */
+@media (max-width: 1024px) {
+    .nav-tabs::after {
+        content: '';
+        position: absolute;
+        right: 0;
+        top: 0;
+        width: 20px;
+        height: 100%;
+        background: linear-gradient(to left, var(--bg-secondary), transparent);
+        pointer-events: none;
+        z-index: 1;
+    }
+    
+    .nav-tabs::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 20px;
+        height: 100%;
+        background: linear-gradient(to right, var(--bg-secondary), transparent);
+        pointer-events: none;
+        z-index: 1;
+    }
+}
+
+/* Ensure proper container behavior */
+.container {
+    max-width: 100%;
+    overflow-x: hidden;
+    box-sizing: border-box;
+}
+
+/* Additional fix for very small screens */
+@media (max-width: 480px) {
+    .nav-tab {
+        font-size: 10px;
+        padding: 6px 4px;
+        min-width: 60px;
+        max-width: 75px;
+        height: 36px;
+        
+        /* Abbreviate longer tab names on very small screens */
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
+    
+    /* Optional: Hide some emoji on very small screens to save space */
+    .nav-tab::before {
+        content: attr(data-short-name);
+    }
+}

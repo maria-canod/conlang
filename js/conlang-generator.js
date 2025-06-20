@@ -562,40 +562,99 @@ class ConlangGenerator {
 
     generateWord(syllableCount = null) {
         if (!this.language.phonology.syllables || this.language.phonology.syllables.length === 0) {
-            // Fallback word generation
+            // Fallback word generation - ensure we have syllable structures
             const vowels = this.language.phonology.vowels || ['a', 'e', 'i', 'o', 'u'];
             const consonants = this.language.phonology.consonants || ['p', 't', 'k', 'm', 'n', 's', 'l', 'r'];
+            const structures = this.language.phonology.syllableStructures || ['CV', 'CVC'];
             
-            let word = '';
             const count = syllableCount || Math.floor(Math.random() * 2) + 1;
             
-            for (let i = 0; i < count; i++) {
-                word += this.randomChoice(consonants) + this.randomChoice(vowels);
-            }
-            
-            // Simple uniqueness check - just add a vowel if duplicate
-            let attempts = 0;
-            while (this.usedWords.has(word) && attempts < 5) {
-                word += this.randomChoice(vowels);
-                attempts++;
-            }
-            
-            this.usedWords.add(word);
-            return word;
+            // Generate word using proper syllable structures
+            return this.generateWordWithStructures(count, structures, consonants, vowels);
         }
 
-        let count = syllableCount || Math.floor(Math.random() * 2) + 1;
-        let word = '';
+        // Use existing syllables but ensure proper syllable count
+        const requestedCount = syllableCount || Math.floor(Math.random() * 2) + 1;
         
-        for (let i = 0; i < count; i++) {
-            word += this.randomChoice(this.language.phonology.syllables);
+        // Try to generate a unique word up to 50 times
+        for (let attempt = 0; attempt < 50; attempt++) {
+            let word = '';
+            
+            // Generate exactly the requested number of syllables
+            for (let i = 0; i < requestedCount; i++) {
+                word += this.randomChoice(this.language.phonology.syllables);
+            }
+            
+            // Check if this word is unique
+            if (!this.usedWords.has(word)) {
+                this.usedWords.add(word);
+                return word;
+            }
         }
         
-        // Simple uniqueness check - limited attempts to prevent infinite loops
-        let attempts = 0;
-        while (this.usedWords.has(word) && attempts < 5) {
-            word += this.randomChoice(this.language.phonology.syllables);
-            attempts++;
+        // If we couldn't generate a unique word from existing syllables,
+        // fall back to generating new syllables with proper structures
+        const vowels = this.language.phonology.vowels || ['a', 'e', 'i', 'o', 'u'];
+        const consonants = this.language.phonology.consonants || ['p', 't', 'k', 'm', 'n', 's', 'l', 'r'];
+        const structures = this.language.phonology.syllableStructures || ['CV', 'CVC'];
+        
+        return this.generateWordWithStructures(requestedCount, structures, consonants, vowels);
+    }
+
+    // NEW HELPER FUNCTION: Generate words using proper syllable structures
+    generateWordWithStructures(syllableCount, structures, consonants, vowels) {
+        // Try to generate a unique word up to 100 times
+        for (let attempt = 0; attempt < 100; attempt++) {
+            let word = '';
+            
+            // Generate each syllable using proper structures
+            for (let i = 0; i < syllableCount; i++) {
+                const structure = this.randomChoice(structures);
+                let syllable = '';
+                
+                for (let char of structure) {
+                    if (char === 'C') {
+                        syllable += this.randomChoice(consonants);
+                    } else if (char === 'V') {
+                        syllable += this.randomChoice(vowels);
+                    }
+                    // Ignore any other characters in structure
+                }
+                
+                word += syllable;
+            }
+            
+            // Check if this word is unique
+            if (!this.usedWords.has(word)) {
+                this.usedWords.add(word);
+                return word;
+            }
+        }
+        
+        // Last resort: add a number suffix to ensure uniqueness
+        let baseWord = '';
+        for (let i = 0; i < syllableCount; i++) {
+            const structure = this.randomChoice(structures);
+            let syllable = '';
+            
+            for (let char of structure) {
+                if (char === 'C') {
+                    syllable += this.randomChoice(consonants);
+                } else if (char === 'V') {
+                    syllable += this.randomChoice(vowels);
+                }
+            }
+            
+            baseWord += syllable;
+        }
+        
+        // Add number suffix if needed
+        let word = baseWord;
+        let suffix = 1;
+        while (this.usedWords.has(word)) {
+            word = baseWord + suffix;
+            suffix++;
+            if (suffix > 99) break; // Prevent infinite loop
         }
         
         this.usedWords.add(word);

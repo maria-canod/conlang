@@ -7,6 +7,7 @@ window.VocabularyModule = {
         console.log('VocabularyModule initialized');
         this.bindEvents();
         this.updateDisplay();
+        this.addSortingControls();
     },
 
     bindEvents() {
@@ -23,11 +24,10 @@ window.VocabularyModule = {
         }
 
         // Bind filter buttons
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => this.filterWords(e.target.textContent.toLowerCase()));
-        });
-
-        console.log('Vocabulary events bound');
+        const sortSelect = document.getElementById('sort-select');
+        if (sortSelect) {
+            sortSelect.addEventListener('change', () => this.applySorting(sortSelect.value));
+        }
     },
 
     updateDisplay() {
@@ -44,10 +44,45 @@ window.VocabularyModule = {
             ...(window.generator.language.customWords || [])
         ];
         
-        window.appState.setState('allWords', allWords);
-        this.filteredWords = [...allWords];
+        // Sort alphabetically before setting state
+        const sortedWords = this.sortWordsAlphabetically(allWords);
+        
+        window.appState.setState('allWords', sortedWords);
+        this.filteredWords = [...sortedWords];
         window.appState.setState('filteredWords', this.filteredWords);
     },
+
+// NEW: Add sorting controls to the interface
+addSortingControls() {
+    // This function can be called to add sorting options to the UI if desired
+    const searchFilterBar = document.querySelector('.search-filter-bar');
+    if (!searchFilterBar) return;
+    
+    // Check if sorting controls already exist
+    if (document.getElementById('sort-controls')) return;
+    
+    const sortControls = document.createElement('div');
+    sortControls.id = 'sort-controls';
+    sortControls.className = 'sort-controls';
+    sortControls.innerHTML = `
+        <label for="sort-select" style="font-weight: 600; color: var(--text-secondary); margin-right: 8px;">Sort by:</label>
+        <select id="sort-select" class="form-control" style="width: auto; min-width: 150px;">
+            <option value="alphabetical" selected>Alphabetical</option>
+            <option value="chronological">Date Added</option>
+            <option value="pos">Part of Speech</option>
+            <option value="length">Word Length</option>
+        </select>
+    `;
+    
+    // Add to the search filter bar
+    searchFilterBar.appendChild(sortControls);
+    
+    // Bind the sorting functionality
+    const sortSelect = document.getElementById('sort-select');
+    if (sortSelect) {
+        sortSelect.addEventListener('change', () => this.applySorting(sortSelect.value));
+    }
+},
 
     updateVocabularyStats() {
         const stats = window.appState.getWordStats();
@@ -153,75 +188,80 @@ window.VocabularyModule = {
             );
         }
         
+        // Sort alphabetically after filtering
+        this.filteredWords = this.sortWordsAlphabetically(this.filteredWords);
+        
         window.appState.setState('filteredWords', this.filteredWords);
         this.updateDictionary();
     },
 
     // FIXED filterWords function - Replace this function in vocabulary.js
 
-filterWords(type) {
-    // Update active button
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    event.target.classList.add('active');
+    filterWords(type) {
+        // Update active button
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        event.target.classList.add('active');
 
-    const allWords = window.appState.getState('allWords') || [];
+        const allWords = window.appState.getState('allWords') || [];
 
-    switch(type) {
-        case 'all':
-            this.filteredWords = [...allWords];
-            break;
-        case 'nouns':
-            this.filteredWords = allWords.filter(word => word.pos === 'noun');
-            break;
-        case 'verbs':
-            this.filteredWords = allWords.filter(word => word.pos === 'verb');
-            break;
-        case 'adjectives':
-            this.filteredWords = allWords.filter(word => word.pos === 'adjective');
-            break;
-        case 'derived':
-            this.filteredWords = allWords.filter(word => word.derivedFrom || word.type === 'derived');
-            break;
-        case 'custom':
-            // FIXED: Include all non-core word types (custom, template, bulk, and all cultural types)
-            this.filteredWords = allWords.filter(word => 
-                word.type === 'custom' || 
-                word.type === 'template' || 
-                word.type === 'bulk' ||
-                word.type === 'cultural-event' ||
-                word.type === 'social-role' ||
-                word.type === 'cultural-life' ||
-                word.type === 'cultural-seasonal' ||
-                word.type === 'cultural-social' ||
-                word.type?.startsWith('cultural-') // Catch any other cultural types
-            );
-            break;
-        default:
-            this.filteredWords = [...allWords];
-    }
-    
-    window.appState.setState('filteredWords', this.filteredWords);
-    this.updateDictionary();
-},
+        switch(type) {
+            case 'all':
+                this.filteredWords = [...allWords];
+                break;
+            case 'nouns':
+                this.filteredWords = allWords.filter(word => word.pos === 'noun');
+                break;
+            case 'verbs':
+                this.filteredWords = allWords.filter(word => word.pos === 'verb');
+                break;
+            case 'adjectives':
+                this.filteredWords = allWords.filter(word => word.pos === 'adjective');
+                break;
+            case 'derived':
+                this.filteredWords = allWords.filter(word => word.derivedFrom || word.type === 'derived');
+                break;
+            case 'custom':
+                this.filteredWords = allWords.filter(word => 
+                    word.type === 'custom' || 
+                    word.type === 'template' || 
+                    word.type === 'bulk' ||
+                    word.type === 'cultural-event' ||
+                    word.type === 'social-role' ||
+                    word.type === 'cultural-life' ||
+                    word.type === 'cultural-seasonal' ||
+                    word.type === 'cultural-social' ||
+                    word.type?.startsWith('cultural-')
+                );
+                break;
+            default:
+                this.filteredWords = [...allWords];
+        }
+        
+        // Sort alphabetically after filtering
+        this.filteredWords = this.sortWordsAlphabetically(this.filteredWords);
+        
+        window.appState.setState('filteredWords', this.filteredWords);
+        this.updateDictionary();
+    },
 
     updateDictionary() {
         const dictionaryDiv = document.getElementById('dictionary');
         if (!dictionaryDiv) return;
-        
+
         if (this.filteredWords.length === 0) {
-            const allWords = window.appState.getState('allWords') || [];
-            if (allWords.length === 0) {
-                dictionaryDiv.innerHTML = '<p style="text-align: center; color: #999; padding: 40px;">No words found. Generate a language or add custom words to see the dictionary!</p>';
+            if (window.appState.getState('allWords').length === 0) {
+                dictionaryDiv.innerHTML = '<p style="text-align: center; color: #999; padding: 40px;">Generate a language or add custom words to see the dictionary!</p>';
             } else {
                 dictionaryDiv.innerHTML = '<p style="text-align: center; color: #999; padding: 40px;">No words match your search or filter. Try adjusting your criteria.</p>';
             }
             return;
         }
 
+        // Compact grid layout
         dictionaryDiv.innerHTML = `
-            <div class="word-grid">
+            <div class="word-grid-compact">
                 ${this.filteredWords.map((word, index) => this.createWordCard(word, index)).join('')}
             </div>
         `;
@@ -248,18 +288,194 @@ filterWords(type) {
         
         const posAbbr = posAbbreviations[word.pos] || word.pos;
         
+        // Convert to orthography
+        const orthographyForm = this.convertToOrthography(word.conlang);
+        const showBothForms = orthographyForm !== word.conlang;
+        
+        // Check if word has extra details that need expansion
+        const hasExpandableContent = word.notes || word.derivedFrom || word.dateAdded || word.type;
+        
         return `
-            <div class="word-card" onclick="VocabularyModule.showWordDetails('${word.conlang}')">
-                <span class="word-pos">${posAbbr}</span>
-                <button class="edit-btn" onclick="event.stopPropagation(); VocabularyModule.editWord(${globalIndex})" title="Edit word">✏️</button>
-                <button class="delete-btn" onclick="event.stopPropagation(); VocabularyModule.deleteWord(${globalIndex})" title="Delete word">🗑️</button>
-                <div class="word-conlang">${word.conlang}</div>
-                <div class="word-english">${word.english}</div>
-                ${word.derivedFrom ? `<div class="word-derived">← ${word.derivedFrom}</div>` : ''}
-                ${word.notes ? `<div class="word-derived">${word.notes}</div>` : ''}
-                ${word.dateAdded ? `<div class="word-derived">Added: ${word.dateAdded}</div>` : ''}
+            <div class="word-card-compact" id="word-${globalIndex}">
+                <!-- Compact main content -->
+                <div class="word-card-main" onclick="VocabularyModule.toggleWordExpansion(${globalIndex})">
+                    <div class="word-header">
+                        <div class="word-forms">
+                            ${showBothForms ? `
+                                <div class="word-conlang-compact">${orthographyForm}</div>
+                                <div class="word-ipa-compact">[${word.conlang}]</div>
+                            ` : `
+                                <div class="word-conlang-compact">${word.conlang}</div>
+                            `}
+                        </div>
+                        <div class="word-controls">
+                            <span class="word-pos-compact">${posAbbr}</span>
+                            ${hasExpandableContent ? '<span class="expand-indicator">▼</span>' : ''}
+                        </div>
+                    </div>
+                    <div class="word-meaning-compact">${word.english}</div>
+                </div>
+                
+                <!-- Expandable content (hidden by default) -->
+                ${hasExpandableContent ? `
+                    <div class="word-expanded-content" style="display: none;">
+                        ${word.notes ? `
+                            <div class="detail-item">
+                                <span class="detail-label">📝 Notes:</span>
+                                <span class="detail-value">${word.notes}</span>
+                            </div>
+                        ` : ''}
+                        ${word.derivedFrom ? `
+                            <div class="detail-item">
+                                <span class="detail-label">🔗 Derived from:</span>
+                                <span class="detail-value">${word.derivedFrom}</span>
+                            </div>
+                        ` : ''}
+                        ${word.type ? `
+                            <div class="detail-item">
+                                <span class="detail-label">🏷️ Type:</span>
+                                <span class="detail-value">${word.type}</span>
+                            </div>
+                        ` : ''}
+                        ${word.dateAdded ? `
+                            <div class="detail-item">
+                                <span class="detail-label">📅 Added:</span>
+                                <span class="detail-value">${word.dateAdded}</span>
+                            </div>
+                        ` : ''}
+                        
+                        <!-- Action buttons in expanded view -->
+                        <div class="word-actions">
+                            <button class="btn-compact btn-edit" onclick="event.stopPropagation(); VocabularyModule.editWord(${globalIndex})" title="Edit word">
+                                ✏️ Edit
+                            </button>
+                            <button class="btn-compact btn-delete" onclick="event.stopPropagation(); VocabularyModule.deleteWord(${globalIndex})" title="Delete word">
+                                🗑️ Delete
+                            </button>
+                        </div>
+                    </div>
+                ` : `
+                    <!-- Simple action buttons for words without expandable content -->
+                    <div class="word-simple-actions">
+                        <button class="btn-mini btn-edit" onclick="event.stopPropagation(); VocabularyModule.editWord(${globalIndex})" title="Edit">✏️</button>
+                        <button class="btn-mini btn-delete" onclick="event.stopPropagation(); VocabularyModule.deleteWord(${globalIndex})" title="Delete">🗑️</button>
+                    </div>
+                `}
             </div>
         `;
+    },
+
+    toggleWordExpansion(globalIndex) {
+        const wordCard = document.getElementById(`word-${globalIndex}`);
+        if (!wordCard) return;
+        
+        const expandedContent = wordCard.querySelector('.word-expanded-content');
+        const expandIndicator = wordCard.querySelector('.expand-indicator');
+        
+        if (!expandedContent) return; // No expandable content
+        
+        const isExpanded = expandedContent.style.display !== 'none';
+        
+        if (isExpanded) {
+            // Collapse
+            expandedContent.style.display = 'none';
+            if (expandIndicator) expandIndicator.textContent = '▼';
+            wordCard.classList.remove('expanded');
+        } else {
+            // Expand
+            expandedContent.style.display = 'block';
+            if (expandIndicator) expandIndicator.textContent = '▲';
+            wordCard.classList.add('expanded');
+        }
+    },
+
+
+    convertToOrthography(ipaWord) {
+        if (!window.PhonologyModule || !window.PhonologyModule.orthographyMap) {
+            return ipaWord; // Return original if no orthography mapping
+        }
+        
+        const orthographyMap = window.PhonologyModule.orthographyMap;
+        let orthographyWord = ipaWord;
+        
+        // Sort by length (longest first) to avoid partial replacements
+        const sortedMappings = Object.entries(orthographyMap).sort((a, b) => b[0].length - a[0].length);
+        
+        // Apply each mapping
+        sortedMappings.forEach(([ipa, ortho]) => {
+            if (ipa !== ortho) { // Only convert if different
+                orthographyWord = orthographyWord.replace(new RegExp(ipa, 'g'), ortho);
+            }
+        });
+        
+        return orthographyWord;
+    },
+
+    showWordDetails(conlangWord) {
+        const allWords = window.appState.getState('allWords') || [];
+        const word = allWords.find(w => w.conlang === conlangWord);
+        
+        if (!word) {
+            showToast('Word not found!', 'error');
+            return;
+        }
+        
+        const orthographyForm = this.convertToOrthography(word.conlang);
+        const showBothForms = orthographyForm !== word.conlang;
+        
+        const detailsHTML = `
+            <div class="word-details-modal">
+                <div class="word-details-content">
+                    <h3>Word Details</h3>
+                    
+                    ${showBothForms ? `
+                        <div class="word-display-section">
+                            <div class="word-main-form">${orthographyForm}</div>
+                            <div class="word-ipa-form">[${word.conlang}]</div>
+                            <div class="word-meaning">"${word.english}"</div>
+                        </div>
+                    ` : `
+                        <div class="word-display-section">
+                            <div class="word-main-form">${word.conlang}</div>
+                            <div class="word-meaning">"${word.english}"</div>
+                        </div>
+                    `}
+                    
+                    <div class="word-info-grid">
+                        <div><strong>Part of Speech:</strong> ${word.pos}</div>
+                        ${word.notes ? `<div><strong>Notes:</strong> ${word.notes}</div>` : ''}
+                        ${word.derivedFrom ? `<div><strong>Derived From:</strong> ${word.derivedFrom}</div>` : ''}
+                        ${word.type ? `<div><strong>Type:</strong> ${word.type}</div>` : ''}
+                        ${word.dateAdded ? `<div><strong>Added:</strong> ${word.dateAdded}</div>` : ''}
+                    </div>
+                    
+                    <div class="word-details-actions">
+                        <button class="btn btn-secondary" onclick="this.closest('.word-details-modal').remove()">Close</button>
+                        <button class="btn btn-primary" onclick="VocabularyModule.editWordFromDetails('${word.conlang}'); this.closest('.word-details-modal').remove()">Edit Word</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Create modal backdrop
+        const modal = document.createElement('div');
+        modal.className = 'word-details-backdrop';
+        modal.innerHTML = detailsHTML;
+        modal.onclick = (e) => {
+            if (e.target === modal) modal.remove();
+        };
+        
+        document.body.appendChild(modal);
+    },
+
+    // NEW: Edit word from details view
+    editWordFromDetails(conlangWord) {
+        const allWords = window.appState.getState('allWords') || [];
+        const globalIndex = allWords.findIndex(w => w.conlang === conlangWord);
+        
+        if (globalIndex !== -1) {
+            this.editWord(globalIndex);
+        }
     },
 
     showWordDetails(conlangWord) {
@@ -409,5 +625,132 @@ filterWords(type) {
             const customIndex = window.generator.language.customWords.findIndex(w => w.conlang === word.conlang);
             if (customIndex >= 0) window.generator.language.customWords.splice(customIndex, 1);
         }
-    }
+    },
+
+    // Alphabetical Vocabulary Sorting - Add these functions to js/modules/vocabulary.js
+
+    // NEW: Sort words alphabetically
+    sortWordsAlphabetically(words) {
+        return words.sort((a, b) => {
+            // Get the display form (orthography if available, otherwise conlang)
+            const aDisplay = this.getDisplayForm(a);
+            const bDisplay = this.getDisplayForm(b);
+            
+            // Sort alphabetically, case-insensitive
+            return aDisplay.toLowerCase().localeCompare(bDisplay.toLowerCase());
+        });
+    },
+
+    // NEW: Get the display form for sorting (orthography or conlang)
+    getDisplayForm(word) {
+        // Convert to orthography if available
+        const orthographyForm = this.convertToOrthography(word.conlang);
+        
+        // Use orthography if it's different from IPA, otherwise use original
+        return orthographyForm !== word.conlang ? orthographyForm : word.conlang;
+    },
+
+    // Updated addSortingControls function - Replace in js/modules/vocabulary.js
+
+    addSortingControls() {
+        // This function integrates sorting controls into the existing search-filter-bar
+        const searchFilterBar = document.querySelector('.search-filter-bar');
+        if (!searchFilterBar) return;
+        
+        // Check if sorting controls already exist
+        if (document.getElementById('sort-controls')) return;
+        
+        const sortControls = document.createElement('div');
+        sortControls.id = 'sort-controls';
+        sortControls.className = 'sort-controls';
+        sortControls.innerHTML = `
+            <label for="sort-select">Sort by:</label>
+            <select id="sort-select">
+                <option value="alphabetical" selected>Alphabetical</option>
+                <option value="chronological">Date Added</option>
+                <option value="pos">Part of Speech</option>
+                <option value="length">Word Length</option>
+            </select>
+        `;
+        
+        // Add to the search filter bar (after filter buttons)
+        searchFilterBar.appendChild(sortControls);
+        
+        // Bind the sorting functionality
+        const sortSelect = document.getElementById('sort-select');
+        if (sortSelect) {
+            sortSelect.addEventListener('change', () => this.applySorting(sortSelect.value));
+        }
+    },
+
+    // NEW: Apply different sorting methods
+    applySorting(sortMethod) {
+        switch (sortMethod) {
+            case 'alphabetical':
+                this.filteredWords = this.sortWordsAlphabetically([...this.filteredWords]);
+                break;
+                
+            case 'chronological':
+                this.filteredWords = [...this.filteredWords].sort((a, b) => {
+                    const aDate = new Date(a.dateAdded || '1970-01-01');
+                    const bDate = new Date(b.dateAdded || '1970-01-01');
+                    return bDate - aDate; // Newest first
+                });
+                break;
+                
+            case 'pos':
+                this.filteredWords = [...this.filteredWords].sort((a, b) => {
+                    const aPos = a.pos || 'zzz';
+                    const bPos = b.pos || 'zzz';
+                    return aPos.localeCompare(bPos);
+                });
+                break;
+                
+            case 'length':
+                this.filteredWords = [...this.filteredWords].sort((a, b) => {
+                    const aLength = this.getDisplayForm(a).length;
+                    const bLength = this.getDisplayForm(b).length;
+                    return aLength - bLength; // Shortest first
+                });
+                break;
+                
+            default:
+                this.filteredWords = this.sortWordsAlphabetically([...this.filteredWords]);
+        }
+        
+        this.updateDictionary();
+        window.appState.setState('filteredWords', this.filteredWords);
+    },
+
+    sortWordsAlphabetically(words) {
+        return words.sort((a, b) => {
+            const aDisplay = this.getDisplayForm(a);
+            const bDisplay = this.getDisplayForm(b);
+            return aDisplay.toLowerCase().localeCompare(bDisplay.toLowerCase());
+        });
+    },
+
+    getDisplayForm(word) {
+        const orthographyForm = this.convertToOrthography ? this.convertToOrthography(word.conlang) : word.conlang;
+        return orthographyForm !== word.conlang ? orthographyForm : word.conlang;
+    },
+
+    convertToOrthography(ipaWord) {
+        if (!window.PhonologyModule || !window.PhonologyModule.orthographyMap) {
+            return ipaWord;
+        }
+        
+        const orthographyMap = window.PhonologyModule.orthographyMap;
+        let orthographyWord = ipaWord;
+        
+        const sortedMappings = Object.entries(orthographyMap).sort((a, b) => b[0].length - a[0].length);
+        
+        sortedMappings.forEach(([ipa, ortho]) => {
+            if (ipa !== ortho) {
+                orthographyWord = orthographyWord.replace(new RegExp(ipa, 'g'), ortho);
+            }
+        });
+        
+        return orthographyWord;
+},
 };

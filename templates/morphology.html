@@ -1,3 +1,4 @@
+<!-- Cleaned Morphology Template - Focus on What Works -->
 <div class="section-card">
     <h3>🔧 Affix Management</h3>
     <p style="margin-bottom: 20px; color: #666;">View, edit, and manage all morphological affixes in your language. Generate new words by applying these affixes to existing vocabulary.</p>
@@ -90,7 +91,65 @@
     <div id="no-affixes" style="text-align: center; color: #999; padding: 40px;">
         <h4>No affixes generated yet</h4>
         <p>Generate a grammar system first to see your morphological affixes!</p>
-        <button class="btn" onclick="switchTab('grammar')">Go to Grammar Tab</button>
+        <div style="display: flex; justify-content: center; margin-top: 20px;">
+            <button class="btn" onclick="switchTab('grammar')" style="margin: 0 auto;">Go to Grammar Tab</button>
+        </div>
+    </div>
+</div>
+
+<!-- Compound Word Generation Section -->
+<div class="section-card">
+    <h3>🔗 Compound Word Generator</h3>
+    <p style="margin-bottom: 20px; color: #666;">Create compound words by combining existing vocabulary. Generate logical combinations for new concepts and expand your language naturally.</p>
+    
+    <div class="word-builder" style="background: linear-gradient(135deg, #e8f5e8 0%, #f0f8ff 100%); border-color: #4caf50;">
+        <h4>🏗️ Manual Compound Builder</h4>
+        <p style="margin-bottom: 20px; color: #666;">Manually combine two words to create a compound.</p>
+        
+        <div class="form-grid-3">
+            <div class="form-group">
+                <label for="compound-word1">First Word</label>
+                <select id="compound-word1" class="form-control">
+                    <option value="">Select first word...</option>
+                    <!-- Will be populated with existing vocabulary -->
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="compound-word2">Second Word</label>
+                <select id="compound-word2" class="form-control">
+                    <option value="">Select second word...</option>
+                    <!-- Will be populated with existing vocabulary -->
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="compound-meaning">New Meaning</label>
+                <input type="text" id="compound-meaning" class="form-control" placeholder="What does the compound mean?">
+            </div>
+        </div>
+        
+        <div class="form-grid-1" style="margin-top: 15px;">
+            <button class="btn btn-success btn-block" id="generate-compound-btn">
+                🔗 Generate Compound
+            </button>
+        </div>
+        
+        <!-- Compound Preview -->
+        <div id="compound-preview" style="display: none; margin-top: 20px;">
+            <div class="generated-word-display">
+                <h5>Generated Compound:</h5>
+                <div class="generated-word" id="compound-result"></div>
+                <div id="compound-breakdown" style="color: #666; margin: 10px 0;"></div>
+                <div id="compound-meaning-display" style="color: #555; font-style: italic; margin-bottom: 15px;"></div>
+                
+                <div style="display: flex; justify-content: center; margin-top: 20px;">
+                    <button class="btn btn-success" id="add-compound-btn">
+                        ➕ Add to Vocabulary
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -119,9 +178,11 @@
             <div class="generated-word" id="inflected-word"></div>
             <div style="color: #666; margin-bottom: 15px;" id="inflection-description"></div>
             
-            <button class="btn btn-success" id="add-inflected-btn">
-                ➕ Add Derived Word to Dictionary
-            </button>
+            <div style="display: flex; justify-content: center; margin-top: 20px;">
+                <button class="btn btn-success" id="add-inflected-btn">
+                    ➕ Add Derived Word to Dictionary
+                </button>
+            </div>
         </div>
     </div>
     
@@ -134,36 +195,44 @@
 <div id="edit-affix-modal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
-            <h3>✏️ Edit Affix</h3>
-            <button class="modal-close" onclick="MorphologyModule.closeModal('edit-affix-modal')">&times;</button>
+            <h4>✏️ Edit Affix</h4>
+            <span class="close" onclick="document.getElementById('edit-affix-modal').style.display='none'">&times;</span>
         </div>
-        <div class="form-group">
-            <label for="edit-affix-name-field">Affix Name</label>
-            <input type="text" id="edit-affix-name-field" class="form-control">
+        
+        <div class="modal-body">
+            <div class="form-group">
+                <label for="edit-affix-name-field">Affix Name</label>
+                <input type="text" id="edit-affix-name-field" class="form-control">
+            </div>
+            
+            <div class="form-group">
+                <label for="edit-affix-morpheme-field">Morpheme</label>
+                <input type="text" id="edit-affix-morpheme-field" class="form-control">
+            </div>
+            
+            <div class="form-group">
+                <label for="edit-affix-type-field">Type</label>
+                <select id="edit-affix-type-field" class="form-control">
+                    <option value="prefix">Prefix</option>
+                    <option value="suffix">Suffix</option>
+                    <option value="infix">Infix</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="edit-affix-description-field">Description</label>
+                <input type="text" id="edit-affix-description-field" class="form-control">
+            </div>
+            
+            <div class="form-group">
+                <label for="edit-affix-example-field">Example (optional)</label>
+                <input type="text" id="edit-affix-example-field" class="form-control" placeholder="e.g., walk → walker">
+            </div>
         </div>
-        <div class="form-group">
-            <label for="edit-affix-morpheme-field">Morpheme</label>
-            <input type="text" id="edit-affix-morpheme-field" class="form-control">
-        </div>
-        <div class="form-group">
-            <label for="edit-affix-type-field">Type</label>
-            <select id="edit-affix-type-field" class="form-control">
-                <option value="suffix">Suffix</option>
-                <option value="prefix">Prefix</option>
-                <option value="infix">Infix</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="edit-affix-description-field">Description</label>
-            <textarea id="edit-affix-description-field" class="form-control" rows="3" placeholder="What this affix does..."></textarea>
-        </div>
-        <div class="form-group">
-            <label for="edit-affix-example-field">Example</label>
-            <input type="text" id="edit-affix-example-field" class="form-control" placeholder="word → result (meaning → meaning)">
-        </div>
-        <div style="display: flex; gap: 10px; margin-top: 20px;">
-            <button class="btn btn-success" onclick="MorphologyModule.saveAffixEdit()">💾 Save Changes</button>
-            <button class="btn btn-secondary" onclick="MorphologyModule.closeModal('edit-affix-modal')">❌ Cancel</button>
+        
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="document.getElementById('edit-affix-modal').style.display='none'">Cancel</button>
+            <button class="btn btn-success" onclick="MorphologyModule.saveAffixEdit()">Save Changes</button>
         </div>
     </div>
 </div>
