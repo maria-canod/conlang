@@ -10,6 +10,7 @@ class TabManager {
             { id: 'vocabulary', name: '📚 Vocabulary', file: 'templates/vocabulary.html' },
             { id: 'corpus', name: '📝 Corpus', file: 'templates/corpus.html' },
             { id: 'cultural', name: '🏛️ Cultural', file: 'templates/cultural.html' },
+            { id: 'ai-assistant', name: '🤖 AI Assistant', file: 'templates/ai-assistant.html' },
             { id: 'overview', name: '📊 Overview', file: 'templates/overview.html' },
             { id: 'export', name: '📤 Export', file: 'templates/export.html' }
         ];
@@ -157,6 +158,14 @@ class TabManager {
                     window.CulturalModule.init();
                 } else {
                     console.error('CulturalModule not found');
+                }
+                break;
+            case 'ai-assistant':
+                if (window.AIAssistant) {
+                    console.log('Initializing AI Assistant');
+                    window.AIAssistant.init();
+                } else {
+                    console.error('AIAssistant not found');
                 }
                 break;
             case 'overview':

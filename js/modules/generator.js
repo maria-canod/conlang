@@ -197,8 +197,8 @@ window.GeneratorModule = {
                 { english: 'stressed', pos: 'adjective' },
                 { english: 'worried', pos: 'adjective' },
                 { english: 'proud', pos: 'adjective' },
-                { english: 'to smile', pos: 'verb' },
-                { english: 'to cry', pos: 'verb' },
+                { english: 'smile', pos: 'verb' },
+                { english: 'cry', pos: 'verb' },
                 { english: 'shy', pos: 'adjective' }
             ],
             colors: [
@@ -253,13 +253,13 @@ window.GeneratorModule = {
                 { english: 'cloud', pos: 'noun' }
             ],
             actions: [
-                { english: 'to sing', pos: 'verb' },
-                { english: 'to dance', pos: 'verb' },
-                { english: 'to jump', pos: 'verb' },
-                { english: 'to swim', pos: 'verb' },
-                { english: 'to build', pos: 'verb' },
-                { english: 'to walk', pos: 'verb' },
-                { english: 'to fly', pos: 'verb' }
+                { english: 'sing', pos: 'verb' },
+                { english: 'dance', pos: 'verb' },
+                { english: 'jump', pos: 'verb' },
+                { english: 'swim', pos: 'verb' },
+                { english: 'build', pos: 'verb' },
+                { english: 'walk', pos: 'verb' },
+                { english: 'fly', pos: 'verb' }
             ]
         };
 

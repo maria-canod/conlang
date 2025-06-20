@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/tabs.css">
+    <link rel="stylesheet" href="css/ai-assistant.css">
 </head>
 <body>
     <div class="container">
@@ -141,6 +142,8 @@
     <script src="js/modules/overview.js"></script>
     <script src="js/modules/export.js"></script>
     <script src="js/tab-manager.js"></script>
+    <script src="js/modules/local-ai.js"></script>
+    <script src="js/modules/ai-assistant.js"></script>
     
     <!-- Utility functions -->
     <script>
@@ -1455,6 +1458,102 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
         });
+    });
+    </script>
+    <!-- AI Assistant Provider Switching Fix -->
+    <script>
+    function setupAIProviderSwitching() {
+        console.log('Setting up AI provider switching...');
+        
+        const providerSelect = document.getElementById('ai-provider');
+        const apiKeySection = document.getElementById('api-key-section');
+        const remoteSection = document.getElementById('remote-ollama-section');
+        
+        if (!providerSelect) {
+            console.log('Provider select not found, will retry...');
+            return false;
+        }
+        
+        console.log('Found provider select, binding events...');
+        
+        // Remove any existing listeners
+        providerSelect.onchange = null;
+        
+        // Add the change listener
+        providerSelect.addEventListener('change', function(e) {
+            const provider = e.target.value;
+            console.log('Provider changed to:', provider);
+            
+            // Show/hide API key section
+            if (apiKeySection) {
+                const needsApiKey = ['openai', 'anthropic', 'openrouter'].includes(provider);
+                apiKeySection.style.display = needsApiKey ? 'block' : 'none';
+                console.log('API key section:', needsApiKey ? 'shown' : 'hidden');
+                
+                // Show OpenRouter model section if it exists
+                const openRouterModelSection = document.getElementById('openrouter-model-section');
+                if (openRouterModelSection) {
+                    openRouterModelSection.style.display = provider === 'openrouter' ? 'block' : 'none';
+                }
+            } else {
+                console.log('API key section not found!');
+            }
+            
+            // Show/hide remote section
+            if (remoteSection) {
+                remoteSection.style.display = provider === 'remote_ollama' ? 'block' : 'none';
+                console.log('Remote section:', provider === 'remote_ollama' ? 'shown' : 'hidden');
+            }
+            
+            // Update AI system
+            if (window.AIAssistant && provider) {
+                window.AIAssistant.settings.provider = provider;
+            }
+        });
+        
+        // Bind API key input
+        const apiKeyInput = document.getElementById('api-key-input');
+        if (apiKeyInput) {
+            apiKeyInput.addEventListener('input', function(e) {
+                if (window.AIAssistant && window.AIAssistant.localAI) {
+                    window.AIAssistant.localAI.setProvider(
+                        document.getElementById('ai-provider').value, 
+                        e.target.value
+                    );
+                    console.log('API key updated in AI system');
+                }
+            });
+            console.log('API key input bound');
+        }
+        
+        // Trigger initial state
+        providerSelect.dispatchEvent(new Event('change'));
+        
+        console.log('AI provider switching setup complete!');
+        return true;
+    }
+
+    // Try setting up when DOM is ready
+    document.addEventListener('DOMContentLoaded', setupAIProviderSwitching);
+
+    // Also try when page is fully loaded
+    window.addEventListener('load', setupAIProviderSwitching);
+
+    // Try periodically until it works (for tab loading)
+    let setupAttempts = 0;
+    const setupInterval = setInterval(() => {
+        setupAttempts++;
+        if (setupAIProviderSwitching() || setupAttempts > 10) {
+            clearInterval(setupInterval);
+        }
+    }, 1000);
+
+    // Try again when AI Assistant tab is clicked
+    document.addEventListener('click', function(e) {
+        if (e.target && (e.target.textContent.includes('AI Assistant') || e.target.id === 'ai-assistant-tab')) {
+            console.log('AI Assistant tab clicked, setting up provider switching...');
+            setTimeout(setupAIProviderSwitching, 500);
+        }
     });
     </script>
 </body>

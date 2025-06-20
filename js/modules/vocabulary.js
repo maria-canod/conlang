@@ -92,12 +92,15 @@ window.VocabularyModule = {
             return;
         }
 
-        // Check for duplicate English meanings
-        const duplicateEnglish = allWords.find(w => w.english.toLowerCase() === meaning.toLowerCase());
-        if (duplicateEnglish) {
-            showToast(`The meaning "${meaning}" already exists for the word "${duplicateEnglish.conlang}". Try a different meaning or synonym.`, 'error');
-            return;
-        }
+        // Check for duplicate English meanings with same part of speech
+        const duplicateEnglish = allWords.find(w => 
+                    w.english.toLowerCase() === meaning.toLowerCase() && 
+                    w.pos === pos
+                );
+                if (duplicateEnglish) {
+                    showToast(`The meaning "${meaning}" as a ${pos} already exists for the word "${duplicateEnglish.conlang}". Try a different meaning or synonym.`, 'error');
+                    return;
+                }
 
         const newWord = {
             conlang: conlang,
@@ -311,11 +314,14 @@ filterWords(type) {
         }
 
         // Check for duplicate English meanings (excluding the current word)
-        const duplicateEnglish = allWords.find((w, i) => i !== this.editingWordIndex && w.english.toLowerCase() === newEnglish.toLowerCase());
-        if (duplicateEnglish) {
-            showToast(`The meaning "${newEnglish}" already exists for the word "${duplicateEnglish.conlang}". Try a different meaning or synonym.`, 'error');
-            return;
-        }
+        const duplicateEnglish = allWords.find(w => 
+                    w.english.toLowerCase() === meaning.toLowerCase() && 
+                    w.pos === pos
+                );
+                if (duplicateEnglish) {
+                    showToast(`The meaning "${meaning}" as a ${pos} already exists for the word "${duplicateEnglish.conlang}". Try a different meaning or synonym.`, 'error');
+                    return;
+                }
         
         // Update the word
         const oldWord = allWords[this.editingWordIndex].conlang;

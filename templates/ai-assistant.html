@@ -1,0 +1,326 @@
+<!-- AI Assistant Template -->
+<div class="section-card">
+    <h3>🤖 AI Language Assistant</h3>
+    <p style="margin-bottom: 20px; color: #666;">
+        Get intelligent suggestions to expand your vocabulary, analyze cultural consistency, 
+        and enhance your language with contextually appropriate words.
+    </p>
+    
+    <!-- Language Analysis Overview -->
+    <div class="ai-analysis-overview">
+        <div class="stats-grid">
+            <div class="stat-card ai-stat">
+                <div class="stat-number" id="ai-vocab-count">0</div>
+                <div class="stat-label">Current Words</div>
+            </div>
+            <div class="stat-card ai-stat">
+                <div class="stat-number" id="ai-missing-categories">0</div>
+                <div class="stat-label">Missing Categories</div>
+            </div>
+            <div class="stat-card ai-stat">
+                <div class="stat-number" id="ai-completion-percent">0%</div>
+                <div class="stat-label">Completion</div>
+            </div>
+            <div class="stat-card ai-stat">
+                <div class="stat-number" id="ai-cultural-consistency">--</div>
+                <div class="stat-label">Cultural Match</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Vocabulary Expansion -->
+<div class="section-card">
+    <h3>📚 Smart Vocabulary Expansion</h3>
+    <p style="margin-bottom: 20px; color: #666;">
+        AI analyzes your current vocabulary and suggests the most useful missing words 
+        based on your culture and existing language patterns.
+    </p>
+    
+    <div class="form-grid-2">
+        <div class="form-group">
+            <label for="suggestion-category">Focus Category</label>
+            <select id="suggestion-category" class="form-control">
+                <option value="auto">🎯 Auto-Detect Gaps</option>
+                <option value="basic_communication">🗣️ Basic Communication</option>
+                <option value="family_relations">👨‍👩‍👧‍👦 Family & Relations</option>
+                <option value="daily_activities">📅 Daily Activities</option>
+                <option value="food_drink">🍽️ Food & Drink</option>
+                <option value="nature_environment">🌳 Nature & Environment</option>
+                <option value="tools_objects">🔧 Tools & Objects</option>
+                <option value="emotions_states">😊 Emotions & Mental States</option>
+                <option value="social_concepts">🏛️ Social Concepts</option>
+                <option value="temporal_concepts">⏰ Time & Temporal</option>
+                <option value="abstract_concepts">💭 Abstract Concepts</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="suggestion-count">Number of Suggestions</label>
+            <select id="suggestion-count" class="form-control">
+                <option value="5">5 words</option>
+                <option value="10" selected>10 words</option>
+                <option value="20">20 words</option>
+                <option value="50">50 words</option>
+            </select>
+        </div>
+    </div>
+    
+    <div class="form-grid-2">
+        <button class="btn btn-primary btn-block" id="generate-suggestions-btn">
+            ✨ Generate Smart Suggestions
+        </button>
+        <button class="btn btn-info btn-block" id="analyze-gaps-btn">
+            🔍 Analyze Vocabulary Gaps
+        </button>
+    </div>
+    
+    <!-- Suggestions Display -->
+    <div id="vocabulary-suggestions" style="display: none;">
+        <div class="result-card">
+            <div class="suggestions-header">
+                <h4>💡 AI Vocabulary Suggestions</h4>
+                <div class="suggestion-controls">
+                    <button class="btn btn-sm btn-success" id="accept-all-btn">✅ Accept All</button>
+                    <button class="btn btn-sm btn-secondary" id="reject-all-btn">❌ Reject All</button>
+                </div>
+            </div>
+            <div id="suggestions-container">
+                <!-- Suggestions will be populated here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Translation Assistant -->
+<div class="section-card">
+    <h3>🌐 AI Translation Assistant</h3>
+    <p style="margin-bottom: 20px; color: #666;">
+        Translate sentences and identify missing vocabulary needed for accurate translation.
+    </p>
+    
+    <div class="form-group">
+        <label for="translation-input">English Text to Translate</label>
+        <textarea id="translation-input" class="form-control" rows="3" 
+                  placeholder="Enter English text to translate. The AI will identify missing words and suggest translations using your grammar rules..."></textarea>
+    </div>
+    
+    <div class="form-grid-2">
+        <button class="btn btn-success btn-block" id="translate-text-btn">
+            🔄 Analyze & Translate
+        </button>
+        <button class="btn btn-info btn-block" id="identify-missing-btn">
+            🎯 Identify Missing Words Only
+        </button>
+    </div>
+    
+    <!-- Translation Results -->
+    <div id="translation-results" style="display: none;">
+        <div class="result-card">
+            <h4>📝 Translation Analysis</h4>
+            <div id="translation-content">
+                <!-- Translation results will be populated here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Morphological Expansion -->
+<div class="section-card">
+    <h3>🔧 Morphological Word Builder</h3>
+    <p style="margin-bottom: 20px; color: #666;">
+        AI applies your morphological rules to create word families and derivatives.
+    </p>
+    
+    <div class="form-group">
+        <label for="base-word-select">Base Word for Expansion</label>
+        <select id="base-word-select" class="form-control">
+            <option value="">Select a word to expand...</option>
+            <!-- Populated dynamically with existing vocabulary -->
+        </select>
+    </div>
+    
+    <div class="form-grid-3">
+        <button class="btn btn-primary" id="generate-derivatives-btn">
+            📊 Generate Derivatives
+        </button>
+        <button class="btn btn-secondary" id="generate-compounds-btn">
+            🔗 Generate Compounds
+        </button>
+        <button class="btn btn-info" id="expand-word-family-btn">
+            👨‍👩‍👧‍👦 Expand Word Family
+        </button>
+    </div>
+    
+    <!-- Morphological Results -->
+    <div id="morphological-results" style="display: none;">
+        <div class="result-card">
+            <h4>🌟 Generated Word Forms</h4>
+            <div id="morphological-content">
+                <!-- Morphological expansions will be populated here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cultural Consistency Checker -->
+<div class="section-card">
+    <h3>🏛️ Cultural Consistency Analysis</h3>
+    <p style="margin-bottom: 20px; color: #666;">
+        AI analyzes your vocabulary against your cultural settings to identify inconsistencies and suggest improvements.
+    </p>
+    
+    <div class="form-grid-2">
+        <button class="btn btn-warning btn-block" id="check-consistency-btn">
+            🔍 Check Cultural Consistency
+        </button>
+        <button class="btn btn-info btn-block" id="suggest-cultural-vocab-btn">
+            🌟 Suggest Cultural Vocabulary
+        </button>
+    </div>
+    
+    <!-- Consistency Results -->
+    <div id="consistency-results" style="display: none;">
+        <div class="result-card">
+            <h4>📊 Cultural Analysis Report</h4>
+            <div id="consistency-content">
+                <!-- Cultural analysis will be populated here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- AI Learning & Settings -->
+<div class="section-card">
+    <h3>⚙️ AI Assistant Settings</h3>
+    
+    <div class="form-group">
+        <label for="ai-provider">AI Provider</label>
+        <select id="ai-provider" class="form-control">
+            <option value="local" selected>🏠 Local Ollama (Current PC)</option>
+            <option value="remote_ollama">🌐 Remote Ollama (Another PC)</option>
+            <option value="openrouter">⚡ OpenRouter (Free Powerful Models)</option>
+            <option value="openai">🤖 OpenAI GPT (Requires API Key)</option>
+            <option value="anthropic">🧠 Anthropic Claude (Requires API Key)</option>
+        </select>
+    </div>
+    
+    <div id="api-key-section" style="display: none;">
+        <div class="form-group">
+            <label for="api-key-input">API Key</label>
+            <input type="password" id="api-key-input" class="form-control" 
+                   placeholder="Enter your API key...">
+            <small class="form-text">
+                <strong>OpenRouter:</strong> Get free API key at <a href="https://openrouter.ai" target="_blank">openrouter.ai</a><br>
+                <strong>OpenAI/Anthropic:</strong> Your API key is stored locally and never sent to our servers.
+            </small>
+        </div>
+        
+        <div id="openrouter-model-section" style="display: none;">
+            <div class="form-group">
+                <label for="openrouter-model-select">OpenRouter Model</label>
+                <select id="openrouter-model-select" class="form-control">
+                    <option value="meta-llama/llama-3.1-8b-instruct:free">🆓 Llama 3.1 8B (Free)</option>
+                    <option value="meta-llama/llama-3.2-3b-instruct:free">🆓 Llama 3.2 3B (Free, Faster)</option>
+                    <option value="google/gemini-flash-1.5:free">🆓 Gemini Flash 1.5 (Free)</option>
+                    <option value="microsoft/phi-3-mini-128k-instruct:free">🆓 Phi-3 Mini (Free)</option>
+                    <option value="meta-llama/llama-3.1-70b-instruct">💎 Llama 3.1 70B (Paid, Best)</option>
+                    <option value="anthropic/claude-3.5-sonnet">💎 Claude 3.5 Sonnet (Paid)</option>
+                    <option value="openai/gpt-4o">💎 GPT-4o (Paid)</option>
+                </select>
+                <small class="form-text">
+                    🆓 = Free models | 💎 = Paid models (higher quality)
+                </small>
+            </div>
+        </div>
+    </div>
+    
+    <div id="remote-ollama-section" style="display: none;">
+        <div class="form-group">
+            <label for="remote-endpoint-input">Remote Ollama URL</label>
+            <input type="text" id="remote-endpoint-input" class="form-control" 
+                   placeholder="http://192.168.1.100:11434" value="http://192.168.1.100:11434">
+            <small class="form-text">Enter the IP address and port of your other PC running Ollama</small>
+        </div>
+        <div class="form-group">
+            <label for="remote-model-input">Model Name</label>
+            <input type="text" id="remote-model-input" class="form-control" 
+                   placeholder="llama3.1:8b" value="llama3.1">
+            <small class="form-text">Name of the model on your remote Ollama instance</small>
+        </div>
+        <button class="btn btn-info btn-block" id="test-remote-connection-btn">
+            🔗 Test Remote Connection
+        </button>
+    </div>
+    
+    <div class="form-group">
+        <div class="checkbox-group">
+            <label>
+                <input type="checkbox" id="auto-apply-suggestions" checked>
+                Auto-apply high-confidence suggestions
+            </label>
+            <label>
+                <input type="checkbox" id="cultural-filtering" checked>
+                Enable cultural appropriateness filtering
+            </label>
+            <label>
+                <input type="checkbox" id="learning-mode" checked>
+                Learn from my preferences
+            </label>
+        </div>
+    </div>
+    
+    <div class="ai-stats">
+        <h4>📊 AI Usage Statistics</h4>
+        <div class="usage-stats">
+            <div class="usage-item">
+                <span>Suggestions Generated:</span>
+                <span id="total-suggestions">0</span>
+            </div>
+            <div class="usage-item">
+                <span>Suggestions Accepted:</span>
+                <span id="accepted-suggestions">0</span>
+            </div>
+            <div class="usage-item">
+                <span>Words Added via AI:</span>
+                <span id="ai-added-words">0</span>
+            </div>
+            <div class="usage-item">
+                <span>Accuracy Rate:</span>
+                <span id="accuracy-rate">--</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Debug Information -->
+<div class="section-card" style="background: #f8f9fa; border: 1px solid #dee2e6;">
+    <h3>🔧 Debug Information</h3>
+    <div id="ai-debug-info">
+        <div class="usage-stats">
+            <div class="usage-item">
+                <span>AI Provider:</span>
+                <span id="debug-provider">Not detected</span>
+            </div>
+            <div class="usage-item">
+                <span>API Endpoint:</span>
+                <span id="debug-endpoint">None</span>
+            </div>
+            <div class="usage-item">
+                <span>Available Models:</span>
+                <span id="debug-models">None</span>
+            </div>
+            <div class="usage-item">
+                <span>Selected Model:</span>
+                <span id="debug-selected-model">None</span>
+            </div>
+            <div class="usage-item">
+                <span>Status:</span>
+                <span id="debug-status">Checking...</span>
+            </div>
+        </div>
+        <button class="btn btn-info btn-block" id="refresh-ai-status-btn">
+            🔄 Refresh AI Status
+        </button>
+    </div>
+</div>
