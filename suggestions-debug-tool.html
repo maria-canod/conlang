@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Suggestions Debug Tool</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }
+        .debug-section { margin: 15px 0; padding: 15px; background: #f8f9fa; border-radius: 6px; }
+        .error { color: #dc3545; background: #f8d7da; padding: 10px; border-radius: 4px; }
+        .success { color: #155724; background: #d4edda; padding: 10px; border-radius: 4px; }
+        .warning { color: #856404; background: #fff3cd; padding: 10px; border-radius: 4px; }
+        pre { background: #2d3748; color: #e2e8f0; padding: 15px; border-radius: 4px; overflow-x: auto; }
+        button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin: 5px; }
+        button:hover { background: #0056b3; }
+        .step { margin: 10px 0; padding: 10px; border-left: 4px solid #007bff; background: #f8f9fa; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Smart Suggestions Debug Tool</h1>
+        
+        <div class="debug-section">
+            <h3>🚀 Quick Fix Test</h3>
+            <button onclick="runQuickDiagnosis()">Run Quick Diagnosis</button>
+            <button onclick="testSuggestions()">Test Suggestions System</button>
+            <button onclick="fixCommonIssues()">Apply Common Fixes</button>
+            <div id="quick-results"></div>
+        </div>
+
+        <div class="debug-section">
+            <h3>📋 Step-by-Step Diagnosis</h3>
+            <div id="step-results"></div>
+        </div>
+
+        <div class="debug-section">
+            <h3>🔧 Manual Tests</h3>
+            <button onclick="testCoreDatabase()">Test Core Database</button>
+            <button onclick="testGapAnalyzer()">Test Gap Analyzer</button>
+            <button onclick="testIntegration()">Test Integration</button>
+            <button onclick="testUI()">Test UI Functions</button>
+            <div id="manual-results"></div>
+        </div>
+    </div>
+
+    <!-- Try to load the files -->
+    <script src="js/data/core-vocabulary.js"></script>
+    <script src="js/modules/vocabulary-gap-analyzer.js"></script>
+    <script src="js/modules/vocabulary-suggestions-integration.js"></script>
+    
+    <script>
+        function log(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            const className = type === 'error' ? 'error' : type === 'success' ? 'success' : type === 'warning' ? 'warning' : '';
+            element.innerHTML += `<div class="${className}">${message}</div>`;
+        }
+
+        function runQuickDiagnosis() {
+            const resultsEl = document.getElementById('quick-results');
+            resultsEl.innerHTML = '<h4>🔍 Quick Diagnosis Results:</h4>';
+            
+            // Test 1: Core Database
+            if (typeof CoreVocabularyDatabase === 'undefined') {
+                log('quick-results', '❌ CRITICAL: CoreVocabularyDatabase not loaded!', 'error');
+                log('quick-results', '💡 FIX: Check that js/data/core-vocabulary.js is loaded in index.html', 'warning');
+            } else {
+                log('quick-results', '✅ Core Database loaded', 'success');
+                const wordCount = CoreVocabularyDatabase.getAllWords().length;
+                log('quick-results', `📊 Database contains ${wordCount} words`, 'success');
+            }
+
+            // Test 2: Gap Analyzer
+            if (typeof VocabularyGapAnalyzer === 'undefined') {
+                log('quick-results', '❌ CRITICAL: VocabularyGapAnalyzer not loaded!', 'error');
+                log('quick-results', '💡 FIX: Check that js/modules/vocabulary-gap-analyzer.js is loaded', 'warning');
+            } else {
+                log('quick-results', '✅ Gap Analyzer class available', 'success');
+            }
+
+            // Test 3: Integration
+            if (typeof window.VocabularySmartSuggestions === 'undefined') {
+                log('quick-results', '❌ CRITICAL: Integration module not loaded!', 'error');
+                log('quick-results', '💡 FIX: Check that js/modules/vocabulary-suggestions-integration.js is loaded', 'warning');
+            } else {
+                log('quick-results', '✅ Integration module loaded', 'success');
+            }
+
+            // Test 4: App State
+            if (typeof window.appState === 'undefined') {
+                log('quick-results', '⚠️ WARNING: window.appState not found!', 'warning');
+                log('quick-results', '💡 This means you\'re testing outside your main app. That\'s okay for debugging.', 'info');
+            } else {
+                const words = window.appState.getState('allWords') || [];
+                log('quick-results', `✅ App state found with ${words.length} words`, 'success');
+            }
+
+            // Test 5: UI Elements
+            const toggleBtn = document.getElementById('toggle-suggestions-btn');
+            if (!toggleBtn) {
+                log('quick-results', '⚠️ WARNING: Suggestions toggle button not found in current page', 'warning');
+                log('quick-results', '💡 This is normal if you\'re not on the vocabulary tab', 'info');
+            }
+        }
+
+        function testSuggestions() {
+            const resultsEl = document.getElementById('quick-results');
+            log('quick-results', '<h4>🧪 Testing Suggestions System:</h4>');
+            
+            try {
+                if (typeof CoreVocabularyDatabase === 'undefined') {
+                    throw new Error('Core database not loaded');
+                }
+
+                if (typeof VocabularyGapAnalyzer === 'undefined') {
+                    throw new Error('Gap analyzer not loaded');
+                }
+
+                // Create test instance
+                const analyzer = new VocabularyGapAnalyzer();
+                const testVocab = [
+                    { english: 'water', conlang: 'akva', pos: 'noun' },
+                    { english: 'fire', conlang: 'feno', pos: 'noun' },
+                    { english: 'I', conlang: 'mi', pos: 'pronoun' }
+                ];
+
+                analyzer.initialize(CoreVocabularyDatabase, testVocab, 'all');
+                const analysis = analyzer.analyzeVocabularyGaps();
+
+                log('quick-results', `✅ Analysis successful!`, 'success');
+                log('quick-results', `📊 Completion Score: ${analysis.completionScore}%`, 'info');
+                log('quick-results', `💡 Found ${analysis.suggestions.length} suggestions`, 'info');
+                
+                if (analysis.suggestions.length > 0) {
+                    const topSuggestion = analysis.suggestions[0];
+                    log('quick-results', `🎯 Top suggestion: "${topSuggestion.english}" (Priority ${topSuggestion.priority})`, 'success');
+                }
+
+            } catch (error) {
+                log('quick-results', `❌ Suggestions test failed: ${error.message}`, 'error');
+            }
+        }
+
+        function fixCommonIssues() {
+            const resultsEl = document.getElementById('quick-results');
+            log('quick-results', '<h4>🔧 Applying Common Fixes:</h4>');
+
+            // Fix 1: Create missing functions
+            if (typeof window.toggleSuggestionsPanel === 'undefined') {
+                window.toggleSuggestionsPanel = function() {
+                    log('quick-results', '🔧 Created toggleSuggestionsPanel function', 'success');
+                    alert('Toggle function created! Try the button in your vocabulary tab now.');
+                };
+                log('quick-results', '✅ Added missing toggleSuggestionsPanel function', 'success');
+            }
+
+            // Fix 2: Create app state if missing
+            if (typeof window.appState === 'undefined') {
+                window.appState = {
+                    getState: (key) => {
+                        if (key === 'allWords') return [];
+                        return null;
+                    },
+                    setState: (key, value) => {
+                        console.log(`Setting ${key}:`, value);
+                    }
+                };
+                log('quick-results', '✅ Created basic app state', 'success');
+            }
+
+            // Fix 3: Create toast function if missing
+            if (typeof window.showToast === 'undefined') {
+                window.showToast = function(message, type) {
+                    console.log(`Toast: ${message} (${type})`);
+                    alert(`${type.toUpperCase()}: ${message}`);
+                };
+                log('quick-results', '✅ Created showToast function', 'success');
+            }
+
+            log('quick-results', '🎉 Common fixes applied! Try your suggestions now.', 'success');
+        }
+
+        function testCoreDatabase() {
+            const resultsEl = document.getElementById('manual-results');
+            resultsEl.innerHTML = '<h4>📊 Core Database Test:</h4>';
+            
+            try {
+                if (typeof CoreVocabularyDatabase === 'undefined') {
+                    throw new Error('CoreVocabularyDatabase not defined');
+                }
+
+                const metadata = CoreVocabularyDatabase.metadata;
+                log('manual-results', `✅ Database version: ${metadata.version}`, 'success');
+                log('manual-results', `📊 Expected words: ${metadata.totalWords}`, 'info');
+                
+                const allWords = CoreVocabularyDatabase.getAllWords();
+                log('manual-results', `📊 Actual words: ${allWords.length}`, 'info');
+                
+                if (allWords.length < 900) {
+                    log('manual-results', '⚠️ WARNING: Word count is low! Database may be incomplete.', 'warning');
+                } else {
+                    log('manual-results', '✅ Word count looks good!', 'success');
+                }
+
+                // Test methods
+                const familyWords = CoreVocabularyDatabase.getWordsByCategory('family');
+                log('manual-results', `👨‍👩‍👧‍👦 Family words: ${familyWords.length}`, 'info');
+                
+                const essentialWords = CoreVocabularyDatabase.getWordsByTags(['essential']);
+                log('manual-results', `⭐ Essential words: ${essentialWords.length}`, 'info');
+
+            } catch (error) {
+                log('manual-results', `❌ Database test failed: ${error.message}`, 'error');
+            }
+        }
+
+        function testGapAnalyzer() {
+            const resultsEl = document.getElementById('manual-results');
+            log('manual-results', '<h4>🧠 Gap Analyzer Test:</h4>');
+            
+            try {
+                if (typeof VocabularyGapAnalyzer === 'undefined') {
+                    throw new Error('VocabularyGapAnalyzer not defined');
+                }
+
+                const analyzer = new VocabularyGapAnalyzer();
+                log('manual-results', '✅ Gap analyzer created', 'success');
+
+                if (typeof CoreVocabularyDatabase !== 'undefined') {
+                    const testVocab = [
+                        { english: 'water', conlang: 'akva', pos: 'noun' },
+                        { english: 'fire', conlang: 'feno', pos: 'noun' }
+                    ];
+
+                    analyzer.initialize(CoreVocabularyDatabase, testVocab, 'all');
+                    log('manual-results', '✅ Analyzer initialized', 'success');
+
+                    const analysis = analyzer.analyzeVocabularyGaps();
+                    log('manual-results', `✅ Analysis completed: ${analysis.suggestions.length} suggestions`, 'success');
+                    log('manual-results', `📊 Completion: ${analysis.completionScore}%`, 'info');
+                } else {
+                    log('manual-results', '⚠️ Cannot test analyzer without core database', 'warning');
+                }
+
+            } catch (error) {
+                log('manual-results', `❌ Gap analyzer test failed: ${error.message}`, 'error');
+            }
+        }
+
+        function testIntegration() {
+            const resultsEl = document.getElementById('manual-results');
+            log('manual-results', '<h4>🔗 Integration Test:</h4>');
+            
+            try {
+                if (typeof window.VocabularySmartSuggestions === 'undefined') {
+                    log('manual-results', '❌ VocabularySmartSuggestions not found', 'error');
+                    log('manual-results', '💡 Make sure vocabulary-suggestions-integration.js is loaded', 'warning');
+                    return;
+                }
+
+                log('manual-results', '✅ Integration module found', 'success');
+                
+                const suggestions = window.VocabularySmartSuggestions;
+                log('manual-results', `🔧 Initialized: ${suggestions.initialized}`, 'info');
+                
+                if (!suggestions.initialized) {
+                    log('manual-results', '🔄 Trying to initialize...', 'info');
+                    suggestions.initialize();
+                }
+
+                const summary = suggestions.getAnalysisSummary();
+                if (summary) {
+                    log('manual-results', `📊 Analysis summary: ${summary.totalWords} words, ${summary.completionScore}% complete`, 'success');
+                } else {
+                    log('manual-results', '⚠️ No analysis summary available', 'warning');
+                }
+
+            } catch (error) {
+                log('manual-results', `❌ Integration test failed: ${error.message}`, 'error');
+            }
+        }
+
+        function testUI() {
+            const resultsEl = document.getElementById('manual-results');
+            log('manual-results', '<h4>🎨 UI Test:</h4>');
+            
+            // Test if we're in the right context
+            const suggestionsPanel = document.getElementById('smart-suggestions-panel');
+            const toggleBtn = document.getElementById('toggle-suggestions-btn');
+            
+            if (!suggestionsPanel) {
+                log('manual-results', '⚠️ Suggestions panel not found', 'warning');
+                log('manual-results', '💡 Make sure you added the HTML to templates/vocabulary.html', 'info');
+            } else {
+                log('manual-results', '✅ Suggestions panel found', 'success');
+            }
+            
+            if (!toggleBtn) {
+                log('manual-results', '⚠️ Toggle button not found', 'warning');
+                log('manual-results', '💡 Make sure you added the button HTML', 'info');
+            } else {
+                log('manual-results', '✅ Toggle button found', 'success');
+            }
+
+            if (typeof window.toggleSuggestionsPanel === 'undefined') {
+                log('manual-results', '⚠️ toggleSuggestionsPanel function not found', 'warning');
+                log('manual-results', '💡 Make sure you added the JavaScript to vocabulary.html', 'info');
+            } else {
+                log('manual-results', '✅ Toggle function found', 'success');
+            }
+        }
+
+        // Auto-run diagnosis on load
+        setTimeout(() => {
+            runQuickDiagnosis();
+        }, 500);
+    </script>
+</body>
+</html>
