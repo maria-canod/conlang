@@ -904,3 +904,307 @@
     color: #333;
     margin-bottom: 10px;
 }
+
+/* =============================================================================
+   ENHANCED AI ANALYSIS STYLES FOR CONJUGATED WORDS
+   ============================================================================= */
+
+/* Enhanced AI Analysis Styles */
+.smart-analysis {
+    border-left: 4px solid #4CAF50;
+    background: linear-gradient(135deg, #f8fff8 0%, #ffffff 100%);
+}
+
+[data-theme="dark"] .smart-analysis {
+    border-left: 4px solid var(--accent-success);
+    background: linear-gradient(135deg, var(--bg-accent) 0%, var(--bg-secondary) 100%);
+}
+
+.ai-badge {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: bold;
+    margin-left: 5px;
+}
+
+.missing-word-form {
+    font-style: italic;
+    color: #666;
+    margin: 4px 0;
+    font-size: 13px;
+}
+
+[data-theme="dark"] .missing-word-form {
+    color: var(--text-muted);
+}
+
+.analysis-details {
+    background: #f0f8ff;
+    border: 1px solid #d4edda;
+    border-radius: 6px;
+    padding: 12px;
+    margin: 10px 0;
+}
+
+[data-theme="dark"] .analysis-details {
+    background: var(--bg-accent);
+    border: 1px solid var(--border-medium);
+}
+
+.analysis-details h6 {
+    margin: 0 0 8px 0;
+    color: #0066cc;
+    font-weight: bold;
+}
+
+[data-theme="dark"] .analysis-details h6 {
+    color: var(--accent-primary) !important;
+}
+
+.analysis-details p {
+    margin: 0;
+    font-style: italic;
+    color: #555;
+}
+
+[data-theme="dark"] .analysis-details p {
+    color: var(--text-secondary) !important;
+}
+
+/* Enhanced available word styles */
+.available-word {
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    border: 1px solid #b8dacc;
+    padding: 4px 8px;
+    margin: 2px;
+    border-radius: 12px;
+    display: inline-block;
+    font-size: 12px;
+    color: #155724;
+    cursor: help;
+    transition: all 0.2s ease;
+}
+
+.available-word:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+[data-theme="dark"] .available-word {
+    background: linear-gradient(135deg, var(--accent-success) 0%, #2dd4bf 100%);
+    border: 1px solid var(--border-medium);
+    color: var(--text-white) !important;
+}
+
+.available-word strong {
+    color: #0d4f18;
+}
+
+[data-theme="dark"] .available-word strong {
+    color: var(--text-white) !important;
+}
+
+/* Enhanced coverage stats */
+.coverage-stats {
+    display: flex;
+    gap: 15px;
+    margin: 15px 0;
+    flex-wrap: wrap;
+}
+
+.coverage-item {
+    background: white;
+    border: 2px solid #ddd;
+    border-radius: 12px;
+    padding: 12px 18px;
+    text-align: center;
+    min-width: 90px;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+    transition: all 0.2s ease;
+}
+
+.coverage-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 12px rgba(0,0,0,0.15);
+}
+
+[data-theme="dark"] .coverage-item {
+    background: var(--bg-secondary);
+    border: 2px solid var(--border-medium);
+}
+
+.coverage-item.available {
+    border-color: #28a745;
+    background: #f8fff9;
+}
+
+[data-theme="dark"] .coverage-item.available {
+    border-color: var(--accent-success);
+    background: var(--bg-accent);
+}
+
+.coverage-item.missing {
+    border-color: #ffc107;
+    background: #fffbf0;
+}
+
+[data-theme="dark"] .coverage-item.missing {
+    border-color: var(--accent-warning);
+    background: var(--bg-accent);
+}
+
+.coverage-number {
+    display: block;
+    font-size: 28px;
+    font-weight: bold;
+    line-height: 1;
+    margin-bottom: 4px;
+}
+
+.coverage-item.available .coverage-number {
+    color: #28a745;
+}
+
+[data-theme="dark"] .coverage-item.available .coverage-number {
+    color: var(--accent-success) !important;
+}
+
+.coverage-item.missing .coverage-number {
+    color: #e67e22;
+}
+
+[data-theme="dark"] .coverage-item.missing .coverage-number {
+    color: var(--accent-warning) !important;
+}
+
+.coverage-label {
+    display: block;
+    font-size: 11px;
+    margin-top: 5px;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 500;
+}
+
+[data-theme="dark"] .coverage-label {
+    color: var(--text-secondary) !important;
+}
+
+/* Animation for AI processing */
+.missing-word-card.smart-analysis {
+    animation: slideInUp 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Loading state for AI analysis */
+.ai-thinking {
+    position: relative;
+    overflow: hidden;
+}
+
+.ai-thinking::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.2), transparent);
+    animation: thinking 1.5s infinite;
+}
+
+@keyframes thinking {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+/* Enhanced button styles for AI features */
+.btn.ai-enhanced {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    color: white;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.btn.ai-enhanced:hover {
+    background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.3);
+}
+
+.btn.ai-enhanced::before {
+    content: '🧠';
+    margin-right: 6px;
+}
+
+/* Enhanced missing word cards for smart analysis */
+.missing-word-card.smart-analysis .missing-word-header {
+    background: linear-gradient(135deg, #f8fff8 0%, #f0f8ff 100%);
+    padding: 8px 12px;
+    margin: -15px -15px 12px -15px;
+    border-radius: 12px 12px 0 0;
+}
+
+[data-theme="dark"] .missing-word-card.smart-analysis .missing-word-header {
+    background: linear-gradient(135deg, var(--bg-accent) 0%, var(--bg-hover) 100%);
+}
+
+/* Responsive design for analysis results */
+@media (max-width: 768px) {
+    .coverage-stats {
+        justify-content: center;
+        gap: 10px;
+    }
+    
+    .coverage-item {
+        min-width: 70px;
+        padding: 10px 12px;
+    }
+    
+    .coverage-number {
+        font-size: 24px;
+    }
+    
+    .missing-words-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .available-words {
+        text-align: center;
+    }
+    
+    .available-word {
+        display: inline-block;
+        margin: 3px;
+    }
+    
+    .analysis-details {
+        padding: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .coverage-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .coverage-item {
+        min-width: unset;
+    }
+}

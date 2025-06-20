@@ -190,14 +190,16 @@
     </div>
 </div>
 
-<!-- AI Learning & Settings -->
+<!-- Enhanced AI Learning & Settings Section -->
+<!-- Replace the existing AI settings section in templates/ai-assistant.html -->
+
 <div class="section-card">
     <h3>⚙️ AI Assistant Settings</h3>
     
     <div class="form-group">
         <label for="ai-provider">AI Provider</label>
         <select id="ai-provider" class="form-control">
-            <option value="local" selected>🏠 Local Ollama (Current PC)</option>
+            <option value="local">🏠 Local Ollama (Current PC)</option>
             <option value="remote_ollama">🌐 Remote Ollama (Another PC)</option>
             <option value="openrouter">⚡ OpenRouter (Free Powerful Models)</option>
             <option value="openai">🤖 OpenAI GPT (Requires API Key)</option>
@@ -205,6 +207,7 @@
         </select>
     </div>
     
+    <!-- API Key Section (for cloud providers) -->
     <div id="api-key-section" style="display: none;">
         <div class="form-group">
             <label for="api-key-input">API Key</label>
@@ -215,112 +218,92 @@
                 <strong>OpenAI/Anthropic:</strong> Your API key is stored locally and never sent to our servers.
             </small>
         </div>
-        
-        <div id="openrouter-model-section" style="display: none;">
-            <div class="form-group">
-                <label for="openrouter-model-select">OpenRouter Model</label>
-                <select id="openrouter-model-select" class="form-control">
-                    <option value="meta-llama/llama-3.1-8b-instruct:free">🆓 Llama 3.1 8B (Free)</option>
-                    <option value="meta-llama/llama-3.2-3b-instruct:free">🆓 Llama 3.2 3B (Free, Faster)</option>
-                    <option value="google/gemini-flash-1.5:free">🆓 Gemini Flash 1.5 (Free)</option>
-                    <option value="microsoft/phi-3-mini-128k-instruct:free">🆓 Phi-3 Mini (Free)</option>
-                    <option value="meta-llama/llama-3.1-70b-instruct">💎 Llama 3.1 70B (Paid, Best)</option>
-                    <option value="anthropic/claude-3.5-sonnet">💎 Claude 3.5 Sonnet (Paid)</option>
-                    <option value="openai/gpt-4o">💎 GPT-4o (Paid)</option>
-                </select>
-                <small class="form-text">
-                    🆓 = Free models | 💎 = Paid models (higher quality)
-                </small>
-            </div>
+    </div>
+    
+    <!-- OpenRouter Model Selection -->
+    <div id="openrouter-model-section" style="display: none;">
+        <div class="form-group">
+            <label for="openrouter-model-select">OpenRouter Model</label>
+            <select id="openrouter-model-select" class="form-control">
+                <option value="meta-llama/llama-3.1-8b-instruct:free">Llama 3.1 8B (Free)</option>
+                <option value="meta-llama/llama-3.1-70b-instruct:free">Llama 3.1 70B (Free)</option>
+                <option value="microsoft/phi-3-mini-128k-instruct:free">Phi-3 Mini (Free)</option>
+                <option value="microsoft/phi-3-medium-128k-instruct:free">Phi-3 Medium (Free)</option>
+                <option value="google/gemma-2-9b-it:free">Gemma 2 9B (Free)</option>
+                <option value="google/gemma-2-27b-it:free">Gemma 2 27B (Free)</option>
+                <option value="mistralai/mistral-7b-instruct:free">Mistral 7B (Free)</option>
+                <option value="huggingfaceh4/zephyr-7b-beta:free">Zephyr 7B (Free)</option>
+            </select>
+            <small class="form-text">
+                Free models have rate limits. Upgrade to <a href="https://openrouter.ai/credits" target="_blank">paid credits</a> for unlimited access.
+            </small>
         </div>
     </div>
     
+    <!-- Remote Ollama Section -->
     <div id="remote-ollama-section" style="display: none;">
         <div class="form-group">
-            <label for="remote-endpoint-input">Remote Ollama URL</label>
+            <label for="remote-endpoint-input">Remote Ollama Endpoint</label>
             <input type="text" id="remote-endpoint-input" class="form-control" 
-                   placeholder="http://192.168.1.100:11434" value="http://192.168.1.100:11434">
-            <small class="form-text">Enter the IP address and port of your other PC running Ollama</small>
+                   placeholder="http://192.168.1.100:11434" 
+                   value="http://192.168.1.100:11434">
+            <small class="form-text">
+                Enter the IP address and port of your remote PC running Ollama.<br>
+                Make sure Ollama is configured to accept external connections.
+            </small>
         </div>
+        
         <div class="form-group">
-            <label for="remote-model-input">Model Name</label>
+            <label for="remote-model-input">Remote Model Name</label>
             <input type="text" id="remote-model-input" class="form-control" 
-                   placeholder="llama3.1:8b" value="llama3.1">
-            <small class="form-text">Name of the model on your remote Ollama instance</small>
+                   placeholder="llama3.1" 
+                   value="llama3.1">
+            <small class="form-text">
+                Name of the model installed on the remote PC (e.g., llama3.1, gemma3:1b, mistral).
+            </small>
         </div>
+        
         <button class="btn btn-info btn-block" id="test-remote-connection-btn">
             🔗 Test Remote Connection
         </button>
     </div>
     
+    <!-- Connection Status -->
+    <div class="form-group" style="margin-top: 20px;">
+        <div id="ai-connection-status" class="alert alert-info">
+            <strong>Status:</strong> <span id="connection-status-text">Checking connection...</span>
+        </div>
+    </div>
+    
+    <!-- Advanced Settings -->
     <div class="form-group">
+        <h5 style="margin-top: 30px;">Advanced Settings</h5>
+        
         <div class="checkbox-group">
             <label>
                 <input type="checkbox" id="auto-apply-suggestions" checked>
-                Auto-apply high-confidence suggestions
+                Automatically apply high-confidence suggestions
             </label>
+            
             <label>
                 <input type="checkbox" id="cultural-filtering" checked>
-                Enable cultural appropriateness filtering
+                Filter suggestions based on cultural context
             </label>
+            
             <label>
                 <input type="checkbox" id="learning-mode" checked>
-                Learn from my preferences
+                Learn from user feedback to improve suggestions
             </label>
         </div>
     </div>
     
-    <div class="ai-stats">
-        <h4>📊 AI Usage Statistics</h4>
-        <div class="usage-stats">
-            <div class="usage-item">
-                <span>Suggestions Generated:</span>
-                <span id="total-suggestions">0</span>
-            </div>
-            <div class="usage-item">
-                <span>Suggestions Accepted:</span>
-                <span id="accepted-suggestions">0</span>
-            </div>
-            <div class="usage-item">
-                <span>Words Added via AI:</span>
-                <span id="ai-added-words">0</span>
-            </div>
-            <div class="usage-item">
-                <span>Accuracy Rate:</span>
-                <span id="accuracy-rate">--</span>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Debug Information -->
-<div class="section-card" style="background: #f8f9fa; border: 1px solid #dee2e6;">
-    <h3>🔧 Debug Information</h3>
-    <div id="ai-debug-info">
-        <div class="usage-stats">
-            <div class="usage-item">
-                <span>AI Provider:</span>
-                <span id="debug-provider">Not detected</span>
-            </div>
-            <div class="usage-item">
-                <span>API Endpoint:</span>
-                <span id="debug-endpoint">None</span>
-            </div>
-            <div class="usage-item">
-                <span>Available Models:</span>
-                <span id="debug-models">None</span>
-            </div>
-            <div class="usage-item">
-                <span>Selected Model:</span>
-                <span id="debug-selected-model">None</span>
-            </div>
-            <div class="usage-item">
-                <span>Status:</span>
-                <span id="debug-status">Checking...</span>
-            </div>
-        </div>
-        <button class="btn btn-info btn-block" id="refresh-ai-status-btn">
+    <!-- Debug Information -->
+    <div class="form-group" style="margin-top: 20px;">
+        <button class="btn btn-secondary btn-sm" id="refresh-ai-status-btn">
             🔄 Refresh AI Status
         </button>
+        <div id="ai-debug-info" style="margin-top: 10px; font-family: monospace; font-size: 12px; background: #f8f9fa; padding: 10px; border-radius: 4px; display: none;">
+            <!-- Debug info will be populated here -->
+        </div>
     </div>
 </div>
