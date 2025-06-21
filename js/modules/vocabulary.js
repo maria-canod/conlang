@@ -10,6 +10,34 @@ window.VocabularyModule = {
         this.addSortingControls();
     },
 
+    filterByPartOfSpeech(pos) {
+        const allWords = window.appState.getState('allWords') || [];
+        
+        if (pos === 'all') {
+            this.filteredWords = [...allWords];
+        } else {
+            this.filteredWords = allWords.filter(word => word.pos === pos);
+        }
+        
+        // Apply current search if there's a search query
+        const searchInput = document.getElementById('search-input');
+        if (searchInput && searchInput.value.trim() !== '') {
+            const query = searchInput.value.toLowerCase().trim();
+            this.filteredWords = this.filteredWords.filter(word => 
+                word.conlang.toLowerCase().includes(query) ||
+                word.english.toLowerCase().includes(query) ||
+                word.pos.toLowerCase().includes(query) ||
+                (word.notes && word.notes.toLowerCase().includes(query))
+            );
+        }
+        
+        // Apply sorting
+        this.filteredWords = this.sortWordsAlphabetically(this.filteredWords);
+        
+        window.appState.setState('filteredWords', this.filteredWords);
+        this.updateDictionary();
+    },
+
     bindEvents() {
         // Bind direct word addition
         const addDirectBtn = document.getElementById('add-direct-word-btn');
@@ -17,16 +45,25 @@ window.VocabularyModule = {
             addDirectBtn.onclick = () => this.addDirectWord();
         }
 
-        // Bind search
-        const searchInput = document.getElementById('search');
+        // FIXED: Bind search with correct ID from template
+        const searchInput = document.getElementById('search-input'); // Changed from 'search' to 'search-input'
         if (searchInput) {
-            searchInput.addEventListener('keyup', () => this.searchWords());
+            searchInput.addEventListener('input', () => this.searchWords()); // Changed from 'keyup' to 'input' for better responsiveness
+            searchInput.addEventListener('keyup', () => this.searchWords()); // Keep keyup as backup
+        } else {
+            console.warn('Search input not found! Looking for element with id="search-input"');
         }
 
-        // Bind filter buttons
-        const sortSelect = document.getElementById('sort-select');
-        if (sortSelect) {
-            sortSelect.addEventListener('change', () => this.applySorting(sortSelect.value));
+        // Bind filter dropdown
+        const filterPosSelect = document.getElementById('filter-pos');
+        if (filterPosSelect) {
+            filterPosSelect.addEventListener('change', () => this.filterByPartOfSpeech(filterPosSelect.value));
+        }
+
+        // Bind sort dropdown
+        const sortBySelect = document.getElementById('sort-by');
+        if (sortBySelect) {
+            sortBySelect.addEventListener('change', () => this.applySorting(sortBySelect.value));
         }
     },
 
@@ -52,37 +89,37 @@ window.VocabularyModule = {
         window.appState.setState('filteredWords', this.filteredWords);
     },
 
-// NEW: Add sorting controls to the interface
-addSortingControls() {
-    // This function can be called to add sorting options to the UI if desired
-    const searchFilterBar = document.querySelector('.search-filter-bar');
-    if (!searchFilterBar) return;
-    
-    // Check if sorting controls already exist
-    if (document.getElementById('sort-controls')) return;
-    
-    const sortControls = document.createElement('div');
-    sortControls.id = 'sort-controls';
-    sortControls.className = 'sort-controls';
-    sortControls.innerHTML = `
-        <label for="sort-select" style="font-weight: 600; color: var(--text-secondary); margin-right: 8px;">Sort by:</label>
-        <select id="sort-select" class="form-control" style="width: auto; min-width: 150px;">
-            <option value="alphabetical" selected>Alphabetical</option>
-            <option value="chronological">Date Added</option>
-            <option value="pos">Part of Speech</option>
-            <option value="length">Word Length</option>
-        </select>
-    `;
-    
-    // Add to the search filter bar
-    searchFilterBar.appendChild(sortControls);
-    
-    // Bind the sorting functionality
-    const sortSelect = document.getElementById('sort-select');
-    if (sortSelect) {
-        sortSelect.addEventListener('change', () => this.applySorting(sortSelect.value));
-    }
-},
+    // NEW: Add sorting controls to the interface
+    addSortingControls() {
+        // This function can be called to add sorting options to the UI if desired
+        const searchFilterBar = document.querySelector('.search-filter-bar');
+        if (!searchFilterBar) return;
+        
+        // Check if sorting controls already exist
+        if (document.getElementById('sort-controls')) return;
+        
+        const sortControls = document.createElement('div');
+        sortControls.id = 'sort-controls';
+        sortControls.className = 'sort-controls';
+        sortControls.innerHTML = `
+            <label for="sort-select" style="font-weight: 600; color: var(--text-secondary); margin-right: 8px;">Sort by:</label>
+            <select id="sort-select" class="form-control" style="width: auto; min-width: 150px;">
+                <option value="alphabetical" selected>Alphabetical</option>
+                <option value="chronological">Date Added</option>
+                <option value="pos">Part of Speech</option>
+                <option value="length">Word Length</option>
+            </select>
+        `;
+        
+        // Add to the search filter bar
+        searchFilterBar.appendChild(sortControls);
+        
+        // Bind the sorting functionality
+        const sortSelect = document.getElementById('sort-select');
+        if (sortSelect) {
+            sortSelect.addEventListener('change', () => this.applySorting(sortSelect.value));
+        }
+    },
 
     updateVocabularyStats() {
         const stats = window.appState.getWordStats();
@@ -174,25 +211,53 @@ addSortingControls() {
     },
 
     searchWords() {
-        const query = document.getElementById('search')?.value.toLowerCase() || '';
-        const allWords = window.appState.getState('allWords') || [];
+        const searchInput = document.getElementById('search-input'); // Use correct ID
+        if (!searchInput) {
+            console.warn('Search input element not found');
+            return;
+        }
         
-        if (!query) {
+        const query = searchInput.value.toLowerCase().trim();
+        const allWords = window.appState.getState('allWords') || [];
+
+        if (query === '') {
+            // If search is empty, show all words (or respect current filter)
             this.filteredWords = [...allWords];
         } else {
+            // Filter words based on search query
             this.filteredWords = allWords.filter(word => 
                 word.conlang.toLowerCase().includes(query) ||
                 word.english.toLowerCase().includes(query) ||
                 word.pos.toLowerCase().includes(query) ||
-                (word.notes && word.notes.toLowerCase().includes(query))
+                (word.notes && word.notes.toLowerCase().includes(query)) ||
+                (word.type && word.type.toLowerCase().includes(query))
             );
         }
         
-        // Sort alphabetically after filtering
-        this.filteredWords = this.sortWordsAlphabetically(this.filteredWords);
+        // Apply current sorting to search results
+        const sortSelect = document.getElementById('sort-by');
+        if (sortSelect && sortSelect.value) {
+            this.applySorting(sortSelect.value);
+        } else {
+            // Default alphabetical sort
+            this.filteredWords = this.sortWordsAlphabetically(this.filteredWords);
+        }
         
         window.appState.setState('filteredWords', this.filteredWords);
         this.updateDictionary();
+        
+        // Show search results count
+        const resultCount = this.filteredWords.length;
+        const totalCount = allWords.length;
+        
+        if (query !== '') {
+            console.log(`Search for "${query}" found ${resultCount} of ${totalCount} words`);
+            
+            // Optional: Show search results in UI
+            if (window.showToast && resultCount === 0) {
+                window.showToast(`No words found for "${query}"`, 'warning');
+            }
+        }
     },
 
     // FIXED filterWords function - Replace this function in vocabulary.js
@@ -685,32 +750,42 @@ addSortingControls() {
 
     // NEW: Apply different sorting methods
     applySorting(sortMethod) {
+        if (!this.filteredWords || this.filteredWords.length === 0) {
+            this.filteredWords = window.appState.getState('allWords') || [];
+        }
+        
         switch (sortMethod) {
-            case 'alphabetical':
-                this.filteredWords = this.sortWordsAlphabetically([...this.filteredWords]);
+            case 'english':
+                this.filteredWords = [...this.filteredWords].sort((a, b) => 
+                    a.english.toLowerCase().localeCompare(b.english.toLowerCase())
+                );
                 break;
                 
-            case 'chronological':
-                this.filteredWords = [...this.filteredWords].sort((a, b) => {
-                    const aDate = new Date(a.dateAdded || '1970-01-01');
-                    const bDate = new Date(b.dateAdded || '1970-01-01');
-                    return bDate - aDate; // Newest first
-                });
+            case 'conlang':
+                this.filteredWords = this.sortWordsAlphabetically([...this.filteredWords]);
                 break;
                 
             case 'pos':
                 this.filteredWords = [...this.filteredWords].sort((a, b) => {
                     const aPos = a.pos || 'zzz';
                     const bPos = b.pos || 'zzz';
+                    if (aPos === bPos) {
+                        // Secondary sort by English word
+                        return a.english.toLowerCase().localeCompare(b.english.toLowerCase());
+                    }
                     return aPos.localeCompare(bPos);
                 });
                 break;
                 
             case 'length':
                 this.filteredWords = [...this.filteredWords].sort((a, b) => {
-                    const aLength = this.getDisplayForm(a).length;
-                    const bLength = this.getDisplayForm(b).length;
-                    return aLength - bLength; // Shortest first
+                    const aLength = a.conlang.length;
+                    const bLength = b.conlang.length;
+                    if (aLength === bLength) {
+                        // Secondary sort by alphabetical
+                        return a.conlang.toLowerCase().localeCompare(b.conlang.toLowerCase());
+                    }
+                    return aLength - bLength;
                 });
                 break;
                 

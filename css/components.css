@@ -2180,49 +2180,260 @@
     gap: 12px;
 }
 
+/* IMPROVED SUGGESTION CARD STYLING - Add this to css/components.css */
+
+/* Replace the existing .suggestion-card styles with this improved version */
 .suggestion-card {
     background: var(--bg-primary);
     border: 1px solid var(--border-light);
-    border-radius: var(--radius-md);
-    padding: 12px;
+    border-radius: 12px;
+    padding: 16px;
     transition: all var(--transition);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 140px;
 }
 
 .suggestion-card:hover {
     border-color: var(--accent-primary);
     transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
+/* Main word display - large and prominent */
+.suggestion-main {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.suggestion-english {
+    font-size: 1.3em;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.2;
+    letter-spacing: 0.3px;
+}
+
+.suggestion-pos {
+    background: var(--accent-primary);
+    color: white;
+    font-size: 0.75em;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    width: fit-content;
+    margin-top: 2px;
+}
+
+/* Metadata section - smaller and organized */
+.suggestion-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+.suggestion-priority {
+    background: #fef3c7;
+    color: #92400e;
+    font-size: 0.7em;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 8px;
+    border: 1px solid #fbbf24;
+}
+
+.suggestion-category {
+    background: #e0f2fe;
+    color: #0277bd;
+    font-size: 0.7em;
+    font-weight: 500;
+    padding: 2px 6px;
+    border-radius: 8px;
+    border: 1px solid #29b6f6;
+}
+
+/* Reasoning section - clearly separated */
+.suggestion-reasoning {
+    background: #f8fafc;
+    border-left: 3px solid var(--accent-primary);
+    padding: 8px 12px;
+    border-radius: 0 6px 6px 0;
+    font-size: 0.85em;
+    line-height: 1.4;
+    color: var(--text-secondary);
+    font-style: italic;
+    margin: 4px 0;
+}
+
+/* Priority-based color coding */
+.suggestion-card.critical {
+    border-left: 4px solid #dc2626;
+}
+
+.suggestion-card.high-priority {
+    border-left: 4px solid #ea580c;
+}
+
+.suggestion-card.medium-priority {
+    border-left: 4px solid #ca8a04;
+}
+
+.suggestion-card.low-priority {
+    border-left: 4px solid #16a34a;
+}
+
+/* Add button - prominent and appealing */
 .suggestion-add-btn {
-    background: var(--accent-success);
+    background: linear-gradient(135deg, #10b981, #059669);
     color: white;
     border: none;
-    padding: 6px 12px;
-    border-radius: 4px;
-    font-size: 0.8rem;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 0.85em;
     font-weight: 600;
     cursor: pointer;
     width: 100%;
-    transition: background 0.3s;
+    transition: all 0.3s ease;
+    margin-top: auto;
+    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
 }
 
 .suggestion-add-btn:hover {
-    background: #10b981;
+    background: linear-gradient(135deg, #059669, #047857);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(16, 185, 129, 0.4);
+}
+
+.suggestion-add-btn:active {
+    transform: translateY(0);
+}
+
+/* Critical gaps styling */
+.critical-gap .suggestion-english {
+    color: #dc2626;
+}
+
+.critical-gap .suggestion-reasoning {
+    background: #fef2f2;
+    border-left-color: #dc2626;
+    color: #7f1d1d;
+}
+
+/* Grid layout adjustments */
+.suggestion-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+    margin-top: 16px;
 }
 
 /* Dark mode support */
-[data-theme="dark"] .suggestions-section {
-    background: var(--bg-secondary);
-    border-color: var(--border-medium);
-}
-
-[data-theme="dark"] .suggestions-toggle-bar {
-    background: var(--bg-accent);
-    border-color: var(--border-medium);
-}
-
 [data-theme="dark"] .suggestion-card {
     background: var(--bg-secondary);
     border-color: var(--border-medium);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .suggestion-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .suggestion-reasoning {
+    background: var(--bg-accent);
+    color: var(--text-muted);
+}
+
+[data-theme="dark"] .critical-gap .suggestion-reasoning {
+    background: #2d1b1b;
+    color: #f87171;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .suggestion-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .suggestion-card {
+        padding: 14px;
+        min-height: 120px;
+    }
+    
+    .suggestion-english {
+        font-size: 1.2em;
+    }
+}
+
+@media (max-width: 480px) {
+    .suggestion-card {
+        padding: 12px;
+    }
+    
+    .suggestion-english {
+        font-size: 1.1em;
+    }
+    
+    .suggestion-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+}
+
+/* Suggestions Footer Styling */
+/* UPDATED SUGGESTIONS FOOTER CSS - Replace the existing .suggestions-footer styles in css/components.css */
+
+.suggestions-footer {
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+    justify-content: center;
+    align-items: center;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border-light);
+    flex-wrap: wrap;
+}
+
+.suggestions-footer .btn {
+    padding: 12px 20px;
+    font-weight: 600;
+    min-width: 140px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    font-size: 0.85em;
+    flex-shrink: 0;
+}
+
+.suggestions-footer .btn-success {
+    background: linear-gradient(135deg, #10b981, #059669);
+    border: none;
+    color: white;
+    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+}
+
+.suggestions-footer .btn-success:hover {
+    background: linear-gradient(135deg, #059669, #047857);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(16, 185, 129, 0.4);
+}
+
+/* Responsive: stack buttons on small screens */
+@media (max-width: 600px) {
+    .suggestions-footer {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .suggestions-footer .btn {
+        width: 100%;
+        min-width: auto;
+    }
 }

@@ -154,6 +154,7 @@ class TabManager {
                     break;
                 case 'vocabulary':
                     if (window.VocabularyModule) window.VocabularyModule.init();
+                    if (window.vocabularyGlobalFunctions) window.vocabularyGlobalFunctions.initVocabularyPage();
                     break;
                 case 'corpus':
                     if (window.CorpusModule) window.CorpusModule.init();

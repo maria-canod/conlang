@@ -70,39 +70,43 @@
 </div>
 
 <div class="section-card">
-    <h3>📝 Quick Word Templates</h3>
-    <p style="margin-bottom: 15px; color: #666;">Generate multiple words for common semantic categories.</p>
+    <h3>📋 Template Word Generation</h3>
+    <p style="margin-bottom: 20px; color: #666;">
+        Generate words from curated categories using the comprehensive core vocabulary database. 
+        These are essential words every language should have.
+    </p>
     
-    <div class="checkbox-grid">
-        <div class="checkbox-item">
-            <input type="checkbox" id="template-family" checked>
-            <label for="template-family">Family terms</label>
-        </div>
-        <div class="checkbox-item">
-            <input type="checkbox" id="template-emotions" checked>
-            <label for="template-emotions">Emotions</label>
-        </div>
-        <div class="checkbox-item">
-            <input type="checkbox" id="template-colors">
-            <label for="template-colors">Colors</label>
-        </div>
-        <div class="checkbox-item">
-            <input type="checkbox" id="template-animals">
-            <label for="template-animals">Animals</label>
-        </div>
-        <div class="checkbox-item">
-            <input type="checkbox" id="template-nature">
-            <label for="template-nature">Nature</label>
-        </div>
-        <div class="checkbox-item">
-            <input type="checkbox" id="template-actions">
-            <label for="template-actions">Actions</label>
-        </div>
+    <div class="form-group">
+        <label for="template-category">Word Category</label>
+        <select id="template-category" class="form-control">
+            <option value="mixed">🌟 Mixed Essential (Recommended)</option>
+            <option value="basic">🔤 Basic Communication</option>
+            <option value="family">👨‍👩‍👧‍👦 Family & Relations</option>
+            <option value="actions">🏃‍♂️ Actions & Verbs</option>
+            <option value="nature">🌿 Nature & Environment</option>
+            <option value="objects">🏠 Objects & Tools</option>
+            <option value="abstract">💭 Abstract Concepts</option>
+            <option value="social">👥 Social Terms</option>
+            <option value="numbers">🔢 Numbers & Counting</option>
+            <option value="time">⏰ Time & Temporal</option>
+            <option value="spatial">📍 Space & Location</option>
+            <option value="emotions">😊 Emotions & Feelings</option>
+        </select>
     </div>
     
-    <button class="btn btn-secondary btn-block" id="generate-template-btn">
-        📚 Generate Template Vocabulary
-    </button>
+    <div style="display: flex; gap: 15px; align-items: center; margin-bottom: 20px;">
+        <button class="btn btn-primary" id="generate-template-btn">
+            📋 Browse Template Words
+        </button>
+        <small style="color: #666;">
+            Select from high-priority vocabulary curated by linguists
+        </small>
+    </div>
+    
+    <!-- Template word selection display -->
+    <div id="template-display" style="display: none; margin-top: 20px;">
+        <!-- Template words will be populated here -->
+    </div>
 </div>
 
 <div class="section-card">
@@ -145,6 +149,82 @@
                         gap: 10px !important;
                     }
                 }
+            </style>
+
+            <style>
+            .template-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 12px;
+                margin: 20px 0;
+                max-height: 400px;
+                overflow-y: auto;
+                border: 1px solid var(--border-light);
+                border-radius: 8px;
+                padding: 15px;
+                background: var(--bg-secondary);
+            }
+
+            .template-word-option {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 8px 12px;
+                border-radius: 6px;
+                background: var(--bg-primary);
+                border: 1px solid var(--border-light);
+                cursor: pointer;
+                transition: all 0.2s ease;
+            }
+
+            .template-word-option:hover {
+                border-color: var(--accent-primary);
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+
+            .template-word-option input[type="checkbox"] {
+                margin: 0;
+                accent-color: var(--accent-primary);
+            }
+
+            .template-word {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                gap: 2px;
+            }
+
+            .template-word strong {
+                color: var(--text-primary);
+                font-size: 1em;
+            }
+
+            .template-word em {
+                color: var(--text-secondary);
+                font-size: 0.85em;
+            }
+
+            .template-word small {
+                color: var(--text-muted);
+                font-size: 0.75em;
+                background: var(--accent-primary);
+                color: white;
+                padding: 2px 6px;
+                border-radius: 10px;
+                width: fit-content;
+                font-weight: 600;
+            }
+
+            /* Dark mode support */
+            [data-theme="dark"] .template-grid {
+                background: var(--bg-accent);
+                border-color: var(--border-medium);
+            }
+
+            [data-theme="dark"] .template-word-option {
+                background: var(--bg-secondary);
+                border-color: var(--border-medium);
+            }
             </style>
         </div>
     </div>

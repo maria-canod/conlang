@@ -302,205 +302,125 @@ class ConlangGenerator {
     }
 
     generateVocabulary() {
-        const coreWords = [
-            // Pronouns
-            { english: 'I', pos: 'pronoun' },
-            { english: 'you', pos: 'pronoun' },
-            { english: 'he/she', pos: 'pronoun' },
-            { english: 'we', pos: 'pronoun' },
-            { english: 'you (pl.)', pos: 'pronoun' },
-            { english: 'they', pos: 'pronoun' },
-            { english: 'this', pos: 'pronoun' },
-            { english: 'that', pos: 'pronoun' },
-            { english: 'what', pos: 'pronoun' },
-            { english: 'who', pos: 'pronoun' },
-            { english: 'which', pos: 'pronoun' },
+        console.log('🎯 Generating vocabulary using Core Database...');
+        
+        // Check if core database is available
+        if (typeof CoreVocabularyDatabase === 'undefined') {
+            console.warn('⚠️ Core vocabulary database not available, using fallback system');
+            this.generateBasicVocabulary();
+            return;
+        }
 
-            // Adverbs
-            { english: 'here', pos: 'adverb' },
-            { english: 'there', pos: 'adverb' },
-            { english: 'when', pos: 'adverb' },
-            { english: 'where', pos: 'adverb' },
-            { english: 'why', pos: 'adverb' },
-            { english: 'how', pos: 'adverb' },
-            { english: 'yes', pos: 'adverb' },
-            { english: 'no', pos: 'adverb' },
-            
-            // Essential verbs
-            { english: 'be', pos: 'verb' },
-            { english: 'go', pos: 'verb' },
-            { english: 'see', pos: 'verb' },
-            { english: 'speak', pos: 'verb' },
-            { english: 'eat', pos: 'verb' },
-            { english: 'drink', pos: 'verb' },
-            { english: 'love', pos: 'verb' },
-            { english: 'give', pos: 'verb' },
-            { english: 'take', pos: 'verb' },
-            { english: 'sleep', pos: 'verb' },
-            { english: 'like', pos: 'verb' },
-            { english: 'want', pos: 'verb' },
-            { english: 'need', pos: 'verb' },
-            { english: 'have', pos: 'verb' },
-            { english: 'hear', pos: 'verb' },
-            { english: 'buy', pos: 'verb' },
-            { english: 'sell', pos: 'verb' },
-            { english: 'touch', pos: 'verb' },
-            { english: 'feel', pos: 'verb' },
-            { english: 'know', pos: 'verb' },
-            { english: 'learn', pos: 'verb' },
-            { english: 'teach', pos: 'verb' },
-            { english: 'study', pos: 'verb' },
-            { english: 'live', pos: 'verb' },
-            { english: 'understand', pos: 'verb' },
-            { english: 'cook', pos: 'verb' },
-            { english: 'wash', pos: 'verb' },
-            { english: 'travel', pos: 'verb' },
-            { english: 'die', pos: 'verb' },
-            { english: 'kill', pos: 'verb' },
-            { english: 'sit', pos: 'verb' },
-            { english: 'stand', pos: 'verb' },
-            { english: 'lie', pos: 'verb' },
-            { english: 'come', pos: 'verb' },
-            { english: 'laugh', pos: 'verb' },
-            { english: 'think', pos: 'verb' },
-            { english: 'smell', pos: 'verb' },
-            { english: 'fight', pos: 'verb' },
-            { english: 'hunt', pos: 'verb' },
-            { english: 'cut', pos: 'verb' },
-            { english: 'hit', pos: 'verb' },
-            { english: 'fall', pos: 'verb' },
-            { english: 'hold', pos: 'verb' },
-            { english: 'pull', pos: 'verb' },
-            { english: 'push', pos: 'verb' },
-            { english: 'tie', pos: 'verb' },
-            { english: 'sew', pos: 'verb' },
-            { english: 'turn', pos: 'verb' },
-            { english: 'count', pos: 'verb' },
-            { english: 'say', pos: 'verb' },
-            { english: 'play', pos: 'verb' },
-            { english: 'spit', pos: 'verb' },
-            { english: 'vomit', pos: 'verb' },
-            { english: 'bite', pos: 'verb' },
-            { english: 'suck', pos: 'verb' },
-            { english: 'blow', pos: 'verb' },
-            { english: 'breathe', pos: 'verb' },
-            { english: 'stab', pos: 'verb' },
-            { english: 'scratch', pos: 'verb' },
-            { english: 'split', pos: 'verb' },
-            { english: 'dig', pos: 'verb' },
-            { english: 'pee', pos: 'verb' },
-            { english: 'poo', pos: 'verb' },
-            { english: 'hate', pos: 'verb' },
-            { english: 'taste', pos: 'verb' },
-            
-            // Essential nouns
-            { english: 'water', pos: 'noun' },
-            { english: 'fire', pos: 'noun' },
-            { english: 'sun', pos: 'noun' },
-            { english: 'moon', pos: 'noun' },
-            { english: 'star', pos: 'noun' },
-            { english: 'tree', pos: 'noun' },
-            { english: 'house', pos: 'noun' },
-            { english: 'stone', pos: 'noun' },
-            { english: 'sand', pos: 'noun' },
-            { english: 'dust', pos: 'noun' },
-            { english: 'fog', pos: 'noun' },
-            { english: 'ice', pos: 'noun' },
-            { english: 'person', pos: 'noun' },
-            { english: 'man', pos: 'noun' },
-            { english: 'woman', pos: 'noun' },
-            { english: 'friend', pos: 'noun' },
-            { english: 'hand', pos: 'noun' },
-            { english: 'finger', pos: 'noun' },
-            { english: 'fingernail', pos: 'noun' },
-            { english: 'face', pos: 'noun' },
-            { english: 'head', pos: 'noun' },
-            { english: 'nose', pos: 'noun' },
-            { english: 'eye', pos: 'noun' },
-            { english: 'tooth', pos: 'noun' },
-            { english: 'tongue', pos: 'noun' },
-            { english: 'mouth', pos: 'noun' },
-            { english: 'hair', pos: 'noun' },
-            { english: 'bone', pos: 'noun' },
-            { english: 'blood', pos: 'noun' },
-            { english: 'leg', pos: 'noun' },
-            { english: 'arm', pos: 'noun' },
-            { english: 'foot', pos: 'noun' },
-            { english: 'body', pos: 'noun' },
-            { english: 'belly', pos: 'noun' },
-            { english: 'chest', pos: 'noun' },
-            { english: 'neck', pos: 'noun' },
-            { english: 'knee', pos: 'noun' },
-            { english: 'back', pos: 'noun' },
-            { english: 'heart', pos: 'noun' },
-            { english: 'food', pos: 'noun' },
-            { english: 'drink', pos: 'noun' },
-            { english: 'bread', pos: 'noun' },
-            { english: 'rice', pos: 'noun' },
-            { english: 'meat', pos: 'noun' },
-            { english: 'fish', pos: 'noun' },
-            { english: 'vegetable', pos: 'noun' },
-            { english: 'time', pos: 'noun' },
-            { english: 'day', pos: 'noun' },
-            { english: 'night', pos: 'noun' },
-            { english: 'sky', pos: 'noun' },
-
-            
-            // Essential adjectives
-            { english: 'good', pos: 'adjective' },
-            { english: 'bad', pos: 'adjective' },
-            { english: 'big', pos: 'adjective' },
-            { english: 'small', pos: 'adjective' },
-            { english: 'hot', pos: 'adjective' },
-            { english: 'new', pos: 'adjective' },
-            { english: 'old', pos: 'adjective' },
-            { english: 'wet', pos: 'adjective' },
-            { english: 'dry', pos: 'adjective' },
-            { english: 'long', pos: 'adjective' },
-            { english: 'short', pos: 'adjective' },
-            { english: 'tall', pos: 'adjective' },
-            { english: 'narrow', pos: 'adjective' },
-            { english: 'wide', pos: 'adjective' },
-            { english: 'thin', pos: 'adjective' },
-            { english: 'thick', pos: 'adjective' },
-            { english: 'clean', pos: 'adjective' },
-            { english: 'dirty', pos: 'adjective' },
-            { english: 'correct', pos: 'adjective' },
-            { english: 'wrong', pos: 'adjective' },
-            { english: 'near', pos: 'adjective' },
-            { english: 'far', pos: 'adjective' },
-            { english: 'full', pos: 'adjective' },
-            { english: 'empty', pos: 'adjective' },
-            { english: 'cold', pos: 'adjective' },
-            { english: 'other', pos: 'adjective' },
-            { english: 'same', pos: 'adjective' },
-            { english: 'different', pos: 'adjective' },
-            
-            // Numbers
-            { english: 'one', pos: 'number' },
-            { english: 'two', pos: 'number' },
-            { english: 'three', pos: 'number' },
-            { english: 'four', pos: 'number' },
-            { english: 'five', pos: 'number' },
-            { english: 'many', pos: 'number' },
-            { english: 'some', pos: 'number' },
-            { english: 'all', pos: 'number' },
-            { english: 'how many', pos: 'number' },
-        ];
-
-        // Add cultural words based on environment
-        const culturalWords = this.getCulturalWords();
-        const allBaseWords = [...coreWords, ...culturalWords];
-
-        this.language.vocabulary = allBaseWords.map(word => ({
+        // Clear existing vocabulary
+        this.language.vocabulary = [];
+        this.language.derivedWords = [];
+        
+        // Get essential words from core database
+        const essentialWords = CoreVocabularyDatabase.getWordsByTags(['essential']);
+        const basicWords = CoreVocabularyDatabase.getWordsByCategory('basic');
+        const familyWords = CoreVocabularyDatabase.getWordsByCategory('family');
+        const actionWords = CoreVocabularyDatabase.getWordsByCategory('actions');
+        
+        // Combine high-priority words (priority 8-10)
+        const allCoreWords = CoreVocabularyDatabase.getAllWords();
+        const highPriorityWords = allCoreWords.filter(word => word.priority >= 8);
+        
+        // Remove duplicates and select a good starter set
+        const uniqueWords = new Map();
+        
+        // Add essential words first
+        essentialWords.forEach(word => {
+            if (!uniqueWords.has(word.english)) {
+                uniqueWords.set(word.english, word);
+            }
+        });
+        
+        // Add basic communication words
+        [...basicWords, ...familyWords, ...actionWords].forEach(word => {
+            if (!uniqueWords.has(word.english) && uniqueWords.size < 50) {
+                uniqueWords.set(word.english, word);
+            }
+        });
+        
+        // Fill up to 60 words with high priority vocabulary
+        highPriorityWords.forEach(word => {
+            if (!uniqueWords.has(word.english) && uniqueWords.size < 60) {
+                uniqueWords.set(word.english, word);
+            }
+        });
+        
+        // Generate conlang words for selected vocabulary
+        const generatedWords = Array.from(uniqueWords.values()).map(coreWord => ({
+            english: coreWord.english,
             conlang: this.generateWord(),
-            english: word.english,
-            pos: word.pos,
-            type: 'core'
+            pos: coreWord.pos,
+            type: 'core',
+            priority: coreWord.priority,
+            category: coreWord.category,
+            tags: coreWord.tags,
+            notes: `Core vocabulary (Priority ${coreWord.priority})`,
+            dateAdded: new Date().toISOString()
         }));
+        
+        this.language.vocabulary = generatedWords;
+        
+        console.log(`✅ Generated ${generatedWords.length} core vocabulary words from database`);
+        console.log('Categories included:', [...new Set(generatedWords.map(w => w.category))]);
+        console.log('Priority breakdown:', {
+            critical: generatedWords.filter(w => w.priority >= 9).length,
+            important: generatedWords.filter(w => w.priority >= 7 && w.priority < 9).length,
+            useful: generatedWords.filter(w => w.priority < 7).length
+        });
+    }
 
-        console.log('Vocabulary generated:', this.language.vocabulary.length + ' words');
-        return this.language.vocabulary;
+    generateBasicVocabulary() {
+        console.log('📝 Using basic vocabulary fallback...');
+        
+        // Basic fallback vocabulary
+        const basicVocab = [
+            { english: 'water', pos: 'noun', priority: 10 },
+            { english: 'fire', pos: 'noun', priority: 10 },
+            { english: 'earth', pos: 'noun', priority: 9 },
+            { english: 'air', pos: 'noun', priority: 9 },
+            { english: 'mother', pos: 'noun', priority: 9 },
+            { english: 'father', pos: 'noun', priority: 9 },
+            { english: 'child', pos: 'noun', priority: 9 },
+            { english: 'I', pos: 'pronoun', priority: 10 },
+            { english: 'you', pos: 'pronoun', priority: 10 },
+            { english: 'he', pos: 'pronoun', priority: 9 },
+            { english: 'she', pos: 'pronoun', priority: 9 },
+            { english: 'we', pos: 'pronoun', priority: 9 },
+            { english: 'good', pos: 'adjective', priority: 8 },
+            { english: 'bad', pos: 'adjective', priority: 8 },
+            { english: 'big', pos: 'adjective', priority: 8 },
+            { english: 'small', pos: 'adjective', priority: 8 },
+            { english: 'go', pos: 'verb', priority: 9 },
+            { english: 'come', pos: 'verb', priority: 9 },
+            { english: 'see', pos: 'verb', priority: 9 },
+            { english: 'hear', pos: 'verb', priority: 8 },
+            { english: 'eat', pos: 'verb', priority: 9 },
+            { english: 'drink', pos: 'verb', priority: 9 },
+            { english: 'sleep', pos: 'verb', priority: 8 },
+            { english: 'house', pos: 'noun', priority: 8 },
+            { english: 'food', pos: 'noun', priority: 9 },
+            { english: 'day', pos: 'noun', priority: 8 },
+            { english: 'night', pos: 'noun', priority: 8 },
+            { english: 'sun', pos: 'noun', priority: 8 },
+            { english: 'moon', pos: 'noun', priority: 7 },
+            { english: 'tree', pos: 'noun', priority: 7 }
+        ];
+        
+        this.language.vocabulary = basicVocab.map(word => ({
+            english: word.english,
+            conlang: this.generateWord(),
+            pos: word.pos,
+            type: 'basic',
+            priority: word.priority,
+            notes: `Basic vocabulary (Priority ${word.priority})`,
+            dateAdded: new Date().toISOString()
+        }));
+        
+        console.log(`✅ Generated ${this.language.vocabulary.length} basic vocabulary words`);
     }
 
     getCulturalWords() {

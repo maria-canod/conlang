@@ -1,126 +1,123 @@
+<!-- Add Word Section -->
 <div class="section-card">
-    <h3>📚 Dictionary Management</h3>
-    
-    <!-- Add Word Directly Section -->
-    <div class="word-builder" style="background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%); border-color: #4CAF50;">
-        <h4>➕ Add Custom Word</h4>
-        <p style="margin-bottom: 20px; color: #666;">Create a custom word directly without generating random ones.</p>
+    <h3>➕ Add New Words</h3>
+    <div class="form-grid-2">
+        <div class="form-group">
+            <label for="english-word">English Word</label>
+            <input type="text" id="english-word" class="form-control" placeholder="Enter English word">
+        </div>
         
-        <div class="form-grid-5">
-            <div class="form-group">
-                <label for="direct-conlang">Conlang Word</label>
-                <input type="text" id="direct-conlang" class="form-control" placeholder="Enter word">
-            </div>
-            
-            <div class="form-group">
-                <label for="direct-meaning">English Meaning</label>
-                <input type="text" id="direct-meaning" class="form-control" placeholder="Enter meaning">
-            </div>
-            
-            <div class="form-group">
-                <label for="direct-pos">Part of Speech</label>
-                <select id="direct-pos" class="form-control">
-                    <option value="noun">Noun</option>
-                    <option value="verb">Verb</option>
-                    <option value="adjective">Adjective</option>
-                    <option value="adverb">Adverb</option>
-                    <option value="pronoun">Pronoun</option>
-                    <option value="preposition">Preposition</option>
-                    <option value="conjunction">Conjunction</option>
-                    <option value="interjection">Interjection</option>
-                    <option value="determiner">Determiner</option>
-                    <option value="particle">Particle</option>
-                    <option value="number">Number</option>
-                </select>
-            </div>
-            
-            <div class="form-group">
-                <label for="direct-notes">Notes (optional)</label>
-                <input type="text" id="direct-notes" class="form-control" placeholder="Etymology, usage...">
-            </div>
-            
-            <div class="form-group">
-                <label>&nbsp;</label>
-                <button class="btn btn-success" id="add-direct-word-btn">
-                    ➕ Add
-                </button>
-            </div>
+        <div class="form-group">
+            <label for="pos">Part of Speech</label>
+            <select id="pos" class="form-control">
+                <option value="noun">Noun</option>
+                <option value="verb">Verb</option>
+                <option value="adjective">Adjective</option>
+                <option value="adverb">Adverb</option>
+                <option value="pronoun">Pronoun</option>
+                <option value="preposition">Preposition</option>
+                <option value="conjunction">Conjunction</option>
+                <option value="interjection">Interjection</option>
+                <option value="determiner">Determiner</option>
+                <option value="particle">Particle</option>
+                <option value="number">Number</option>
+            </select>
         </div>
     </div>
     
-    <!-- Updated Search Filter Section for vocabulary.html -->
-    <!-- Replace the existing search-filter-bar section with this: -->
+    <div class="form-group">
+        <label for="notes">Notes (optional)</label>
+        <input type="text" id="notes" class="form-control" placeholder="Additional notes or context">
+    </div>
+    
+    <div class="form-grid-2">
+        <button class="btn btn-primary btn-block" id="generate-conlang-word">🎲 Generate Conlang Word</button>
+        <button class="btn btn-success btn-block" id="add-word-btn">➕ Add to Dictionary</button>
+    </div>
+</div>
 
-    <div class="search-filter-bar">
-        <!-- Search Box Row -->
-        <div class="search-box">
-            <input type="text" id="search" class="form-control" placeholder="Search words...">
+<!-- Smart Vocabulary Suggestions Section -->
+<div class="suggestions-section" id="vocabulary-suggestions-section" style="margin-bottom: 30px;">
+    <div class="suggestions-toggle-bar">
+        <h3 class="suggestions-title">
+            🧠 Smart Vocabulary Suggestions
+            <span class="suggestions-count-badge" id="total-suggestions-count">0</span>
+        </h3>
+        <button class="btn btn-sm btn-outline" id="toggle-suggestions-btn" onclick="toggleSuggestionsPanel()">
+            <span id="suggestions-toggle-text">Show Suggestions</span>
+        </button>
+    </div>
+    
+    <div class="smart-suggestions-panel" id="smart-suggestions-panel" style="display: none;">
+        <div class="suggestions-loading">
+            <div class="loading-spinner"></div>
+            <p>Analyzing your vocabulary...</p>
+        </div>
+    </div>
+</div>
+
+<!-- Vocabulary Filter Section -->
+<div class="section-card">
+    <h3>🔍 Filter & Search Vocabulary</h3>
+    <div class="form-grid-3">
+        <div class="form-group">
+            <label for="search-input">Search Words</label>
+            <input type="text" id="search-input" class="form-control" placeholder="Search by any field...">
         </div>
         
-        <!-- Filters and Sort Row -->
-        <div class="filter-sort-row">
-            <div class="filter-buttons">
-                <button class="filter-btn active" onclick="VocabularyModule.filterWords('all')">All</button>
-                <button class="filter-btn" onclick="VocabularyModule.filterWords('nouns')">Nouns</button>
-                <button class="filter-btn" onclick="VocabularyModule.filterWords('verbs')">Verbs</button>
-                <button class="filter-btn" onclick="VocabularyModule.filterWords('adjectives')">Adjectives</button>
-                <button class="filter-btn" onclick="VocabularyModule.filterWords('derived')">Derived</button>
-                <button class="filter-btn" onclick="VocabularyModule.filterWords('custom')">Custom</button>
-            </div>
-            
-            <div class="sort-controls" id="sort-controls">
-                <label for="sort-select">Sort by:</label>
-                <select id="sort-select">
-                    <option value="alphabetical" selected>Alphabetical</option>
-                    <option value="chronological">Date Added</option>
-                    <option value="pos">Part of Speech</option>
-                    <option value="length">Word Length</option>
-                </select>
-            </div>
-        </div>
-    </div>
-
-</script>
-
-    <div class="suggestions-section" id="vocabulary-suggestions-section" style="margin-bottom: 30px;">
-        <div class="suggestions-toggle-bar">
-            <h3 class="suggestions-title">
-                🧠 Smart Vocabulary Suggestions
-                <span class="suggestions-count-badge" id="total-suggestions-count">0</span>
-            </h3>
-            <button class="btn btn-sm btn-outline" id="toggle-suggestions-btn" onclick="toggleSuggestionsPanel()">
-                <span id="suggestions-toggle-text">Show Suggestions</span>
-            </button>
+        <div class="form-group">
+            <label for="filter-pos">Filter by Part of Speech</label>
+            <select id="filter-pos" class="form-control">
+                <option value="all">All Parts of Speech</option>
+                <option value="noun">Nouns</option>
+                <option value="verb">Verbs</option>
+                <option value="adjective">Adjectives</option>
+                <option value="adverb">Adverbs</option>
+                <option value="pronoun">Pronouns</option>
+                <option value="preposition">Prepositions</option>
+                <option value="conjunction">Conjunctions</option>
+                <option value="interjection">Interjections</option>
+                <option value="determiner">Determiners</option>
+                <option value="particle">Particles</option>
+                <option value="number">Numbers</option>
+            </select>
         </div>
         
-        <div class="smart-suggestions-panel" id="smart-suggestions-panel" style="display: none;">
-            <div class="suggestions-loading">
-                <div class="loading-spinner"></div>
-                <p>Analyzing your vocabulary...</p>
-            </div>
+        <div class="form-group">
+            <label for="sort-by">Sort By</label>
+            <select id="sort-by" class="form-control">
+                <option value="english">English (A-Z)</option>
+                <option value="conlang">Conlang (A-Z)</option>
+                <option value="pos">Part of Speech</option>
+                <option value="length">Word Length</option>
+            </select>
         </div>
     </div>
+</div>
 
-
-    <div id="vocabulary-stats" class="stats-grid" style="display: none;">
-        <div class="stat-card">
-            <div class="stat-number" id="total-words">0</div>
-            <div class="stat-label">Total Words</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number" id="core-words">0</div>
-            <div class="stat-label">Core Words</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number" id="derived-words">0</div>
-            <div class="stat-label">Derived</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number" id="custom-words">0</div>
-            <div class="stat-label">Custom</div>
-        </div>
+<!-- Vocabulary Stats -->
+<div id="vocabulary-stats" class="stats-grid" style="display: none;">
+    <div class="stat-card">
+        <div class="stat-number" id="total-words">0</div>
+        <div class="stat-label">Total Words</div>
     </div>
+    <div class="stat-card">
+        <div class="stat-number" id="core-words">0</div>
+        <div class="stat-label">Core Words</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number" id="derived-words">0</div>
+        <div class="stat-label">Derived</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number" id="custom-words">0</div>
+        <div class="stat-label">Custom</div>
+    </div>
+</div>
 
+<!-- Dictionary Display -->
+<div class="section-card">
+    <h3>📖 Dictionary</h3>
     <div class="feature-highlight">
         <strong>💡 Tip:</strong> Click on any word card to see detailed information. Use the edit and delete buttons that appear on hover to manage your vocabulary.
     </div>
@@ -171,81 +168,3 @@
         </div>
     </div>
 </div>
-
-<script>
-// Toggle suggestions panel function
-function toggleSuggestionsPanel() {
-    const panel = document.getElementById('smart-suggestions-panel');
-    const btn = document.getElementById('toggle-suggestions-btn');
-    const text = document.getElementById('suggestions-toggle-text');
-    
-    if (!panel || !btn || !text) {
-        console.error('Suggestions UI elements not found');
-        return;
-    }
-    
-    if (panel.style.display === 'none') {
-        panel.style.display = 'block';
-        text.textContent = 'Hide Suggestions';
-        btn.classList.add('active');
-        
-        // Initialize suggestions
-        if (window.VocabularySmartSuggestions) {
-            console.log('Updating suggestions...');
-            window.VocabularySmartSuggestions.updateAnalysis();
-        } else {
-            console.error('VocabularySmartSuggestions not found');
-        }
-    } else {
-        panel.style.display = 'none';
-        text.textContent = 'Show Suggestions';
-        btn.classList.remove('active');
-    }
-}
-
-// Test function to populate panel with sample content
-function showTestSuggestions() {
-    const panel = document.getElementById('smart-suggestions-panel');
-    if (panel) {
-        panel.innerHTML = `
-            <div class="suggestions-header">
-                <h3>🧠 Smart Vocabulary Suggestions</h3>
-                <div class="completion-score">
-                    <span>Completion: <strong>25%</strong></span>
-                    <div class="score-bar">
-                        <div class="score-fill" style="width: 25%"></div>
-                    </div>
-                </div>
-            </div>
-            <div class="suggestion-grid">
-                <div class="suggestion-card">
-                    <div><strong>mother</strong> <span style="background:#e2e8f0;padding:2px 6px;border-radius:4px;font-size:0.8em">noun</span></div>
-                    <div style="margin:8px 0;color:#666;font-size:0.9em">Essential family word - Priority 9</div>
-                    <button class="suggestion-add-btn" onclick="alert('Test suggestion clicked!')">➕ Add</button>
-                </div>
-                <div class="suggestion-card">
-                    <div><strong>water</strong> <span style="background:#e2e8f0;padding:2px 6px;border-radius:4px;font-size:0.8em">noun</span></div>
-                    <div style="margin:8px 0;color:#666;font-size:0.9em">Critical gap - Priority 10</div>
-                    <button class="suggestion-add-btn" onclick="alert('Test suggestion clicked!')">➕ Add</button>
-                </div>
-            </div>
-            <div style="text-align:center;margin-top:20px;">
-                <button class="btn btn-info" onclick="alert('This will show full analysis')">📊 View Full Analysis</button>
-            </div>
-        `;
-    }
-}
-
-// Auto-test when page loads
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('Vocabulary page loaded, checking for suggestions UI...');
-    const panel = document.getElementById('smart-suggestions-panel');
-    const btn = document.getElementById('toggle-suggestions-btn');
-    
-    if (panel && btn) {
-        console.log('✅ Suggestions UI elements found!');
-    } else {
-        console.log('❌ Suggestions UI elements not found');
-    }
-});
-</script>

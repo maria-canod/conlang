@@ -169,126 +169,178 @@ window.GeneratorModule = {
     },
 
     generateTemplateWords() {
+        console.log('🎯 Generating template words from Core Database...');
+        
+        // Check if core database is available
+        if (typeof CoreVocabularyDatabase === 'undefined') {
+            console.warn('⚠️ Core vocabulary database not available, using old template system');
+            this.generateOldTemplateWords();
+            return;
+        }
+        
+        const selectedCategory = document.getElementById('template-category')?.value || 'family';
+        
+        // Get words from the selected category with priority 6+
+        let categoryWords = CoreVocabularyDatabase.getWordsByCategory(selectedCategory);
+        
+        // If no specific category or category is empty, get high-priority words from multiple categories
+        if (!categoryWords || categoryWords.length === 0 || selectedCategory === 'mixed') {
+            const categories = ['family', 'basic', 'actions', 'nature', 'social'];
+            categoryWords = [];
+            categories.forEach(cat => {
+                const wordsInCat = CoreVocabularyDatabase.getWordsByCategory(cat)
+                    .filter(word => word.priority >= 6)
+                    .slice(0, 4); // 4 from each category
+                categoryWords.push(...wordsInCat);
+            });
+        }
+        
+        // Filter to priority 6+ and limit to reasonable number
+        const priorityWords = categoryWords
+            .filter(word => word.priority >= 6)
+            .sort((a, b) => b.priority - a.priority)
+            .slice(0, 20);
+        
+        if (priorityWords.length === 0) {
+            showToast('No suitable template words found in this category!', 'error');
+            return;
+        }
+        
+        // Display template options
+        const templateDisplay = document.getElementById('template-display');
+        if (templateDisplay) {
+            templateDisplay.innerHTML = `
+                <h4>📋 Template Words from ${selectedCategory} (Select words to generate)</h4>
+                <div class="template-grid">
+                    ${priorityWords.map((word, index) => `
+                        <label class="template-word-option">
+                            <input type="checkbox" value="${index}" checked>
+                            <span class="template-word">
+                                <strong>${word.english}</strong> 
+                                <em>(${word.pos})</em>
+                                <small>Priority ${word.priority}</small>
+                            </span>
+                        </label>
+                    `).join('')}
+                </div>
+                <div style="margin-top: 15px;">
+                    <button class="btn btn-success" onclick="GeneratorModule.addSelectedTemplates(${JSON.stringify(priorityWords).replace(/"/g, '&quot;')})">
+                        ➕ Generate Selected Words
+                    </button>
+                </div>
+            `;
+            templateDisplay.style.display = 'block';
+        }
+        
+        console.log(`📋 Showing ${priorityWords.length} template options from ${selectedCategory}`);
+    },
+
+    addSelectedTemplates(availableWords) {
+        const checkboxes = document.querySelectorAll('.template-word-option input[type="checkbox"]:checked');
+        const selectedIndices = Array.from(checkboxes).map(cb => parseInt(cb.value));
+        
+        if (selectedIndices.length === 0) {
+            showToast('Please select at least one word to generate!', 'error');
+            return;
+        }
+        
+        const selectedWords = selectedIndices.map(index => availableWords[index]);
+        
+        // Filter out words that already exist
+        const allWords = window.appState.getState('allWords') || [];
+        const existingMeanings = new Set(allWords.map(w => w.english.toLowerCase()));
+        const newWords = selectedWords.filter(word => !existingMeanings.has(word.english.toLowerCase()));
+        
+        if (newWords.length === 0) {
+            showToast('All selected words already exist in your dictionary!', 'error');
+            return;
+        }
+        
+        // Generate conlang words
+        const generatedWords = newWords.map(word => ({
+            conlang: window.generator.generateWord(),
+            english: word.english,
+            pos: word.pos,
+            type: 'template',
+            priority: word.priority,
+            category: word.category,
+            tags: word.tags,
+            notes: `Template word from ${word.category} (Priority ${word.priority})`,
+            dateAdded: new Date().toISOString()
+        }));
+        
+        // Add to language data
+        if (!window.generator.language.customWords) {
+            window.generator.language.customWords = [];
+        }
+        window.generator.language.customWords.push(...generatedWords);
+        
+        // Update state
+        generatedWords.forEach(word => window.appState.addWord(word));
+        
+        // Update displays
+        if (window.VocabularyModule) {
+            window.VocabularyModule.updateDisplay();
+        }
+        if (window.MorphologyModule) {
+            window.MorphologyModule.updateAffixDropdowns();
+        }
+        
+        // Clear template display
+        const templateDisplay = document.getElementById('template-display');
+        if (templateDisplay) {
+            templateDisplay.style.display = 'none';
+        }
+        
+        const skippedCount = selectedWords.length - newWords.length;
+        let message = `Generated ${newWords.length} words from core database!`;
+        if (skippedCount > 0) {
+            message += ` (${skippedCount} already existed)`;
+        }
+        
+        window.ActivityModule.addActivity(`Generated ${newWords.length} template words from core database`, 'vocabulary');
+        showToast(message, 'success');
+    },
+
+    // 3. ADD this fallback function to the GeneratorModule (after addSelectedTemplates):
+    generateOldTemplateWords() {
+        console.log('📝 Using fallback template system...');
+        
+        // Keep the existing template system as fallback
         const templates = {
             family: [
                 { english: 'mother', pos: 'noun' },
                 { english: 'father', pos: 'noun' },
-                { english: 'brother', pos: 'noun' },
-                { english: 'sister', pos: 'noun' },
                 { english: 'child', pos: 'noun' },
-                { english: 'parent', pos: 'noun' },
-                { english: 'family', pos: 'noun' },
-                { english: 'uncle', pos: 'noun' },
-                { english: 'aunt', pos: 'noun' },
-                { english: 'grandmother', pos: 'noun' },
-                { english: 'grandfather', pos: 'noun' },
-                { english: 'cousin', pos: 'noun' }
+                { english: 'brother', pos: 'noun' },
+                { english: 'sister', pos: 'noun' }
             ],
-            emotions: [
-                { english: 'happy', pos: 'adjective' },
-                { english: 'sad', pos: 'adjective' },
-                { english: 'angry', pos: 'adjective' },
-                { english: 'peaceful', pos: 'adjective' },
-                { english: 'excited', pos: 'adjective' },
-                { english: 'afraid', pos: 'adjective' },
-                { english: 'surprised', pos: 'adjective' },
-                { english: 'tired', pos: 'adjective' },
-                { english: 'calm', pos: 'adjective' },
-                { english: 'stressed', pos: 'adjective' },
-                { english: 'worried', pos: 'adjective' },
-                { english: 'proud', pos: 'adjective' },
-                { english: 'smile', pos: 'verb' },
-                { english: 'cry', pos: 'verb' },
-                { english: 'shy', pos: 'adjective' }
-            ],
-            colors: [
-                { english: 'red', pos: 'adjective' },
-                { english: 'blue', pos: 'adjective' },
-                { english: 'green', pos: 'adjective' },
-                { english: 'yellow', pos: 'adjective' },
-                { english: 'purple', pos: 'adjective' },
-                { english: 'orange', pos: 'adjective' },
-                { english: 'black', pos: 'adjective' },
-                { english: 'pink', pos: 'adjective' },
-                { english: 'brown', pos: 'adjective' },
-                { english: 'white', pos: 'adjective' }
-            ],
-            animals: [
-                { english: 'dog', pos: 'noun' },
-                { english: 'cat', pos: 'noun' },
-                { english: 'bird', pos: 'noun' },
-                { english: 'rabbit', pos: 'noun' },
-                { english: 'chicken', pos: 'noun' },
-                { english: 'fish', pos: 'noun' },
-                { english: 'horse', pos: 'noun' },
-                { english: 'cow', pos: 'noun' },
-                { english: 'donkey', pos: 'noun' },
-                { english: 'goat', pos: 'noun' },
-                { english: 'snake', pos: 'noun' },
-                { english: 'fur', pos: 'noun' },
-                { english: 'feather', pos: 'noun' },
-                { english: 'egg', pos: 'noun' },
-                { english: 'worm', pos: 'noun' },
-                { english: 'insect', pos: 'noun' },
-                { english: 'frog', pos: 'noun' },
-                { english: 'bear', pos: 'noun' },
-                { english: 'wolf', pos: 'noun' },
-                { english: 'deer', pos: 'noun' },
-                { english: 'eagle', pos: 'noun' },
-                { english: 'fox', pos: 'noun' },
-                { english: 'mouse', pos: 'noun' },
-                { english: 'sheep', pos: 'noun' }
+            basic: [
+                { english: 'water', pos: 'noun' },
+                { english: 'fire', pos: 'noun' },
+                { english: 'good', pos: 'adjective' },
+                { english: 'bad', pos: 'adjective' },
+                { english: 'big', pos: 'adjective' }
             ],
             nature: [
-                { english: 'mountain', pos: 'noun' },
-                { english: 'river', pos: 'noun' },
-                { english: 'sea', pos: 'noun' },
-                { english: 'lake', pos: 'noun' },
-                { english: 'forest', pos: 'noun' },
-                { english: 'plant', pos: 'noun' },
-                { english: 'flower', pos: 'noun' },
-                { english: 'wind', pos: 'noun' },
-                { english: 'rain', pos: 'noun' },
-                { english: 'snow', pos: 'noun' },
-                { english: 'cloud', pos: 'noun' }
-            ],
-            actions: [
-                { english: 'sing', pos: 'verb' },
-                { english: 'dance', pos: 'verb' },
-                { english: 'jump', pos: 'verb' },
-                { english: 'swim', pos: 'verb' },
-                { english: 'build', pos: 'verb' },
-                { english: 'walk', pos: 'verb' },
-                { english: 'fly', pos: 'verb' }
+                { english: 'tree', pos: 'noun' },
+                { english: 'rock', pos: 'noun' },
+                { english: 'sky', pos: 'noun' },
+                { english: 'earth', pos: 'noun' },
+                { english: 'animal', pos: 'noun' }
             ]
         };
-
-        const selectedTemplates = [];
-        Object.keys(templates).forEach(template => {
-            const checkbox = document.getElementById(`template-${template}`);
-            if (checkbox && checkbox.checked) {
-                selectedTemplates.push(...templates[template]);
-            }
-        });
-
-        if (selectedTemplates.length === 0) {
-            showToast('Please select at least one template category!', 'error');
-            return;
-        }
-
-        if (!window.generator.language.phonology.syllables || window.generator.language.phonology.syllables.length === 0) {
-            showToast('Please generate phonology first!', 'error');
-            switchTab('phonology');
-            return;
-        }
-
-        // Filter out words that already exist in the dictionary
+        
+        const selectedCategory = document.getElementById('template-category')?.value || 'family';
+        const selectedTemplates = templates[selectedCategory] || templates.family;
+        
+        // Filter out existing words and generate
         const allWords = window.appState.getState('allWords') || [];
         const existingMeanings = new Set(allWords.map(w => w.english.toLowerCase()));
         const newTemplateWords = selectedTemplates.filter(word => !existingMeanings.has(word.english.toLowerCase()));
 
         if (newTemplateWords.length === 0) {
-            showToast('All selected template words already exist in your dictionary!', 'error');
+            showToast('All template words already exist in your dictionary!', 'error');
             return;
         }
 

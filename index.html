@@ -1560,6 +1560,386 @@ document.addEventListener('DOMContentLoaded', function() {
             setTimeout(setupAIProviderSwitching, 500);
         }
     });
+// COMPLETE FIXED SCRIPT SECTION - Replace everything after line 825 in index.html with this:
+
+// FIXED GLOBAL VOCABULARY FUNCTIONS
+    window.vocabularyGlobalFunctions = {
+    // Toggle suggestions panel function
+    toggleSuggestionsPanel() {
+        const panel = document.getElementById('smart-suggestions-panel');
+        const btn = document.getElementById('toggle-suggestions-btn');
+        const text = document.getElementById('suggestions-toggle-text');
+        
+        if (!panel || !btn || !text) {
+            console.error('Suggestions UI elements not found');
+            return;
+        }
+        
+        if (panel.style.display === 'none' || panel.style.display === '') {
+            panel.style.display = 'block';
+            text.textContent = 'Hide Suggestions';
+            btn.classList.add('active');
+            
+            // Initialize suggestions - Check both possible variable names
+            if (window.vocabularySmartSuggestions) {
+                console.log('Updating suggestions...');
+                window.vocabularySmartSuggestions.updateAnalysis();
+            } else if (window.VocabularySmartSuggestions) {
+                console.log('Updating suggestions...');
+                window.VocabularySmartSuggestions.updateAnalysis();
+            } else {
+                console.error('VocabularySmartSuggestions not found, showing test content');
+                this.showTestSuggestions();
+            }
+        } else {
+            panel.style.display = 'none';
+            text.textContent = 'Show Suggestions';
+            btn.classList.remove('active');
+        }
+    },
+
+    // Generate suggestion card HTML
+    generateSuggestionCard(word) {
+        // Ensure we have proper data
+        const english = word.english || 'unknown';
+        const pos = word.pos || 'word';
+        const priority = word.priority || 5;
+        const category = word.category || 'general';
+        
+        // Generate proper reasoning text
+        let reasoning = word.reasoning;
+        if (!reasoning || reasoning === 'undefined') {
+            reasoning = this.generateReasoningText(word);
+        }
+        
+        // Determine priority class and text
+        const priorityClass = this.getPriorityClass(priority);
+        const priorityText = this.getPriorityText(priority);
+        
+        // Generate category display text
+        const categoryText = this.getCategoryDisplayText(category);
+        
+        return `
+            <div class="suggestion-card ${priorityClass}" data-word="${english}">
+                <div class="suggestion-main">
+                    <div class="suggestion-english">${english}</div>
+                    <div class="suggestion-pos">${pos}</div>
+                </div>
+                
+                <div class="suggestion-meta">
+                    <span class="suggestion-priority">${priorityText}</span>
+                    <span class="suggestion-category">${categoryText}</span>
+                </div>
+                
+                <div class="suggestion-reasoning">${reasoning}</div>
+                
+                <button class="suggestion-add-btn" onclick="addSuggestedWordToVocabulary('${english}', '${pos}', '${category}', ${priority})">
+                    ➕ Add to Dictionary
+                </button>
+            </div>
+        `;
+    },
+
+    // Generate meaningful reasoning text
+    generateReasoningText(word) {
+        const priority = word.priority || 5;
+        const category = word.category || 'general';
+        const pos = word.pos || 'word';
+        
+        if (priority >= 9) {
+            return `Critical ${category} word - Essential for basic communication`;
+        } else if (priority >= 7) {
+            return `Important ${category} ${pos} - Frequently used in daily conversation`;
+        } else if (priority >= 5) {
+            return `Useful ${category} vocabulary - Fills gap in ${pos} collection`;
+        } else {
+            return `Additional ${category} word - Enhances vocabulary depth`;
+        }
+    },
+
+    // Get CSS class based on priority
+    getPriorityClass(priority) {
+        if (priority >= 9) return 'critical';
+        if (priority >= 7) return 'high-priority';
+        if (priority >= 5) return 'medium-priority';
+        return 'low-priority';
+    },
+
+    // Get human-readable priority text
+    getPriorityText(priority) {
+        if (priority === 10) return 'Critical';
+        if (priority === 9) return 'Essential';
+        if (priority >= 7) return 'Important';
+        if (priority >= 5) return 'Useful';
+        return 'Optional';
+    },
+
+    // Get user-friendly category names
+    getCategoryDisplayText(category) {
+        const categoryMap = {
+            'family': 'Family',
+            'actions': 'Actions',
+            'pronouns': 'Pronouns',
+            'nature': 'Nature',
+            'animals': 'Animals',
+            'basic': 'Basic',
+            'social': 'Social',
+            'abstract': 'Abstract',
+            'numbers': 'Numbers',
+            'time': 'Time',
+            'spatial': 'Location',
+            'emotions': 'Emotions',
+            'general': 'General'
+        };
+        
+        return categoryMap[category] || category.charAt(0).toUpperCase() + category.slice(1);
+    },
+
+    // Test function to populate panel with sample content
+    showTestSuggestions() {
+        const panel = document.getElementById('smart-suggestions-panel');
+        if (panel) {
+            panel.innerHTML = `
+                <div class="suggestions-header">
+                    <h3>🧠 Smart Vocabulary Suggestions</h3>
+                    <div class="completion-score">
+                        <span>Completion: <strong>25%</strong></span>
+                        <div class="score-bar">
+                            <div class="score-fill" style="width: 25%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="suggestion-grid">
+                    ${this.generateSuggestionCard({
+                        english: 'mother',
+                        pos: 'noun',
+                        priority: 9,
+                        category: 'family',
+                        reasoning: 'Essential family word - Critical for basic communication'
+                    })}
+                    ${this.generateSuggestionCard({
+                        english: 'water',
+                        pos: 'noun',
+                        priority: 10,
+                        category: 'nature',
+                        reasoning: 'Fundamental survival concept - Highest priority'
+                    })}
+                    ${this.generateSuggestionCard({
+                        english: 'do',
+                        pos: 'verb',
+                        priority: 10,
+                        category: 'actions',
+                        reasoning: 'Essential action verb - Required for basic sentences'
+                    })}
+                    ${this.generateSuggestionCard({
+                        english: 'good',
+                        pos: 'adjective',
+                        priority: 8,
+                        category: 'basic',
+                        reasoning: 'Common descriptive word - Important for daily conversation'
+                    })}
+                </div>
+                <div style="text-align:center;margin-top:20px;">
+                    <button class="btn btn-info" onclick="alert('This would show full vocabulary analysis')">📊 View Full Analysis</button>
+                </div>
+            `;
+        }
+    },
+
+    // Add suggested word to vocabulary
+    addSuggestedWordToVocabulary(english, pos, category, priority) {
+    try {
+        // DOUBLE-CHECK: Make sure word doesn't already exist
+        const allWords = window.appState?.getState('allWords') || [];
+        const existingWord = allWords.find(word => 
+            word.english.toLowerCase().trim() === english.toLowerCase().trim()
+        );
+        
+        if (existingWord) {
+            console.warn(`⚠️ Word "${english}" already exists as "${existingWord.conlang}"`);
+            if (window.showToast) {
+                window.showToast(`"${english}" already exists in your vocabulary as "${existingWord.conlang}"!`, 'error');
+            }
+            return;
+        }
+        
+        // Generate conlang word using existing system
+        const conlangWord = window.generator?.generateWord?.() || this.generateSimpleConlangWord(english);
+        
+        const newWord = {
+            english: english,
+            conlang: conlangWord,
+            pos: pos,
+            type: 'suggested',
+            notes: `Smart suggestion (${category}, priority ${priority})`,
+            category: category,
+            priority: priority,
+            dateAdded: new Date().toISOString()
+        };
+
+        // Add to vocabulary using existing system
+        allWords.push(newWord);
+        window.appState?.setState('allWords', allWords);
+
+        // Update displays
+        if (window.VocabularyModule) {
+            window.VocabularyModule.updateDictionary();
+            window.VocabularyModule.updateVocabularyStats();
+        }
+
+        // Show success message
+        if (window.showToast) {
+            window.showToast(`Added "${conlangWord}" (${english}) to your vocabulary!`, 'success');
+        }
+
+        // Track activity
+        if (window.ActivityModule) {
+            window.ActivityModule.addActivity(
+                `Added smart suggestion: ${english} → ${conlangWord}`, 
+                'vocabulary'
+            );
+        }
+
+        // IMPORTANT: Refresh suggestions to remove the word that was just added
+        if (window.vocabularySmartSuggestions) {
+            setTimeout(() => {
+                console.log('🔄 Refreshing suggestions after adding word...');
+                window.vocabularySmartSuggestions.updateAnalysis();
+            }, 500);
+        }
+
+    } catch (error) {
+        console.error('Error adding suggested word:', error);
+        if (window.showToast) {
+            window.showToast('Failed to add word: ' + error.message, 'error');
+        }
+    }
+},
+
+    // Simple fallback word generator
+    generateSimpleConlangWord(englishWord) {
+        const consonants = ['p', 't', 'k', 'm', 'n', 's', 'l', 'r', 'w', 'j'];
+        const vowels = ['a', 'e', 'i', 'o', 'u'];
+        
+        let word = '';
+        const syllableCount = englishWord.length <= 4 ? 2 : 3;
+        
+        for (let i = 0; i < syllableCount; i++) {
+            word += consonants[Math.floor(Math.random() * consonants.length)];
+            word += vowels[Math.floor(Math.random() * vowels.length)];
+        }
+        
+        return word;
+    },
+
+    // Initialize vocabulary page when loaded
+    initVocabularyPage() {
+        console.log('Vocabulary page loaded, checking for suggestions UI...');
+        const panel = document.getElementById('smart-suggestions-panel');
+        const btn = document.getElementById('toggle-suggestions-btn');
+        
+        if (panel && btn) {
+            console.log('✅ Suggestions UI elements found!');
+            // Test the function to make sure it works
+            console.log('Testing toggleSuggestionsPanel function...');
+            if (typeof this.toggleSuggestionsPanel === 'function') {
+                console.log('✅ toggleSuggestionsPanel function is properly defined');
+            } else {
+                console.error('❌ toggleSuggestionsPanel function not found');
+            }
+        } else {
+            console.log('❌ Suggestions UI elements not found');
+        }
+    },
+
+    // Show full analysis function
+    showFullAnalysis() {
+        if (window.vocabularySmartSuggestions && window.vocabularySmartSuggestions.currentAnalysis) {
+            const analysis = window.vocabularySmartSuggestions.currentAnalysis;
+            
+            // Generate a readable report
+            let report = "=== VOCABULARY ANALYSIS REPORT ===\n\n";
+            report += `Completion Score: ${analysis.completionScore}%\n`;
+            report += `Total Words in Vocabulary: ${analysis.userWordCount}\n`;
+            report += `Core Database Size: ${analysis.coreWordCount}\n\n`;
+            
+            if (analysis.categories) {
+                report += "=== CATEGORY BREAKDOWN ===\n";
+                Object.entries(analysis.categories).forEach(([category, data]) => {
+                    report += `${category.toUpperCase()}: ${data.userCount}/${data.coreCount} (${data.coverage}% coverage)\n`;
+                });
+                report += "\n";
+            }
+            
+            const criticalGaps = window.vocabularySmartSuggestions.getCriticalSuggestions(10);
+            if (criticalGaps.length > 0) {
+                report += "=== TOP CRITICAL GAPS ===\n";
+                criticalGaps.forEach((word, index) => {
+                    report += `${index + 1}. ${word.english} (${word.pos}) - Priority ${word.priority}\n`;
+                });
+            }
+            
+            // Show in modal
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.style.display = 'block';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 700px;">
+                    <div class="modal-header">
+                        <h3>📊 Complete Vocabulary Analysis</h3>
+                        <button class="modal-close" onclick="this.closest('.modal').remove()">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <pre style="background: #f8f9fa; padding: 20px; border-radius: 8px; line-height: 1.6; font-family: monospace; white-space: pre-wrap; font-size: 0.9em;">${report}</pre>
+                    </div>
+                    <div style="text-align: center; padding: 20px;">
+                        <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">Close</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        } else {
+            if (window.showToast) {
+                window.showToast('No analysis data available. Try generating some vocabulary first!', 'warning');
+            } else {
+                alert('No analysis data available. Try generating some vocabulary first!');
+            }
+        }
+    },
+
+    // Refresh suggestions function
+    refreshSuggestions() {
+        if (window.vocabularySmartSuggestions) {
+            console.log('Refreshing vocabulary suggestions...');
+            window.vocabularySmartSuggestions.updateAnalysis();
+            
+            if (window.showToast) {
+                window.showToast('Suggestions refreshed!', 'success');
+            }
+            
+            // Update the display
+            setTimeout(() => {
+                if (window.vocabularySmartSuggestions.currentAnalysis) {
+                    const panel = document.getElementById('smart-suggestions-panel');
+                    if (panel && panel.style.display !== 'none') {
+                        window.vocabularySmartSuggestions.updateSuggestionsUI();
+                    }
+                }
+            }, 500);
+        } else {
+            if (window.showToast) {
+                window.showToast('Suggestions system not available', 'error');
+            } else {
+                alert('Suggestions system not available');
+            }
+        }
+    },
+};
+
+// Make functions available globally for onclick handlers
+window.toggleSuggestionsPanel = window.vocabularyGlobalFunctions.toggleSuggestionsPanel.bind(window.vocabularyGlobalFunctions);
+window.showTestSuggestions = window.vocabularyGlobalFunctions.showTestSuggestions.bind(window.vocabularyGlobalFunctions);
+window.addSuggestedWordToVocabulary = window.vocabularyGlobalFunctions.addSuggestedWordToVocabulary.bind(window.vocabularyGlobalFunctions);
     </script>
 </body>
 </html>
